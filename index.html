@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ตารางการอยู่เวรของพนักงานประจำเดือน สิงหาคม ๒๕๖๙ — ค้นหา กรอง ดูปฏิทิน และบันทึกเวรประจำวัน">
+  <title>ตารางเวรสิงหาคม ๒๕๖๙ - โรงเรียนจิตรลดา</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- PWA Meta Tags & Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="calendar.png">
+  <link rel="apple-touch-icon" href="calendar.png">
+  <meta name="theme-color" content="#0F172A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ตารางเวร">
+
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+</head>
+<body>
+
+  <!-- Full Screen Login Overlay -->
+  <div class="login-screen-overlay" id="loginScreen">
+    <div class="login-card glass">
+      <div class="login-emblem">
+        <img src="CD Logo TH_Black.svg" alt="ตราโรงเรียนจิตรลดา" style="height: 85px; width: auto; filter: drop-shadow(0 0 16px rgba(255,255,255,0.4));">
+      </div>
+      <h1 class="login-school">โรงเรียนจิตรลดา</h1>
+      <h2 class="login-title">ระบบตารางเวรและบันทึกเวรประจำวัน</h2>
+      <p class="login-sub" style="color: var(--amber-l); font-weight: 600;">📌 สำหรับบันทึกเวร ให้กรอกรหัสพนักงาน</p>
+
+      <form onsubmit="handleMainLogin(event)" class="login-form">
+        <div class="login-input-wrap">
+          <span class="login-input-icon">🆔</span>
+          <input type="text" id="mainEmpIdInput" class="login-input" placeholder="กรอกรหัสพนักงานเพื่อบันทึกเวร..." autocomplete="off" autofocus>
+        </div>
+        <button type="submit" class="login-btn">🚀 เข้าสู่ระบบบันทึกเวร</button>
+      </form>
+
+      <div class="login-error-msg" id="loginErrorMsg" style="display:none;"></div>
+
+      <div class="login-public-actions">
+        <div class="lpa-divider"><span>หรือเลือกดูตารางเวรทั่วไป</span></div>
+        <div class="lpa-btn-group">
+          <button type="button" class="btn-public-view" onclick="guestViewTab('today')">🏠 ดูเวรประจำวัน</button>
+          <button type="button" class="btn-public-view" onclick="guestViewTab('table')">📋 ตารางเวรเดือนนี้</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Animated background -->
+  <div class="app-bg" aria-hidden="true">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMenu()" aria-label="เมนู" aria-expanded="false">
+          <span class="hb-line"></span>
+          <span class="hb-line"></span>
+          <span class="hb-line"></span>
+        </button>
+        <div class="header-brand">
+          <img src="CD Logo TH_Black.svg" alt="ตราโรงเรียนจิตรลดา" style="height: 36px; width: auto; filter: brightness(0) invert(1);">
+          <div class="brand-text">
+            <h1>ตารางเวร สิงหาคม ๒๕๖๙</h1>
+            <p>โรงเรียนจิตรลดา</p>
+          </div>
+        </div>
+      </div>
+      <div class="header-right-group" style="display:flex; align-items:center; gap:12px;">
+        <div class="user-profile-badge" id="userProfileBadge" style="display:none;">
+          <span class="upb-icon">👤</span>
+          <span class="upb-name" id="upbName">--</span>
+          <button class="upb-logout-btn" onclick="logoutUser()" title="ออกจากระบบ">🚪 ออกจากระบบ</button>
+        </div>
+        <button class="btn-action btn-primary btn-sm" id="headerLoginBtn" onclick="showLoginScreenOverlay()" style="font-size:12.5px; padding:5px 12px;">🔑 เข้าสู่ระบบบันทึกเวร</button>
+        <span class="sp-badge sp-local" id="spStatusBadge" title="สถานะฐานข้อมูล Supabase">🟡 โหมดรหัสพนักงาน</span>
+        <div class="live-clock" id="liveClock" aria-live="polite">
+          <span class="clock-time" id="clockTime">--:--:--</span>
+          <span class="clock-date" id="clockDate">--</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar Overlay -->
+  <div class="sb-overlay" id="sbOverlay" onclick="closeMenu()"></div>
+
+  <!-- Sidebar Drawer -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="เมนูหลัก">
+    <div class="sb-header">
+      <div class="sb-brand">
+        <img src="CD Logo TH_Black.svg" alt="ตราโรงเรียนจิตรลดา" style="height: 28px; width: auto; filter: brightness(0) invert(1);">
+        <span class="sb-brand-name">ตารางเวร</span>
+      </div>
+      <button class="sb-close-btn" onclick="closeMenu()" aria-label="ปิดเมนู">✕</button>
+    </div>
+
+    <div class="sb-section-label">สิงหาคม ๒๕๖๙</div>
+
+    <!-- Quick Employee ID Login Box -->
+    <div class="sb-emp-login glass" style="margin: 0 10px 14px; padding: 12px;">
+      <div style="font-size: 11px; font-weight: 700; color: var(--text3); margin-bottom: 6px; text-transform: uppercase;">🔑 เข้าสู่ระบบด้วยรหัสพนักงาน</div>
+      <div style="display: flex; gap: 6px;">
+        <input type="text" id="sbEmpIdInput" placeholder="เช่น 69001" style="flex: 1; background: rgba(0,0,0,.3); border: 1px solid var(--border); color: #FFF; border-radius: 4px; padding: 5px 8px; font-size: 13px; outline: none;">
+        <button onclick="handleEmpIdLogin()" style="background: var(--indigo); color: #FFF; border: none; padding: 5px 10px; border-radius: 4px; font-weight: 600; font-size: 12px; cursor: pointer;">เข้าสู่ระบบ</button>
+      </div>
+      <div id="sbEmpLoginMsg" style="font-size: 11px; color: var(--emerald-l); margin-top: 4px; display: none;"></div>
+    </div>
+
+    <nav class="sb-nav">
+      <button class="sb-nav-item active" id="sb-today" onclick="switchTab('today')">
+        <span class="sb-nav-icon">🏠</span>
+        <span class="sb-nav-label">วันนี้</span>
+        <span class="sb-nav-arrow">›</span>
+      </button>
+      <button class="sb-nav-item" id="sb-calendar" onclick="switchTab('calendar')">
+        <span class="sb-nav-icon">📅</span>
+        <span class="sb-nav-label">ปฏิทิน</span>
+        <span class="sb-nav-arrow">›</span>
+      </button>
+      <button class="sb-nav-item" id="sb-table" onclick="switchTab('table')">
+        <span class="sb-nav-icon">📋</span>
+        <span class="sb-nav-label">ตารางเวร</span>
+        <span class="sb-nav-arrow">›</span>
+      </button>
+      <button class="sb-nav-item" id="sb-log" onclick="switchTab('log')">
+        <span class="sb-nav-icon">📝</span>
+        <span class="sb-nav-label">บันทึกเวรประจำวัน</span>
+        <span class="sb-nav-arrow">›</span>
+      </button>
+      <button class="sb-nav-item" id="sb-admin" onclick="switchTab('admin')">
+        <span class="sb-nav-icon">📊</span>
+        <span class="sb-nav-label">รายงานสรุป Admin</span>
+        <span class="sb-nav-arrow">›</span>
+      </button>
+    </nav>
+
+    <div class="sb-footer">
+      <div class="sb-clock">
+        <div class="sb-clock-time" id="sbClockTime">--:--:--</div>
+        <div class="sb-clock-date" id="sbClockDate">--</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- TODAY VIEW -->
+    <section class="tab-panel active" id="panel-today" role="tabpanel">
+      <div class="today-hero">
+        <div class="today-hero-left">
+          <div class="today-day-name" id="todayDayName">--</div>
+          <div class="today-date-text" id="todayDateText">-- -- --</div>
+          <div class="today-type-badges" id="todayTypeBadges"></div>
+        </div>
+        <div class="today-hero-right">
+          <div class="shift-time-card" id="shiftTimeCard"></div>
+        </div>
+      </div>
+      <div id="todayContent"></div>
+    </section>
+
+    <!-- CALENDAR VIEW -->
+    <section class="tab-panel" id="panel-calendar" role="tabpanel">
+      <div class="calendar-wrapper">
+        <div class="calendar-top">
+          <div class="calendar-month-title">
+            <span class="cal-month-icon">📅</span>
+            <h2>สิงหาคม ๒๕๖๙</h2>
+          </div>
+          <div class="cal-legend">
+            <span class="leg-item"><span class="leg-dot weekday-dot"></span>วันทำงาน</span>
+            <span class="leg-item"><span class="leg-dot weekend-dot"></span>วันหยุดสุดสัปดาห์</span>
+            <span class="leg-item"><span class="leg-dot holiday-dot"></span>วันหยุดนักขัตฤกษ์</span>
+            <span class="leg-item"><span class="leg-dot today-dot"></span>วันนี้</span>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+    </section>
+
+    <!-- TABLE VIEW -->
+    <section class="tab-panel" id="panel-table" role="tabpanel">
+      <div class="table-controls">
+        <div class="search-wrap">
+          <span class="search-icon-el">🔍</span>
+          <input type="text" id="searchInput" class="search-input"
+                 placeholder="ค้นหาชื่อ นามสกุล หรือกลุ่มเวร..." oninput="handleSearch()">
+          <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearch()" style="display:none;" aria-label="ล้างการค้นหา">✕</button>
+        </div>
+        <div class="filter-row">
+          <span class="filter-row-label">กรอง:</span>
+          <div class="chips-wrap">
+            <button class="chip active" id="chip-all"     onclick="setFilter('all')">ทั้งหมด</button>
+            <button class="chip chip-male" id="chip-male"    onclick="setFilter('male')">👨 พนักงานชาย</button>
+            <button class="chip chip-female" id="chip-female"  onclick="setFilter('female')">👩 พนักงานหญิง</button>
+            <button class="chip chip-g1" id="chip-g1"      onclick="setFilter('g1')">กลุ่ม 1 (24ชม.)</button>
+            <button class="chip chip-g2" id="chip-g2"      onclick="setFilter('g2')">กลุ่ม 2</button>
+            <button class="chip chip-g3" id="chip-g3"      onclick="setFilter('g3')">กลุ่ม 3</button>
+            <button class="chip chip-weekday" id="chip-weekday" onclick="setFilter('weekday')">💼 วันทำงาน</button>
+            <button class="chip chip-weekend" id="chip-weekend" onclick="setFilter('weekend')">📅 วันหยุด</button>
+          </div>
+        </div>
+        <div class="table-summary" id="tableSummary"></div>
+      </div>
+
+      <div class="table-scroll-wrap">
+        <table class="schedule-table" id="scheduleTable">
+          <thead>
+            <tr>
+              <th>วัน</th>
+              <th>วันที่</th>
+              <th>ประเภทวัน</th>
+              <th>กลุ่ม/ระดับ</th>
+              <th>ชื่อ - นามสกุล</th>
+              <th>เวลาเวร</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div class="no-results-box" id="noResultsBox" style="display:none;">
+          <div class="no-results-icon">🔍</div>
+          <p class="no-results-title">ไม่พบข้อมูลที่ค้นหา</p>
+          <p class="no-results-sub">ลองค้นหาด้วยคำอื่น หรือเปลี่ยนตัวกรอง</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SHIFT LOG FORM VIEW -->
+    <section class="tab-panel" id="panel-log" role="tabpanel">
+      <!-- Controls Bar -->
+      <div class="log-controls glass">
+        <div class="log-ctrl-row">
+          <div class="log-ctrl-group">
+            <label for="logDateSelect" class="log-ctrl-label">📅 เลือกวันที่:</label>
+            <select id="logDateSelect" class="log-select" onchange="onLogDateChange()"></select>
+          </div>
+          <div class="log-ctrl-group">
+            <label for="logOfficerSelect" class="log-ctrl-label">👤 เลือกผู้เข้าเวร:</label>
+            <select id="logOfficerSelect" class="log-select" onchange="onLogOfficerChange()"></select>
+          </div>
+        </div>
+        <div class="log-btn-group">
+          <button class="btn-action btn-secondary" onclick="addHourlyRows()">📄 แถวว่างเปล่า (7 แถว)</button>
+          <button class="btn-action btn-secondary" onclick="addLogTableRow()">➕ เพิ่มแถวบันทึก</button>
+          <button class="btn-action btn-primary" onclick="saveShiftLog()">💾 บันทึกในเบราว์เซอร์</button>
+          <button class="btn-action btn-secondary" onclick="exportShiftLogFile()">📥 โหลดไฟล์ (.json)</button>
+          <button class="btn-action btn-accent" onclick="printShiftForm()">🖨️ พิมพ์ / บันทึกเป็น PDF</button>
+        </div>
+      </div>
+
+      <!-- Missing Past Duty Log Red Alert Banner -->
+      <div class="log-alert-banner" id="logAlertBanner" style="display:none;"></div>
+
+      <!-- Printable Paper Form Container -->
+      <div class="paper-wrapper">
+        <div class="form-paper" id="printableForm">
+          
+          <!-- School Emblem & Header -->
+          <div class="form-header">
+            <div class="school-emblem">
+              <img src="CD Logo TH_Black.svg" alt="ตราโรงเรียนจิตรลดา" style="height: 80px; width: auto; margin-bottom: 6px;">
+            </div>
+            <h2 class="form-school-title">โรงเรียนจิตรลดา</h2>
+            <h3 class="form-doc-title">บันทึกเวรประจำวัน</h3>
+          </div>
+
+          <!-- Form Top Metadata -->
+          <div class="form-meta-grid">
+            <div class="form-meta-row">
+              <span class="fm-label">อยู่เวร ระดับ</span>
+              <input type="text" id="fmLevel" class="fm-input" placeholder="อนุบาล / ประถมศึกษา / มัธยมศึกษา / อาคารสถานที่">
+            </div>
+
+            <div class="form-meta-row fm-row-flex">
+              <label class="fm-checkbox-label">
+                <input type="checkbox" id="fmShiftDay" onchange="toggleShiftType('day')">
+                <span class="cb-box"></span> กลางวัน
+              </label>
+              <label class="fm-checkbox-label">
+                <input type="checkbox" id="fmShiftNight" onchange="toggleShiftType('night')">
+                <span class="cb-box"></span> กลางคืน
+              </label>
+            </div>
+
+            <div class="form-meta-row">
+              <span class="fm-label">ชื่อ</span>
+              <input type="text" id="fmName" class="fm-input fm-name-input" placeholder="ชื่อ-นามสกุล">
+            </div>
+
+            <div class="form-meta-row fm-date-row">
+              <span>วัน</span>
+              <input type="text" id="fmDayName" class="fm-input-dayname" placeholder="พฤหัสบดี">
+              <span>ที่</span>
+              <input type="text" id="fmDayNum" class="fm-input-sm" placeholder="1">
+              <span>เดือน</span>
+              <input type="text" id="fmMonth" class="fm-input-mid" placeholder="สิงหาคม">
+              <span>พ.ศ.</span>
+              <input type="text" id="fmYear" class="fm-input-sm" placeholder="2569">
+            </div>
+
+            <div class="form-meta-row fm-time-row">
+              <span>เวลาเข้าเวร</span>
+              <input type="text" id="fmTimeIn" class="fm-input-mid" placeholder="17.00 น.">
+              <span>เวลาออกเวร</span>
+              <input type="text" id="fmTimeOut" class="fm-input-mid" placeholder="07.00 น.">
+            </div>
+          </div>
+
+          <!-- Main Log Table -->
+          <table class="form-log-table" id="formLogTable">
+            <thead>
+              <tr>
+                <th style="width: 15%;">เวลา</th>
+                <th style="width: 65%;">บันทึกเหตุการณ์ประจำวัน</th>
+                <th style="width: 20%;">หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody id="formLogTbody">
+              <!-- Dynamic rows -->
+            </tbody>
+          </table>
+
+          <!-- Bottom Signatures & Inspector Section -->
+          <div class="form-bottom-section">
+            <div class="form-sign-row">
+              <span>ลงชื่อ</span>
+              <input type="text" id="fmSignName" class="fm-input-line" placeholder="ชื่อ-นามสกุล">
+              <span>(ตัวบรรจง)</span>
+            </div>
+
+            <div class="form-inspector-box">
+              <div class="fib-label">บันทึกของผู้ตรวจเวร</div>
+              <textarea id="fmInspectorNotes" class="fm-textarea" rows="3" placeholder="ข้อความจากผู้ตรวจเวร..."></textarea>
+              <div class="fib-line"></div>
+            </div>
+
+            <div class="form-advisor-sign">
+              <div class="fas-line"></div>
+              <div class="fas-name">(นายไพรัช รัตน์ไชย)</div>
+              <div class="fas-title">ที่ปรึกษาฝ่ายบริการ</div>
+            </div>
+          </div>
+
+          <!-- Footer Regulations -->
+          <div class="form-regulations">
+            <div class="reg-title">หมายเหตุ : *ให้เดินตรวจความเรียบร้อยทุกชั่วโมง</div>
+            <div class="reg-detail">
+              <p><strong>จันทร์-ศุกร์</strong> เข้าเวรกลางคืน เวลา 17.00 น. ออกเวร 07.00 น.</p>
+              <p><strong>เสาร์, อาทิตย์, วันหยุดนักขัตฤกษ์</strong></p>
+              <p class="reg-sub">- เวรกลางวัน <span>เข้าเวร 08.00 น.</span> <span>ออกเวร 16.00 น.</span></p>
+              <p class="reg-sub">- เวรกลางคืน ประถม, มัธยม <span>เข้าเวร 16.00 น.</span> <span>ออกเวร 08.00 น.</span></p>
+              <p class="reg-sub">- เวรอาคารสถานที่ อนุบาล <span>เข้าเวร 08.00 น. - 08.00 น.</span> (งานช่าง, ไฟฟ้า, ความสะอาด และยานพาหนะ)</p>
+            </div>
+          </div>
+
+    <!-- ADMIN MONITORING DASHBOARD PANEL -->
+    <section class="tab-panel" id="panel-admin" role="tabpanel">
+      <div class="panel-header">
+        <div class="panel-title-wrap">
+          <span class="panel-icon">📊</span>
+          <div>
+            <h2>ระบบติดตามการลงบันทึกเวร (Admin Dashboard)</h2>
+            <p class="panel-sub">ตรวจสอบสถานะการลงบันทึกเวรประจำวันของพนักงานทุกคน</p>
+          </div>
+        </div>
+        <div class="admin-top-actions">
+          <button class="btn-action btn-secondary" onclick="renderAdminDashboard()">🔄 รีเฟรชข้อมูล</button>
+        </div>
+      </div>
+
+      <!-- Admin Stats Metrics Grid -->
+      <div class="admin-stats-grid">
+        <div class="admin-stat-card stat-total glass">
+          <div class="stat-icon">📅</div>
+          <div class="stat-info">
+            <span class="stat-label">เวรทั้งหมดในเดือนนี้</span>
+            <span class="stat-value" id="adminStatTotal">--</span>
+          </div>
+        </div>
+        <div class="admin-stat-card stat-saved glass">
+          <div class="stat-icon">🟢</div>
+          <div class="stat-info">
+            <span class="stat-label">บันทึกเรียบร้อยแล้ว</span>
+            <span class="stat-value" id="adminStatSaved">--</span>
+          </div>
+        </div>
+        <div class="admin-stat-card stat-missing glass">
+          <div class="stat-icon">🔴</div>
+          <div class="stat-info">
+            <span class="stat-label">ค้างบันทึกยังไม่ลงข้อมูล</span>
+            <span class="stat-value" id="adminStatMissing">--</span>
+          </div>
+        </div>
+        <div class="admin-stat-card stat-rate glass">
+          <div class="stat-icon">📈</div>
+          <div class="stat-info">
+            <span class="stat-label">อัตราการลงบันทึก</span>
+            <span class="stat-value" id="adminStatRate">--%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter & Matrix Controls -->
+      <div class="admin-matrix-controls glass" style="margin-bottom:16px; padding:12px 18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div class="admin-filter-group" style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:13px; font-weight:700; color:var(--text2);">กรองสถานะ:</span>
+          <button class="chip active" id="adminFilterAll" onclick="setAdminFilter('all')">ทั้งหมด</button>
+          <button class="chip" id="adminFilterMissing" onclick="setAdminFilter('missing')">🔴 ยังไม่บันทึก</button>
+          <button class="chip" id="adminFilterSaved" onclick="setAdminFilter('saved')">🟢 บันทึกแล้ว</button>
+        </div>
+        <div class="admin-search-wrap">
+          <input type="text" id="adminSearchInput" class="search-input" placeholder="🔍 ค้นหาชื่อพนักงาน/รหัส..." oninput="renderAdminDashboard()">
+        </div>
+      </div>
+
+      <!-- Audit Matrix Table -->
+      <div class="table-scroll-wrap">
+        <table class="schedule-table admin-audit-table">
+          <thead>
+            <tr>
+              <th>วันที่</th>
+              <th>ประเภทวัน</th>
+              <th>กลุ่ม/ระดับ</th>
+              <th>ชื่อ - นามสกุลพนักงาน</th>
+              <th>รหัสพนักงาน</th>
+              <th>สถานะบันทึกเวร</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="adminTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL (shared) -->
+  <div class="modal-backdrop" id="modalBackdrop" onclick="closeModal()" style="display:none;" role="dialog"
+       aria-modal="true" aria-labelledby="modalHeading">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <div class="modal-head-info">
+          <h3 class="modal-heading" id="modalHeading">--</h3>
+          <div class="modal-head-badges" id="modalHeadBadges"></div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal()" aria-label="ปิด">✕</button>
+      </div>
+      <div class="modal-content" id="modalContent"></div>
+      <div class="modal-foot" style="padding:12px 24px; border-top:1px solid var(--border); display:flex; justify:flex-end;">
+        <button class="btn-action btn-primary" onclick="openShiftLogForModal()">📝 กรอกใบบันทึกเวรของวันนี้</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <!-- Register PWA Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('📱 PWA Service Worker Registered:', reg.scope))
+          .catch(err => console.log('⚠️ Service Worker Error:', err));
+      });
+    }
+  </script>
+</body>
+</html>
