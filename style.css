@@ -1301,24 +1301,26 @@ mark.hl {
   border-top: 1px solid var(--border);
 }
 
-/* Signature Pad */
-.sig-pad-wrap {
-  position: relative;
-  border: 1.5px solid var(--border-h);
-  border-radius: var(--r-sm);
-  background: #FFFFFF;
-  overflow: hidden;
-  transition: border-color var(--dur);
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
+/* Signature Pad (Ink-Inventory Engine) */
+.signature-container {
+    position: relative;
+    border: 1.5px solid var(--border-h);
+    border-radius: var(--r-sm);
+    background: #FFFFFF !important; /* Always white for clear signature */
+    overflow: hidden;
+    width: 100%;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
 }
-.sig-pad-wrap:hover { border-color: var(--indigo); }
-.sig-canvas {
-  display: block;
-  width: 100%;
-  height: 130px;
-  cursor: crosshair;
-  touch-action: none;
+
+.signature-pad {
+    width: 100%;
+    height: 150px;
+    cursor: crosshair;
+    background-color: #FFFFFF !important; /* Always white background */
+    touch-action: none !important; /* Prevent scrolling when signing on mobile */
+    display: block;
 }
+
 .sig-clear-btn {
   position: absolute;
   top: 8px;
@@ -1329,8 +1331,8 @@ mark.hl {
   font-size: 11.5px;
   font-weight: 700;
   font-family: var(--font);
-  padding: 3px 9px;
-  border-radius: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all var(--dur);
 }
@@ -1338,6 +1340,7 @@ mark.hl {
   background: var(--rose);
   color: #FFF;
 }
+
 
 
 .print-only { display: none !important; }

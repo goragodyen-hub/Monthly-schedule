@@ -1225,9 +1225,12 @@ function printShiftForm() {
   if (cbDay)   cbDay.classList.toggle('checked', isDayChecked);
   if (cbNight) cbNight.classList.toggle('checked', isNightChecked);
 
-  // ── 3. Signature Name (Auto-fill typed name) ─────────
+  // ── 3. Signature image ────────────────────────────
   const pfSign = document.getElementById('pfSignName');
-  if (pfSign) {
+  const sigDataUrl = getSignatureDataUrl();
+  if (sigDataUrl && pfSign) {
+    pfSign.innerHTML = `<img src="${sigDataUrl}" style="max-height:45px;max-width:180px;display:inline-block;vertical-align:middle;">`;
+  } else if (pfSign) {
     pfSign.innerHTML = nameVal ? `<span style="font-family:'Sarabun';font-weight:600;">${nameVal}</span>` : '&nbsp;';
   }
 
@@ -1260,36 +1263,108 @@ function printShiftForm() {
   window.print();
 }
 
+/* =============================================
+   SIGNATURE PAD ENGINE (PORTED FROM INK-INVENTORY)
+   ============================================= */
+let sigCanvas = null;
+let sigCtx = null;
+let isSigDrawing = false;
+
+function initSignaturePad() {
+  sigCanvas = document.getElementById('signature-pad');
+  if (!sigCanvas) return;
+  const btnClear = document.getElementById('btn-clear-signature');
+  sigCtx = sigCanvas.getContext('2d');
+
+  window.resizeSignatureCanvas = function() {
+    if (!sigCanvas || sigCanvas.offsetWidth === 0) return;
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    sigCanvas.width = sigCanvas.offsetWidth * ratio;
+    sigCanvas.height = sigCanvas.offsetHeight * ratio;
+    sigCtx.scale(ratio, ratio);
+    sigCtx.strokeStyle = '#000000';
+    sigCtx.lineWidth = 3;
+    sigCtx.lineCap = 'round';
+    sigCtx.lineJoin = 'round';
+  };
+
+  window.addEventListener('resize', window.resizeSignatureCanvas);
+  setTimeout(window.resizeSignatureCanvas, 100);
+
+  const getCoordinates = (e) => {
+    const rect = sigCanvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  };
+
+  const startDrawing = (e) => {
+    isSigDrawing = true;
+    const { x, y } = getCoordinates(e);
+    sigCtx.beginPath();
+    sigCtx.moveTo(x, y);
+    if (e.touches) e.preventDefault();
+  };
+
+  const draw = (e) => {
+    if (!isSigDrawing) return;
+    const { x, y } = getCoordinates(e);
+    sigCtx.lineTo(x, y);
+    sigCtx.stroke();
+    if (e.touches) e.preventDefault();
+  };
+
+  const stopDrawing = () => {
+    if (isSigDrawing) {
+      sigCtx.closePath();
+      isSigDrawing = false;
+    }
+  };
+
+  sigCanvas.addEventListener('mousedown', startDrawing);
+  sigCanvas.addEventListener('mousemove', draw);
+  sigCanvas.addEventListener('mouseup', stopDrawing);
+  sigCanvas.addEventListener('mouseout', stopDrawing);
+  sigCanvas.addEventListener('touchstart', startDrawing, { passive: false });
+  sigCanvas.addEventListener('touchmove', draw, { passive: false });
+  sigCanvas.addEventListener('touchend', stopDrawing);
+
+  if (btnClear) {
+    btnClear.addEventListener('click', clearSignature);
+  }
+}
+
+function clearSignature() {
+  if (sigCtx && sigCanvas) {
+    sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+  }
+}
+
+function isCanvasEmpty(canv) {
+  if (!canv) return true;
+  const blank = document.createElement('canvas');
+  blank.width = canv.width;
+  blank.height = canv.height;
+  return canv.toDataURL() === blank.toDataURL();
+}
 
 function getSignatureDataUrl() {
-  const canvas = document.getElementById('sigCanvas');
-  if (!canvas) return null;
-  // Check if canvas is blank
-  const ctx  = canvas.getContext('2d');
-  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-  const hasContent = data.some(v => v !== 0);
-  if (!hasContent) return null;
-  // White background for print
-  const printCanvas = document.createElement('canvas');
-  printCanvas.width  = canvas.width;
-  printCanvas.height = canvas.height;
-  const pCtx = printCanvas.getContext('2d');
-  pCtx.fillStyle = '#FFFFFF';
-  pCtx.fillRect(0, 0, printCanvas.width, printCanvas.height);
-  pCtx.drawImage(canvas, 0, 0);
-  // Recolor strokes to black
-  const imgData = pCtx.getImageData(0, 0, printCanvas.width, printCanvas.height);
-  for (let i = 0; i < imgData.data.length; i += 4) {
-    const r = imgData.data[i], g = imgData.data[i+1], b = imgData.data[i+2];
-    if (r > 200 && g > 200 && b > 200) { // near-white → keep white
-      imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = 255;
-    } else { // stroke → black
-      imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = 0;
-    }
-  }
-  pCtx.putImageData(imgData, 0, 0);
-  return printCanvas.toDataURL('image/png');
+  if (!sigCanvas || isCanvasEmpty(sigCanvas)) return null;
+  return sigCanvas.toDataURL('image/png');
 }
+
+function restoreSignatureFromDataUrl(dataUrl) {
+  if (!dataUrl || !sigCanvas) return;
+  const img = new Image();
+  img.onload = () => {
+    if (sigCtx) {
+      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+      sigCtx.drawImage(img, 0, 0, sigCanvas.offsetWidth, sigCanvas.offsetHeight);
+    }
+  };
+  img.src = dataUrl;
+}
+
 
 function openShiftLogForModal() {
   closeModal();

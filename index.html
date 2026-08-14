@@ -357,13 +357,21 @@
           </table>
         </div>
 
-        <!-- Inspector Notes (Full Width) -->
+        <!-- Sign & Inspector -->
         <div class="lic-bottom-grid">
+          <div class="lic-field lic-field-wide">
+            <label class="lic-label">✍️ ลายเซ็นต์ผู้เข้าเวร</label>
+            <div class="signature-container">
+              <canvas id="signature-pad" class="signature-pad"></canvas>
+              <button type="button" id="btn-clear-signature" class="sig-clear-btn" title="ล้างลายเซ็นต์">🗑️ ล้าง</button>
+            </div>
+          </div>
           <div class="lic-field lic-field-full">
             <label class="lic-label">📝 บันทึกของผู้ตรวจเวร</label>
             <textarea id="fmInspectorNotes" class="lic-textarea" rows="3" placeholder="ข้อความจากผู้ตรวจเวร..."></textarea>
           </div>
         </div>
+
 
 
         <!-- Action Buttons -->
