@@ -114,30 +114,37 @@ async function fetchShiftLogCloud(dayNum, empId) {
 
 // 3. Upsert Shift Log to Cloud
 async function saveShiftLogCloud(logData) {
-  const key = `shift_log_${logData.dayNum}_${logData.empId}`;
+  const empId = logData.empId || logData.emp_id;
+  if (!empId) {
+    console.warn('⚠️ Cannot save to cloud: missing empId');
+    return { success: false, error: 'No empId provided' };
+  }
+
+  const key = `shift_log_${logData.dayNum}_${empId}`;
   localStorage.setItem(key, JSON.stringify(logData));
 
   if (isSupabaseOnline && supabaseClient) {
     try {
+      const sig = logData.signatureData || logData.signName || logData.sign_name || '';
       const { data, error } = await supabaseClient
         .from('shift_logs')
         .upsert({
           day_num: logData.dayNum,
-          emp_id: logData.empId,
+          emp_id: empId,
           officer_name: logData.name,
           level: logData.level,
           is_day: logData.isDay,
           is_night: logData.isNight,
           time_in: logData.timeIn,
           time_out: logData.timeOut,
-          sign_name: logData.signName,
-          inspector_notes: logData.inspectorNotes,
-          rows: logData.rows,
+          sign_name: sig,
+          inspector_notes: logData.inspectorNotes || logData.inspector_notes || '',
+          rows: logData.rows || [],
           updated_at: new Date().toISOString()
         }, { onConflict: 'day_num,emp_id' });
 
       if (error) throw error;
-      console.log('☁️ Log synced to Supabase Cloud!');
+      console.log('☁️ Log synced to Supabase Cloud successfully!');
       return { success: true, cloud: true };
     } catch (e) {
       console.error('⚠️ Cloud sync failed, saved locally:', e);

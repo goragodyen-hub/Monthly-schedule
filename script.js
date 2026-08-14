@@ -973,7 +973,14 @@ function getLogStorageKey() {
 }
 
 async function saveShiftLog() {
-  const key = getLogStorageKey();
+  const offSelVal = document.getElementById('logOfficerSelect')?.value;
+  let parsedEmpId = '';
+  if (offSelVal) {
+    try { parsedEmpId = JSON.parse(offSelVal)?.emp_id || ''; } catch(e){}
+  }
+  const empId = loggedInOfficer?.emp_id || parsedEmpId || '';
+  const sigUrl = getSignatureDataUrl() || '';
+
   const rows = [];
   document.querySelectorAll('#formLogTbody tr').forEach(tr => {
     const inputs = tr.querySelectorAll('input');
@@ -987,6 +994,8 @@ async function saveShiftLog() {
   });
 
   const data = {
+    empId:          empId,
+    emp_id:         empId,
     level:          document.getElementById('fmLevel').value,
     isDay:          document.getElementById('fmShiftDay').checked,
     isNight:        document.getElementById('fmShiftNight').checked,
@@ -997,17 +1006,21 @@ async function saveShiftLog() {
     year:           document.getElementById('fmYear').value,
     timeIn:         document.getElementById('fmTimeIn').value,
     timeOut:        document.getElementById('fmTimeOut').value,
-    signatureData:  getSignatureDataUrl() || '',
+    signatureData:  sigUrl,
+    signName:       sigUrl,
     inspectorNotes: document.getElementById('fmInspectorNotes').value,
     rows:           rows
   };
 
-  // Save to Local Storage
-  localStorage.setItem(key, JSON.stringify(data));
+  // Save to Local Storage under BOTH key formats so it's guaranteed to be found
+  const nameKey = getLogStorageKey();
+  const empKey = `shift_log_${data.dayNum}_${empId}`;
+  localStorage.setItem(nameKey, JSON.stringify(data));
+  if (empId) localStorage.setItem(empKey, JSON.stringify(data));
 
   // Save to Supabase Cloud
-  if (typeof saveShiftLogCloud === 'function' && loggedInOfficer) {
-    await saveShiftLogCloud(data, loggedInOfficer.emp_id);
+  if (typeof saveShiftLogCloud === 'function') {
+    await saveShiftLogCloud(data);
   }
 
   alert(`🚀 ส่งใบบันทึกเวรของ ${data.name} (วันที่ ${data.dayNum} ส.ค.) เรียบร้อยแล้ว!`);
@@ -1121,42 +1134,57 @@ async function loadShiftLog() {
   tbody.innerHTML = '';
 
   const dayNum = parseInt(document.getElementById('fmDayNum').value, 10);
+  const offSelVal = document.getElementById('logOfficerSelect')?.value;
+  let parsedEmpId = '';
+  if (offSelVal) {
+    try { parsedEmpId = JSON.parse(offSelVal)?.emp_id || ''; } catch(e){}
+  }
+  const empId = loggedInOfficer?.emp_id || parsedEmpId || '';
+  const officerName = document.getElementById('fmName')?.value || '';
+
+  let loadedData = null;
 
   // 1. Try Cloud Fetching first
-  if (typeof fetchShiftLogCloud === 'function' && loggedInOfficer && dayNum) {
-    const cloudData = await fetchShiftLogCloud(dayNum, loggedInOfficer.emp_id);
-    if (cloudData) {
-      document.getElementById('fmInspectorNotes').value = cloudData.inspector_notes || '';
-      if (cloudData.rows && cloudData.rows.length > 0) {
-        cloudData.rows.forEach(r => addLogTableRow(r.time, r.note, r.remark));
-        return;
-      }
+  if (typeof fetchShiftLogCloud === 'function' && empId && dayNum) {
+    loadedData = await fetchShiftLogCloud(dayNum, empId);
+  }
+
+  // 2. Try Local Storage Fallbacks
+  if (!loadedData) {
+    if (empId) {
+      const savedEmp = localStorage.getItem(`shift_log_${dayNum}_${empId}`);
+      if (savedEmp) { try { loadedData = JSON.parse(savedEmp); } catch(e){} }
+    }
+    if (!loadedData && officerName) {
+      const savedName = localStorage.getItem(`shift_log_${dayNum}_${officerName.replace(/\s+/g, '_')}`);
+      if (savedName) { try { loadedData = JSON.parse(savedName); } catch(e){} }
     }
   }
 
-  // 2. Try Local Storage Fallback
-  const key = getLogStorageKey();
-  const saved = localStorage.getItem(key);
-  if (saved) {
-    try {
-      const data = JSON.parse(saved);
-      document.getElementById('fmInspectorNotes').value = data.inspectorNotes || '';
-      if (data.signatureData) {
-        restoreSignatureFromDataUrl(data.signatureData);
-      }
-      if (data.rows && data.rows.length > 0) {
-        data.rows.forEach(r => addLogTableRow(r.time, r.note, r.remark));
-        return;
-      }
-    } catch (e) {
-      console.error(e);
+  // 3. Populate Form if data exists
+  if (loadedData) {
+    document.getElementById('fmInspectorNotes').value = loadedData.inspectorNotes || loadedData.inspector_notes || '';
+    
+    // Restore Signature
+    const sig = loadedData.signatureData || loadedData.signName || loadedData.sign_name;
+    if (sig) {
+      restoreSignatureFromDataUrl(sig);
     }
+
+    // Restore Log Table Rows
+    const rows = loadedData.rows || [];
+    if (rows.length > 0) {
+      rows.forEach(r => addLogTableRow(r.time, r.note, r.remark));
+    }
+    updateLiveSignaturePreview();
+    return;
   }
 
-  // 3. Ensure at least 1 row exists if no saved rows were loaded
+  // 4. Ensure at least 1 row exists if no saved rows were loaded
   if (document.querySelectorAll('#formLogTbody tr').length === 0) {
     addLogTableRow('', '', '');
   }
+  updateLiveSignaturePreview();
 }
 
 
