@@ -336,6 +336,25 @@ function switchTab(tab) {
 }
 
 
+function getEffectiveOfficer(dayNum, originalFullName) {
+  const swapRecords = getSwapRecords();
+  if (!swapRecords || swapRecords.length === 0) {
+    return { name: originalFullName, isSwapped: false, displayHtml: originalFullName };
+  }
+
+  // 1. Check if originalFullName requested a swap on dayNum (someone else is substituting)
+  const reqSwap = swapRecords.find(r => r.day === dayNum && r.reqName === originalFullName);
+  if (reqSwap) {
+    return {
+      name: reqSwap.subName,
+      isSwapped: true,
+      displayHtml: `${reqSwap.subName} <span class="swap-tag" style="color:#DC2626; font-weight:800; font-size:0.88em;">(แลกเวร)</span>`
+    };
+  }
+
+  return { name: originalFullName, isSwapped: false, displayHtml: originalFullName };
+}
+
 /* =============================================
    DUTY CARDS HTML  (used in Today view & modal)
    ============================================= */
@@ -352,11 +371,12 @@ function dutyCardsHtml(entry) {
   [['g1','กลุ่ม 1'],['g2','กลุ่ม 2'],['g3','กลุ่ม 3']].forEach(([k,lbl])=>{
     const p = entry.male[k];
     const fullName = `${p[0]} ${p[1]}`;
+    const eff = getEffectiveOfficer(entry.day, fullName);
     html += `
       <div class="duty-card ${k}">
         <div class="dc-badge ${k}">${lbl}</div>
-        <div class="dc-name">${fullName}</div>
-        <button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${fullName}')">📝 บันทึกเวร</button>
+        <div class="dc-name">${eff.displayHtml}</div>
+        <button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${eff.name}')">📝 บันทึกเวร</button>
         <div class="dc-time">⏰ ${shiftForEntry(entry,'male',k)}</div>
       </div>`;
   });
@@ -372,11 +392,12 @@ function dutyCardsHtml(entry) {
       const p = entry.female[k];
       if (!p) return;
       const fullName = `${p[0]} ${p[1]}`;
+      const eff = getEffectiveOfficer(entry.day, fullName);
       html += `
         <div class="duty-card ${k}">
           <div class="dc-badge ${k}">${lbl}</div>
-          <div class="dc-name">${fullName}</div>
-          <button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${fullName}')">📝 บันทึกเวร</button>
+          <div class="dc-name">${eff.displayHtml}</div>
+          <button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${eff.name}')">📝 บันทึกเวร</button>
           <div class="dc-time">⏰ ${SHIFT.weekend_female}</div>
         </div>`;
     });
@@ -397,11 +418,12 @@ function modalDutyHtml(entry) {
   [['g1','กลุ่ม 1'],['g2','กลุ่ม 2'],['g3','กลุ่ม 3']].forEach(([k,lbl])=>{
     const p = entry.male[k];
     const fullName = `${p[0]} ${p[1]}`;
+    const eff = getEffectiveOfficer(entry.day, fullName);
     html += `<div class="duty-list-row">
       <div class="dlr-dot ${k}"></div>
       <div class="dlr-group">${lbl}</div>
-      <div class="dlr-name">${fullName}</div>
-      <button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${fullName}')">📝 บันทึกเวร</button>
+      <div class="dlr-name">${eff.displayHtml}</div>
+      <button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${eff.name}')">📝 บันทึกเวร</button>
       <div class="dlr-time">${shiftForEntry(entry,'male',k)}</div>
     </div>`;
   });
@@ -415,11 +437,12 @@ function modalDutyHtml(entry) {
       const p = entry.female[k];
       if (!p) return;
       const fullName = `${p[0]} ${p[1]}`;
+      const eff = getEffectiveOfficer(entry.day, fullName);
       html += `<div class="duty-list-row">
         <div class="dlr-dot ${k}"></div>
         <div class="dlr-group">${lbl}</div>
-        <div class="dlr-name">${fullName}</div>
-        <button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${fullName}')">📝 บันทึกเวร</button>
+        <div class="dlr-name">${eff.displayHtml}</div>
+        <button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${eff.name}')">📝 บันทึกเวร</button>
         <div class="dlr-time">${SHIFT.weekend_female}</div>
       </div>`;
     });
@@ -593,6 +616,8 @@ function getAllRows() {
     // Male groups
     [['g1','male'],['g2','male'],['g3','male']].forEach(([k]) => {
       const p = entry.male[k];
+      const fullName = `${p[0]} ${p[1]}`;
+      const eff = getEffectiveOfficer(entry.day, fullName);
       rows.push({
         day:       entry.day,
         dayName:   entry.dayName,
@@ -602,9 +627,9 @@ function getAllRows() {
         type:      'male',
         gKey:      k,
         gLabel:    GROUP_META[k].label,
-        name:      p[0],
-        surn:      p[1],
-        full:      `${p[0]} ${p[1]}`,
+        name:      eff.name,
+        surn:      '',
+        full:      eff.displayHtml,
         time:      shiftForEntry(entry, 'male', k),
         isToday:   isToday(entry.day)
       });
@@ -614,6 +639,8 @@ function getAllRows() {
       [['kg','female'],['pr','female'],['sc','female']].forEach(([k]) => {
         const p = entry.female[k];
         if (!p) return;
+        const fullName = `${p[0]} ${p[1]}`;
+        const eff = getEffectiveOfficer(entry.day, fullName);
         rows.push({
           day:       entry.day,
           dayName:   entry.dayName,
@@ -623,9 +650,9 @@ function getAllRows() {
           type:      'female',
           gKey:      k,
           gLabel:    GROUP_META[k].label,
-          name:      p[0],
-          surn:      p[1],
-          full:      `${p[0]} ${p[1]}`,
+          name:      eff.name,
+          surn:      '',
+          full:      eff.displayHtml,
           time:      SHIFT.weekend_female,
           isToday:   isToday(entry.day)
         });
@@ -1500,6 +1527,9 @@ function handleSaveSwapRecord(event) {
   if (document.getElementById('swapReturnDateInput')) document.getElementById('swapReturnDateInput').value = '';
   clearSwapPhoto();
   renderSwapRecordsTable();
+  buildTable();
+  renderToday();
+  calRendered = false;
 }
 
 function renderSwapRecordsTable() {
@@ -1529,7 +1559,7 @@ function renderSwapRecordsTable() {
       <td style="text-align:center; font-weight:700;">${idx + 1}</td>
       <td style="font-weight:700; color:var(--indigo-l);">${rec.shiftDateText}</td>
       <td style="font-weight:700; color:#DC2626;">👤 ${rec.reqName}</td>
-      <td style="font-weight:700; color:#16A34A;">🤝 ${rec.subName}</td>
+      <td style="font-weight:700; color:#16A34A;">🤝 ${rec.subName} <span style="color:#DC2626; font-size:11px;">(แลกเวร)</span></td>
       <td style="font-size:13px;">${rec.returnDateText || '-'}</td>
       <td style="text-align:center;">
         ${rec.photoData ? `
@@ -1581,6 +1611,9 @@ function deleteSwapRecord(recordId) {
   records = records.filter(r => r.id !== recordId);
   saveSwapRecords(records);
   renderSwapRecordsTable();
+  buildTable();
+  renderToday();
+  calRendered = false;
 }
 
 /* =============================================
