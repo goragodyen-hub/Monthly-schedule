@@ -1406,19 +1406,25 @@ function updateLiveSignaturePreview() {
   // 1. Update printable paper form
   const pfSign = document.getElementById('pfSignName');
   if (pfSign) {
-    if (sigDataUrl) {
-      pfSign.innerHTML = `
-        <div style="display:inline-flex; flex-direction:column; align-items:center; vertical-align:bottom; width:100%;">
-          <div style="min-height:38px; display:flex; align-items:flex-end; justify-content:center;">
-            <img src="${sigDataUrl}" style="max-height:42px; max-width:180px; object-fit:contain;">
+    pfSign.innerHTML = `
+      <div style="display:inline-flex; flex-direction:column; align-items:flex-end; font-size:13px; color:#000; width:100%;">
+        <div style="display:flex; align-items:flex-end; justify-content:flex-end; gap:8px; width:100%;">
+          <span style="font-weight:500; white-space:nowrap; margin-bottom:2px;">ลงชื่อ</span>
+          <div style="display:inline-flex; flex-direction:column; align-items:center; min-width:220px;">
+            <div style="min-height:38px; display:flex; align-items:flex-end; justify-content:center;">
+              ${sigDataUrl ? `<img src="${sigDataUrl}" style="max-height:42px; max-width:180px; object-fit:contain;">` : ''}
+            </div>
+            <div style="border-bottom:1px dotted #000; width:100%; margin:2px 0;"></div>
           </div>
-          <div style="border-bottom:1px dotted #000; width:100%; margin:2px 0 3px 0;"></div>
-          <span style="font-size:12.5px; font-weight:600; font-family:'Sarabun';">(${nameVal})</span>
+          <span style="font-weight:500; white-space:nowrap; margin-bottom:2px;">(ตัวบรรจง)</span>
         </div>
-      `;
-    } else {
-      pfSign.innerHTML = nameVal ? `<div style="border-bottom:1px dotted #000; width:100%; padding-bottom:2px; margin-bottom:3px;">&nbsp;</div><span style="font-size:13px; font-weight:600; font-family:'Sarabun';">(${nameVal})</span>` : '&nbsp;';
-    }
+        <div style="width:100%; display:flex; justify-content:flex-end; margin-top:3px;">
+          <div style="min-width:220px; text-align:center; font-size:13px; font-weight:600; font-family:'Sarabun'; margin-right:62px;">
+            (${nameVal})
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   // 2. Update interactive screen live preview box
@@ -2084,16 +2090,22 @@ async function adminViewOfficerLog(dayNum, officerName) {
 
         <!-- Signatures & Inspector -->
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
-          <div style="display:flex; align-items:flex-end; justify-content:flex-end; gap:8px; font-size:13px; color:#000;">
-            <span style="margin-bottom:20px; font-weight:500;">ลงชื่อ</span>
-            <div style="display:inline-flex; flex-direction:column; align-items:center; min-width:220px;">
-              <div style="min-height:42px; display:flex; align-items:flex-end; justify-content:center;">
-                ${logData.signatureData ? `<img src="${logData.signatureData}" style="max-height:45px; max-width:180px; object-fit:contain;">` : ''}
+          <div style="display:flex; flex-direction:column; align-items:flex-end; font-size:13px; color:#000; width:100%;">
+            <div style="display:flex; align-items:flex-end; justify-content:flex-end; gap:8px; width:100%;">
+              <span style="font-weight:500; white-space:nowrap; margin-bottom:2px;">ลงชื่อ</span>
+              <div style="display:inline-flex; flex-direction:column; align-items:center; min-width:220px;">
+                <div style="min-height:42px; display:flex; align-items:flex-end; justify-content:center;">
+                  ${logData.signatureData ? `<img src="${logData.signatureData}" style="max-height:45px; max-width:180px; object-fit:contain;">` : ''}
+                </div>
+                <div style="border-bottom:1px dotted #000; width:100%; margin:2px 0;"></div>
               </div>
-              <div style="border-bottom:1px dotted #000; width:100%; margin:2px 0 4px 0;"></div>
-              <div style="font-size:13px; font-weight:600; font-family:'Sarabun'; text-align:center;">(${logData.name})</div>
+              <span style="font-weight:500; white-space:nowrap; margin-bottom:2px;">(ตัวบรรจง)</span>
             </div>
-            <span style="margin-bottom:2px; font-weight:500;">(ตัวบรรจง)</span>
+            <div style="width:100%; display:flex; justify-content:flex-end; margin-top:3px;">
+              <div style="min-width:220px; text-align:center; font-size:13px; font-weight:600; font-family:'Sarabun'; margin-right:62px;">
+                (${logData.name})
+              </div>
+            </div>
           </div>
 
           <div style="border:1px solid #000; border-radius:4px; padding:8px 12px; background:#FAFAFA;">
