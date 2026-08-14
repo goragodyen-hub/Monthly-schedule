@@ -1327,8 +1327,11 @@ function initAdminShiftSwapTab() {
     reqSel.innerHTML = '<option value="">-- เลือกพนักงานผู้ขอแลกเวร --</option>';
     subSel.innerHTML = '<option value="">-- เลือกพนักงานผู้รับปฏิบัติหน้าที่แทน --</option>';
     
-    // Collect unique officer names from OFFICERS
-    const officerList = OFFICERS.map(o => `${o.name} ${o.surname}`).sort();
+    // Collect unique officer names from OFFICERS_REGISTRY
+    const officerList = Object.values(OFFICERS_REGISTRY)
+      .filter(o => !o.isAdmin)
+      .map(o => `${o.name} ${o.surname}`)
+      .sort();
     officerList.forEach(fullName => {
       reqSel.appendChild(new Option(fullName, fullName));
       subSel.appendChild(new Option(fullName, fullName));
