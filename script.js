@@ -302,6 +302,13 @@ function switchTab(tab) {
     alert('เมนูรายงานสรุปเฉพาะผู้ดูแลระบบ (Admin) เท่านั้น');
     return;
   }
+  if (tab === 'swap') {
+    if (!loggedInOfficer || !loggedInOfficer.isAdmin) {
+      alert('เมนูบันทึกขอแลกเวรเฉพาะผู้ดูแลระบบ (Admin) เท่านั้น');
+      return;
+    }
+    initAdminShiftSwapTab();
+  }
 
   // Update sidebar nav items
   document.querySelectorAll('.sb-nav-item').forEach(b => b.classList.remove('active'));
@@ -1294,31 +1301,214 @@ function printShiftForm() {
   window.print();
 }
 
-function printSwapForm() {
-  const docDate = document.getElementById('swapDocDate')?.value || '....................';
-  const reqName = document.getElementById('swapReqName')?.value || '....................';
-  const reqDept = document.getElementById('swapReqDept')?.value || '....................';
-  const reqLevel = document.getElementById('swapReqLevel')?.value || '....................';
-  const reqOrigDate = document.getElementById('swapReqOrigDate')?.value || '....................';
-  const reqReason = document.getElementById('swapReqReason')?.value || '........................................';
-  const subName = document.getElementById('swapSubName')?.value || '....................';
-  const subDate = document.getElementById('swapSubDate')?.value || reqOrigDate || '....................';
-  const returnDate = document.getElementById('swapReturnDate')?.value || '....................';
+/* =============================================
+   ADMIN SHIFT SWAP SYSTEM (ระบบแลกเวรเฉพาะ Admin)
+   ============================================= */
+let currentSwapPhotoBase64 = '';
 
-  if (document.getElementById('pfSwapDocDate')) document.getElementById('pfSwapDocDate').textContent = docDate;
-  if (document.getElementById('pfSwapReqName')) document.getElementById('pfSwapReqName').textContent = reqName;
-  if (document.getElementById('pfSwapReqDept')) document.getElementById('pfSwapReqDept').textContent = reqDept;
-  if (document.getElementById('pfSwapReqLevel')) document.getElementById('pfSwapReqLevel').textContent = reqLevel;
-  if (document.getElementById('pfSwapReqOrigDate')) document.getElementById('pfSwapReqOrigDate').textContent = reqOrigDate;
-  if (document.getElementById('pfSwapReqReason')) document.getElementById('pfSwapReqReason').textContent = reqReason;
-  if (document.getElementById('pfSwapSubName')) document.getElementById('pfSwapSubName').textContent = subName;
-  if (document.getElementById('pfSwapSubDateVal')) document.getElementById('pfSwapSubDateVal').textContent = subDate;
-  if (document.getElementById('pfSwapReturnDate')) document.getElementById('pfSwapReturnDate').textContent = returnDate;
+function initAdminShiftSwapTab() {
+  // 1. Populate Day selection dropdown (1 - 31 สิงหาคม 2569)
+  const daySel = document.getElementById('swapDaySelect');
+  if (daySel) {
+    daySel.innerHTML = '';
+    for (let d = 1; d <= 31; d++) {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = `วันที่ ${d} สิงหาคม ${THAI_YEAR}`;
+      daySel.appendChild(opt);
+    }
+  }
 
-  if (document.getElementById('pfSwapReqNameSub')) document.getElementById('pfSwapReqNameSub').textContent = reqName;
-  if (document.getElementById('pfSwapSubNameSub')) document.getElementById('pfSwapSubNameSub').textContent = subName;
+  // 2. Populate Officer dropdowns (Requester & Substitute)
+  const reqSel = document.getElementById('swapReqOfficerSelect');
+  const subSel = document.getElementById('swapSubOfficerSelect');
+  
+  if (reqSel && subSel) {
+    reqSel.innerHTML = '<option value="">-- เลือกพนักงานผู้ขอแลกเวร --</option>';
+    subSel.innerHTML = '<option value="">-- เลือกพนักงานผู้รับปฏิบัติหน้าที่แทน --</option>';
+    
+    // Collect unique officer names from OFFICERS
+    const officerList = OFFICERS.map(o => `${o.name} ${o.surname}`).sort();
+    officerList.forEach(fullName => {
+      reqSel.appendChild(new Option(fullName, fullName));
+      subSel.appendChild(new Option(fullName, fullName));
+    });
+  }
 
-  window.print();
+  renderSwapRecordsTable();
+}
+
+function handleSwapPhotoSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const fileNameSpan = document.getElementById('swapPhotoFileName');
+  const previewBox   = document.getElementById('swapPhotoPreviewBox');
+  const previewImg   = document.getElementById('swapPhotoPreviewImg');
+
+  if (fileNameSpan) fileNameSpan.textContent = `📷 ${file.name}`;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    currentSwapPhotoBase64 = e.target.result;
+    if (previewImg) previewImg.src = currentSwapPhotoBase64;
+    if (previewBox) previewBox.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearSwapPhoto() {
+  currentSwapPhotoBase64 = '';
+  const input = document.getElementById('swapPhotoInput');
+  if (input) input.value = '';
+  const fileNameSpan = document.getElementById('swapPhotoFileName');
+  if (fileNameSpan) fileNameSpan.textContent = 'ยังไม่ได้แนบรูปถ่ายเอกสาร';
+  const previewBox = document.getElementById('swapPhotoPreviewBox');
+  if (previewBox) previewBox.style.display = 'none';
+}
+
+function getSwapRecords() {
+  try {
+    return JSON.parse(localStorage.getItem('shift_swap_records') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveSwapRecords(records) {
+  localStorage.setItem('shift_swap_records', JSON.stringify(records));
+}
+
+function handleSaveSwapRecord(event) {
+  if (event) event.preventDefault();
+
+  if (!loggedInOfficer || !loggedInOfficer.isAdmin) {
+    alert('เฉพาะผู้ดูแลระบบ (Admin) เท่านั้นที่สามารถบันทึกการแลกเวรได้');
+    return;
+  }
+
+  const day = document.getElementById('swapDaySelect')?.value;
+  const reqName = document.getElementById('swapReqOfficerSelect')?.value;
+  const subName = document.getElementById('swapSubOfficerSelect')?.value;
+  const returnDate = document.getElementById('swapReturnDateInput')?.value || '-';
+
+  if (!day || !reqName || !subName) {
+    alert('กรุณาเลือกวันที่ และระบุพนักงานทั้งผู้ขอแลกและผู้ปฏิบัติหน้าที่แทน');
+    return;
+  }
+
+  if (reqName === subName) {
+    alert('พนักงานผู้ขอแลกเวร และผู้รับหน้าที่แทน ต้องเป็นคนละคนกัน');
+    return;
+  }
+
+  const record = {
+    id: 'swap_' + Date.now(),
+    day: parseInt(day),
+    shiftDateText: `วันที่ ${day} สิงหาคม ${THAI_YEAR}`,
+    reqName: reqName,
+    subName: subName,
+    returnDateText: returnDate,
+    photoData: currentSwapPhotoBase64,
+    createdAt: new Date().toLocaleString('th-TH')
+  };
+
+  const records = getSwapRecords();
+  records.unshift(record); // Add to top
+  saveSwapRecords(records);
+
+  // Sync to Cloud Supabase if available
+  if (window.saveSwapRecordCloud) {
+    window.saveSwapRecordCloud(record);
+  }
+
+  alert(`✅ บันทึกการขอแลกเวรระหว่าง "${reqName}" กับ "${subName}" สำเร็จ!`);
+
+  // Reset Form
+  document.getElementById('swapReturnDateInput').value = '';
+  clearSwapPhoto();
+  renderSwapRecordsTable();
+}
+
+function renderSwapRecordsTable() {
+  const records = getSwapRecords();
+  const tbody = document.getElementById('swapRecordsTbody');
+  const countText = document.getElementById('swapCountText');
+
+  if (countText) countText.textContent = `${records.length} รายการ`;
+
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (records.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align:center; padding:24px; color:var(--text3); font-weight:600;">
+          ยังไม่มีข้อมูลประวัติการขอแลกเวร
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  records.forEach((rec, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="text-align:center; font-weight:700;">${idx + 1}</td>
+      <td style="font-weight:700; color:var(--indigo-l);">${rec.shiftDateText}</td>
+      <td style="font-weight:700; color:#DC2626;">👤 ${rec.reqName}</td>
+      <td style="font-weight:700; color:#16A34A;">🤝 ${rec.subName}</td>
+      <td style="font-size:13px;">${rec.returnDateText || '-'}</td>
+      <td style="text-align:center;">
+        ${rec.photoData ? `
+          <button class="btn-action btn-secondary" onclick="viewSwapPhotoModal('${rec.id}')" style="padding:4px 8px; font-size:12px;">
+            🖼️ ดูรูปแนบ
+          </button>
+        ` : '<span style="color:var(--text3); font-size:12px;">ไม่มีรูปแนบ</span>'}
+      </td>
+      <td style="text-align:center;">
+        <button class="btn-action" onclick="deleteSwapRecord('${rec.id}')" style="background:#FEE2E2; color:#DC2626; border:1px solid #FCA5A5; padding:4px 8px; font-size:12px;">
+          🗑️ ลบ
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function viewSwapPhotoModal(recordId) {
+  const records = getSwapRecords();
+  const rec = records.find(r => r.id === recordId);
+  if (!rec || !rec.photoData) return;
+
+  document.getElementById('modalHeading').textContent = `รูปถ่ายเอกสารขอแลกเวร (${rec.shiftDateText})`;
+  document.getElementById('modalHeadBadges').innerHTML = `
+    <span class="type-badge weekday">ผู้ขอแลก: ${rec.reqName}</span>
+    <span class="type-badge weekend">ผู้รับแทน: ${rec.subName}</span>
+  `;
+
+  document.getElementById('modalContent').innerHTML = `
+    <div style="text-align:center;">
+      <img src="${rec.photoData}" style="max-width:100%; max-height:70vh; object-fit:contain; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.15);">
+      <div style="margin-top:16px;">
+        <a href="${rec.photoData}" download="shift_swap_${rec.day}.png" class="btn-action btn-primary" style="text-decoration:none;">
+          📥 ดาวน์โหลดรูปถ่ายเอกสาร
+        </a>
+      </div>
+    </div>
+  `;
+
+  const backdrop = document.getElementById('modalBackdrop');
+  backdrop.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function deleteSwapRecord(recordId) {
+  if (!confirm('คุณต้องการลบรายการขอแลกเวรนี้ใช่หรือไม่?')) return;
+  let records = getSwapRecords();
+  records = records.filter(r => r.id !== recordId);
+  saveSwapRecords(records);
+  renderSwapRecordsTable();
 }
 
 /* =============================================
@@ -1582,7 +1772,7 @@ function updateMenuVisibility() {
   } else {
     if (sbLogBtn) sbLogBtn.style.display = 'flex'; // Officer menu: Show Shift Log
     if (sbAdminBtn) sbAdminBtn.style.display = 'none';
-    if (sbSwapBtn) sbSwapBtn.style.display = 'flex'; // Officers can also access Shift Swap
+    if (sbSwapBtn) sbSwapBtn.style.display = 'none'; // HIDE for Officers (Admin Only)
   }
 }
 
