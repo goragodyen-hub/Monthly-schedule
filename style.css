@@ -2,53 +2,53 @@
    CSS VARIABLES & RESET
    ============================================= */
 :root {
-  --bg:         #FBF9F5; /* ขาวนวล สบายตา */
-  --bg2:        #F3EFE6;
-  --surface:    rgba(255, 255, 255, 0.85);
-  --surface2:   rgba(243, 239, 230, 0.8);
-  --border:     rgba(0, 0, 0, 0.08);
-  --border-h:   rgba(0, 0, 0, 0.16);
+  --bg:         #FAF8F3; /* พื้นหลังสีครีมเหลืองนวล อบอุ่น สบายตา */
+  --bg2:        #F3EFE4;
+  --surface:    rgba(255, 255, 255, 0.9);
+  --surface2:   rgba(245, 240, 228, 0.85);
+  --border:     rgba(15, 23, 42, 0.08);
+  --border-h:   rgba(37, 99, 235, 0.2);
 
-  --text:       #1E293B; /* ตัวอักษรสีเข้ม อ่านง่าย */
-  --text2:      #475569;
+  --text:       #0F172A; /* สีตัวหนังสือสีกรมท่าเข้ม คมชัด อ่านง่ายมาก */
+  --text2:      #334155;
   --text3:      #64748B;
 
-  --indigo:     #4F46E5;
-  --indigo-l:   #4338CA;
-  --violet:     #6D28D9;
-  --blue:       #2563EB;
-  --blue-l:     #1D4ED8;
-  --sky:        #0284C7;
-  --sky-l:      #0369A1;
+  --indigo:     #2563EB; /* สีฟ้าไพลิน / ฟ้าคราม (Royal Soft Blue) */
+  --indigo-l:   #1D4ED8;
+  --violet:     #4F46E5;
+  --blue:       #0284C7;
+  --blue-l:     #0369A1;
+  --sky:        #0369A1;
+  --sky-l:      #075985;
   --emerald:    #059669;
   --emerald-l:  #047857;
-  --amber:      #D97706;
+  --amber:      #D97706; /* สีเหลืองทองนวล (Warm Golden Amber) */
   --amber-l:    #B45309;
   --rose:       #E11D48;
   --rose-l:     #BE123C;
   --pink:       #DB2777;
   --pink-l:     #BE185D;
-  --purple:     #7C3AED;
-  --purple-l:   #6D28D9;
+  --purple:     #6D28D9;
+  --purple-l:   #5B21B6;
   --green:      #16A34A;
   --green-d:    #F0FDF4;
   --red-l:      #DC2626;
 
-  /* Group colour tokens for Light Theme */
-  --g1: #4F46E5;  --g1-l: #3730A3;  --g1-bg: rgba(79,70,229,.08);   --g1-bd: rgba(79,70,229,.25);
-  --g2: #059669;  --g2-l: #065F46;  --g2-bg: rgba(5,150,105,.08);   --g2-bd: rgba(5,150,105,.25);
-  --g3: #D97706;  --g3-l: #92400E;  --g3-bg: rgba(217,119,6,.08);   --g3-bd: rgba(217,119,6,.25);
-  --kg: #DB2777;  --kg-l: #9D174D;  --kg-bg: rgba(219,39,119,.08);  --kg-bd: rgba(219,39,119,.25);
-  --pr: #7C3AED;  --pr-l: #5B21B6;  --pr-bg: rgba(124,58,237,.08);  --pr-bd: rgba(124,58,237,.25);
-  --sc: #E11D48;  --sc-l: #9F1239;  --sc-bg: rgba(225,29,72,.08);   --sc-bd: rgba(225,29,72,.25);
+  /* Group colour tokens: ฟ้า & เหลืองนวล */
+  --g1: #2563EB;  --g1-l: #1D4ED8;  --g1-bg: rgba(37,99,235,.09);   --g1-bd: rgba(37,99,235,.28);
+  --g2: #059669;  --g2-l: #047857;  --g2-bg: rgba(5,150,105,.09);   --g2-bd: rgba(5,150,105,.28);
+  --g3: #D97706;  --g3-l: #B45309;  --g3-bg: rgba(217,119,6,.1);    --g3-bd: rgba(217,119,6,.3);
+  --kg: #DB2777;  --kg-l: #BE185D;  --kg-bg: rgba(219,39,119,.09);  --kg-bd: rgba(219,39,119,.28);
+  --pr: #6D28D9;  --pr-l: #5B21B6;  --pr-bg: rgba(109,40,217,.09);  --pr-bd: rgba(109,40,217,.28);
+  --sc: #E11D48;  --sc-l: #BE123C;  --sc-bg: rgba(225,29,72,.09);   --sc-bd: rgba(225,29,72,.28);
 
   --r:    12px;
   --r-lg: 20px;
   --r-sm: 8px;
   --r-xs: 6px;
 
-  --shadow:    0 4px 20px rgba(0,0,0,.06);
-  --shadow-lg: 0 10px 30px rgba(0,0,0,.1);
+  --shadow:    0 4px 20px rgba(15,23,42,.06);
+  --shadow-lg: 0 10px 30px rgba(15,23,42,.1);
 
   --ease: cubic-bezier(.4,0,.2,1);
   --dur:  .28s;
@@ -76,21 +76,21 @@ input  { font-family:var(--font); }
 }
 
 /* =============================================
-   ANIMATED BACKGROUND
+   ANIMATED BACKGROUND (Soft Blue & Warm Yellow)
    ============================================= */
 .app-bg {
   position:fixed; inset:0; z-index:-1;
-  background: radial-gradient(ellipse at 20% 10%, #F5F0E6 0%, #FBF9F5 60%);
+  background: radial-gradient(ellipse at 30% 20%, #F5EFE2 0%, #FAF8F3 70%);
   overflow:hidden;
 }
 .bg-orb {
   position:absolute; border-radius:50%;
-  filter:blur(90px); opacity:.35;
+  filter:blur(100px); opacity:.38;
   animation:orbFloat 10s var(--ease) infinite alternate;
 }
-.bg-orb-1 { width:700px;height:700px; background:radial-gradient(circle,rgba(79,70,229,.15),transparent); top:-250px;left:-200px; animation-delay:0s; }
-.bg-orb-2 { width:500px;height:500px; background:radial-gradient(circle,rgba(219,39,119,.15),transparent); bottom:-150px;right:-150px; animation-delay:4s; }
-.bg-orb-3 { width:350px;height:350px; background:radial-gradient(circle,rgba(5,150,105,.15),transparent); top:45%;left:45%; animation-delay:7s; }
+.bg-orb-1 { width:700px;height:700px; background:radial-gradient(circle,rgba(37,99,235,.18),transparent); top:-250px;left:-200px; animation-delay:0s; }
+.bg-orb-2 { width:500px;height:500px; background:radial-gradient(circle,rgba(245,158,11,.18),transparent); bottom:-150px;right:-150px; animation-delay:4s; }
+.bg-orb-3 { width:380px;height:380px; background:radial-gradient(circle,rgba(56,189,248,.18),transparent); top:40%;left:40%; animation-delay:7s; }
 @keyframes orbFloat {
   0%   { transform:translate(0,0) scale(1); }
   100% { transform:translate(40px,-40px) scale(1.08); }
@@ -110,10 +110,10 @@ input  { font-family:var(--font); }
    ============================================= */
 .app-header {
   position:sticky; top:0; z-index:200;
-  background:rgba(251,249,245,.92);
+  background:rgba(250,248,243,.92);
   backdrop-filter:blur(22px);
   border-bottom:1px solid var(--border);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 18px rgba(15,23,42,0.04);
 }
 .header-inner {
   max-width:1200px; margin:0 auto;
@@ -124,12 +124,15 @@ input  { font-family:var(--font); }
 .header-brand { display:flex; align-items:center; gap:12px; }
 .brand-icon {
   font-size:24px;
-  filter:drop-shadow(0 2px 4px rgba(0,0,0,.1));
+  filter:drop-shadow(0 2px 4px rgba(37,99,235,.2));
   flex-shrink:0;
 }
 .brand-text h1 {
   font-size:16px; font-weight:800; line-height:1.1;
-  color: #1E293B;
+  background: linear-gradient(135deg, #1D4ED8 0%, #D97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 .brand-text p { font-size:10.5px; color:var(--text3); margin-top:1px; }
 
@@ -138,6 +141,7 @@ input  { font-family:var(--font); }
   background:var(--surface); border:1px solid var(--border);
   border-radius:var(--r-sm); padding:6px 12px;
   flex-shrink:0;
+  box-shadow: 0 2px 8px rgba(37,99,235,0.06);
 }
 .clock-time {
   font-size:18px; font-weight:700;
@@ -145,6 +149,7 @@ input  { font-family:var(--font); }
   color:var(--indigo);
 }
 .clock-date { font-size:10px; color:var(--text3); margin-top:1px; }
+
 
 
 /* =============================================
