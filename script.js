@@ -1270,28 +1270,26 @@ function initSignaturePad() {
   const canvas = document.getElementById('sigCanvas');
   if (!canvas) return;
 
-  const setupCanvas = () => {
+  const ctx = canvas.getContext('2d');
+
+  const resizeCanvas = () => {
     const rect = canvas.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
-    // Set logical size equal to CSS display size for 1:1 pixel drawing accuracy
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-
-    const ctx = canvas.getContext('2d');
-    ctx.strokeStyle = '#1E40AF'; // Deep navy blue stroke for warm light background
-    ctx.lineWidth = 2.8;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    // Check if dimensions actually changed
+    if (canvas.width !== rect.width || canvas.height !== rect.height) {
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
   };
 
-  setupCanvas();
-  window.addEventListener('resize', setupCanvas);
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
 
   let isDrawing = false;
   let lastPos = { x: 0, y: 0 };
 
-  const getCoordinates = (e) => {
+  const getPos = (e) => {
     const rect = canvas.getBoundingClientRect();
     let clientX = e.clientX;
     let clientY = e.clientY;
@@ -1307,30 +1305,32 @@ function initSignaturePad() {
     };
   };
 
-  const startDrawing = (e) => {
-    e.preventDefault();
+  const startDraw = (e) => {
+    resizeCanvas();
     isDrawing = true;
-    lastPos = getCoordinates(e);
+    lastPos = getPos(e);
 
-    const ctx = canvas.getContext('2d');
     ctx.strokeStyle = '#1E40AF';
-    ctx.lineWidth = 2.8;
+    ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
     ctx.beginPath();
-    ctx.arc(lastPos.x, lastPos.y, 1.4, 0, Math.PI * 2);
+    ctx.arc(lastPos.x, lastPos.y, 1.5, 0, Math.PI * 2);
     ctx.fillStyle = '#1E40AF';
     ctx.fill();
   };
-
 
   const draw = (e) => {
     if (!isDrawing) return;
     e.preventDefault();
 
-    const currentPos = getCoordinates(e);
-    const ctx = canvas.getContext('2d');
+    const currentPos = getPos(e);
+
+    ctx.strokeStyle = '#1E40AF';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
     ctx.beginPath();
     ctx.moveTo(lastPos.x, lastPos.y);
@@ -1340,32 +1340,21 @@ function initSignaturePad() {
     lastPos = currentPos;
   };
 
-  const stopDrawing = (e) => {
-    if (isDrawing) {
-      isDrawing = false;
-    }
+  const stopDraw = () => {
+    isDrawing = false;
   };
 
-  // Attach Pointer Event (Unified Mouse & Touch support)
-  if (window.PointerEvent) {
-    canvas.onpointerdown = startDrawing;
-    canvas.onpointermove = draw;
-    canvas.onpointerup = stopDrawing;
-    canvas.onpointercancel = stopDrawing;
-    canvas.onpointerleave = stopDrawing;
-  } else {
-    // Mouse Event Listeners
-    canvas.onmousedown = startDrawing;
-    canvas.onmousemove = draw;
-    canvas.onmouseup = stopDrawing;
-    canvas.onmouseleave = stopDrawing;
+  // Attach Event Listeners directly
+  canvas.onmousedown = startDraw;
+  canvas.onmousemove = draw;
+  canvas.onmouseup = stopDraw;
+  canvas.onmouseleave = stopDraw;
 
-    // Touch Event Listeners
-    canvas.ontouchstart = startDrawing;
-    canvas.ontouchmove = draw;
-    canvas.ontouchend = stopDrawing;
-  }
+  canvas.ontouchstart = (e) => { e.preventDefault(); startDraw(e); };
+  canvas.ontouchmove = (e) => { e.preventDefault(); draw(e); };
+  canvas.ontouchend = stopDraw;
 }
+
 
 function clearSignature() {
   const canvas = document.getElementById('sigCanvas');
