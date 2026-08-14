@@ -579,26 +579,26 @@
         </div>
 
         <form id="swapAdminForm" onsubmit="handleSaveSwapRecord(event)">
-          <div class="lic-info-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
-            <div class="lic-field">
-              <label class="lic-label">📅 วันที่ขอสลับ (Shift Date)</label>
+          <div class="lic-info-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; align-items:end;">
+            <div class="lic-field" style="display:flex; flex-direction:column; justify-content:flex-end;">
+              <label class="lic-label" style="min-height:36px; display:flex; align-items:flex-end; margin-bottom:6px;">📅 วันที่ขอสลับ (Shift Date)</label>
               <input type="date" id="swapDateInput" class="lic-input" required onchange="handleSwapDateChange()">
             </div>
 
-            <div class="lic-field">
-              <label class="lic-label">👤 พนักงานผู้ขอแลกเวร (Requester)</label>
+            <div class="lic-field" style="display:flex; flex-direction:column; justify-content:flex-end;">
+              <label class="lic-label" style="min-height:36px; display:flex; align-items:flex-end; margin-bottom:6px;">👤 พนักงานผู้ขอแลกเวร (Requester)</label>
               <select id="swapReqOfficerSelect" class="lic-input" required>
                 <option value="">-- เลือกพนักงานผู้ขอแลกเวร --</option>
               </select>
             </div>
 
-            <div class="lic-field">
-              <label class="lic-label">🔄 วันที่สลับไปคืนแทน (Return Date)</label>
+            <div class="lic-field" style="display:flex; flex-direction:column; justify-content:flex-end;">
+              <label class="lic-label" style="min-height:36px; display:flex; align-items:flex-end; margin-bottom:6px;">🔄 วันที่สลับไปคืนแทน (Return Date)</label>
               <input type="date" id="swapReturnDateInput" class="lic-input" onchange="handleReturnDateChange()">
             </div>
 
-            <div class="lic-field">
-              <label class="lic-label">🤝 พนักงานผู้รับหน้าที่แทน (Substitute)</label>
+            <div class="lic-field" style="display:flex; flex-direction:column; justify-content:flex-end;">
+              <label class="lic-label" style="min-height:36px; display:flex; align-items:flex-end; margin-bottom:6px;">🤝 พนักงานผู้รับหน้าที่แทน (Substitute)</label>
               <select id="swapSubOfficerSelect" class="lic-input" required>
                 <option value="">-- เลือกพนักงานผู้รับแทน --</option>
               </select>
