@@ -318,13 +318,16 @@ function switchTab(tab) {
 
   if (tab === 'calendar' && !calRendered)  { renderCalendar(); calRendered = true; }
   if (tab === 'table'    && !tableRendered){ buildTable();  tableRendered = true; }
-  if (tab === 'log'      && !logInitialized){ initShiftLog(); logInitialized = true; }
-  if (tab === 'log'      && !sigPadInitialized) {
-    // canvas ต้องมองเห็นก่อนจึงวัดขนาดได้
-    requestAnimationFrame(() => { initSignaturePad(); sigPadInitialized = true; });
+  if (tab === 'log') {
+    if (!logInitialized) { initShiftLog(); logInitialized = true; }
+    setTimeout(() => {
+      initSignaturePad();
+      if (window.resizeSignatureCanvas) window.resizeSignatureCanvas();
+    }, 150);
   }
   if (tab === 'admin')   { renderAdminDashboard(); }
 }
+
 
 /* =============================================
    DUTY CARDS HTML  (used in Today view & modal)
