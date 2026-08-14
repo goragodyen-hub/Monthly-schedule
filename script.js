@@ -1476,10 +1476,12 @@ function updateLoggedInUserUI(officer) {
   if (officer.isAdmin) {
     switchTab('admin');
   } else {
-    // Auto open shift log for today & officer
+    // Auto open shift log for officer (prefer today if on duty, else first scheduled day)
     const t = todayNum();
     const currentDay = (t.month === SCHED_MONTH && t.year === SCHED_YEAR && t.day >= 1 && t.day <= 31) ? t.day : 1;
-    openShiftLogForOfficer(currentDay, fullName);
+    const myDays = findDaysForOfficer(fullName);
+    const targetDay = (myDays.includes(currentDay)) ? currentDay : (myDays.length > 0 ? myDays[0] : currentDay);
+    openShiftLogForOfficer(targetDay, fullName);
   }
 }
 
