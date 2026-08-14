@@ -1408,13 +1408,16 @@ function updateLiveSignaturePreview() {
   if (pfSign) {
     if (sigDataUrl) {
       pfSign.innerHTML = `
-        <div style="display:inline-flex; flex-direction:column; align-items:center; vertical-align:bottom; margin-bottom:-10px;">
-          <img src="${sigDataUrl}" style="max-height:45px; max-width:180px; object-fit:contain;">
+        <div style="display:inline-flex; flex-direction:column; align-items:center; vertical-align:bottom; width:100%;">
+          <div style="min-height:38px; display:flex; align-items:flex-end; justify-content:center;">
+            <img src="${sigDataUrl}" style="max-height:42px; max-width:180px; object-fit:contain;">
+          </div>
+          <div style="border-bottom:1px dotted #000; width:100%; margin:2px 0 3px 0;"></div>
           <span style="font-size:12.5px; font-weight:600; font-family:'Sarabun';">(${nameVal})</span>
         </div>
       `;
     } else {
-      pfSign.innerHTML = nameVal ? `<span style="font-size:13px; font-weight:600; font-family:'Sarabun';">(${nameVal})</span>` : '&nbsp;';
+      pfSign.innerHTML = nameVal ? `<div style="border-bottom:1px dotted #000; width:100%; padding-bottom:2px; margin-bottom:3px;">&nbsp;</div><span style="font-size:13px; font-weight:600; font-family:'Sarabun';">(${nameVal})</span>` : '&nbsp;';
     }
   }
 
@@ -2081,10 +2084,16 @@ async function adminViewOfficerLog(dayNum, officerName) {
 
         <!-- Signatures & Inspector -->
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
-          <div style="text-align:right; font-size:13px; color:#000;">
-            <span>ลงชื่อ </span>
-            <span style="display:inline-block; border-bottom:1px dotted #000; min-width:200px; text-align:center; padding:0 4px;">${sigHtml}</span>
-            <span> (ตัวบรรจง)</span>
+          <div style="display:flex; align-items:flex-end; justify-content:flex-end; gap:8px; font-size:13px; color:#000;">
+            <span style="margin-bottom:20px; font-weight:500;">ลงชื่อ</span>
+            <div style="display:inline-flex; flex-direction:column; align-items:center; min-width:220px;">
+              <div style="min-height:42px; display:flex; align-items:flex-end; justify-content:center;">
+                ${logData.signatureData ? `<img src="${logData.signatureData}" style="max-height:45px; max-width:180px; object-fit:contain;">` : ''}
+              </div>
+              <div style="border-bottom:1px dotted #000; width:100%; margin:2px 0 4px 0;"></div>
+              <div style="font-size:13px; font-weight:600; font-family:'Sarabun'; text-align:center;">(${logData.name})</div>
+            </div>
+            <span style="margin-bottom:2px; font-weight:500;">(ตัวบรรจง)</span>
           </div>
 
           <div style="border:1px solid #000; border-radius:4px; padding:8px 12px; background:#FAFAFA;">
