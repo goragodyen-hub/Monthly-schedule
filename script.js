@@ -1001,9 +1001,76 @@ async function saveShiftLog() {
     await saveShiftLogCloud(data, loggedInOfficer.emp_id);
   }
 
-  alert(`💾 บันทึกข้อมูลของ ${data.name} (วันที่ ${data.dayNum} ส.ค.) เรียบร้อยแล้ว!`);
+  alert(`🚀 ส่งใบบันทึกเวรของ ${data.name} (วันที่ ${data.dayNum} ส.ค.) เรียบร้อยแล้ว!`);
   checkMissingPastLogs();
   return data;
+}
+
+async function checkMissingPastLogs() {
+  const banner = document.getElementById('logAlertBanner');
+  if (!banner) return;
+
+  if (!loggedInOfficer || loggedInOfficer.isAdmin) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  const fullName = `${loggedInOfficer.name} ${loggedInOfficer.surname}`;
+  const scheduledDays = findDaysForOfficer(fullName);
+  const t = todayNum();
+  const currentDay = (t.month === SCHED_MONTH && t.year === SCHED_YEAR && t.day >= 1 && t.day <= 31) ? t.day : 31;
+
+  // Filter days before currentDay that haven't been submitted
+  const missingDays = [];
+
+  for (const dayNum of scheduledDays) {
+    if (dayNum >= currentDay) continue; // Only past days
+
+    let isSaved = false;
+
+    // Check Cloud
+    if (typeof fetchShiftLogCloud === 'function') {
+      const cloudData = await fetchShiftLogCloud(dayNum, loggedInOfficer.emp_id);
+      if (cloudData && (cloudData.rows?.length > 0 || cloudData.sign_name || cloudData.inspector_notes)) {
+        isSaved = true;
+      }
+    }
+
+    // Check Local
+    if (!isSaved) {
+      const key = `shift_log_${dayNum}_${fullName.replace(/\s+/g, '_')}`;
+      const localData = localStorage.getItem(key);
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData);
+          if (parsed.rows && parsed.rows.length > 0) isSaved = true;
+        } catch(e){}
+      }
+    }
+
+    if (!isSaved) {
+      missingDays.push(dayNum);
+    }
+  }
+
+  if (missingDays.length > 0) {
+    const firstMissing = missingDays[0];
+    banner.style.display = 'flex';
+    banner.innerHTML = `
+      <span>⚠️ <strong>แจ้งเตือน:</strong> คุณยังไม่ได้ส่งใบบันทึกเวรย้อนหลัง (วันที่ ${missingDays.join(', ')} ส.ค.)</span>
+      <button class="btn-jump-day" onclick="jumpToMissingLog(${firstMissing})">📝 กรอกวันที่ ${firstMissing} ส.ค.</button>
+    `;
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+function jumpToMissingLog(dayNum) {
+  const dateSel = document.getElementById('logDateSelect');
+  if (dateSel) {
+    dateSel.value = dayNum;
+    onLogDateChange();
+  }
 }
 
 function exportShiftLogFile() {
