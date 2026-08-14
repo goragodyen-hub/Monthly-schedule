@@ -1314,22 +1314,25 @@ mark.hl {
 /* pf-value: display elements in print form */
 .pf-value {
   display: inline-block;
-  min-width: 80px;
+  min-width: 90px;
   border-bottom: 1px dotted #000;
-  padding: 0 4px;
-  font-size: 14px;
-  vertical-align: baseline;
+  padding: 0 6px 1px 6px;
+  font-size: 13px;
+  line-height: 1.2;
+  vertical-align: bottom;
   text-align: center;
   color: #000;
+  font-weight: 500;
 }
 .pf-name { min-width: 220px; text-align: left; }
 .pf-sign-line {
   display: inline-block;
   min-width: 200px;
   border-bottom: 1px dotted #000;
-  padding: 0 4px;
+  padding: 0 6px 1px 6px;
   text-align: center;
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.2;
   vertical-align: bottom;
 }
 .pf-cb {
@@ -1344,11 +1347,11 @@ mark.hl {
 }
 .pf-cb.checked::after {
   content: "✓";
-  font-size: 12px;
+  font-size: 13px;
   font-weight: bold;
   color: #000;
   position: absolute;
-  top: -2px;
+  top: -3px;
   left: 1px;
 }
 
@@ -1359,7 +1362,7 @@ mark.hl {
   body {
     background: #FFF !important;
     color: #000 !important;
-    font-size: 13px !important;
+    font-size: 12.5px !important;
     line-height: 1.4 !important;
   }
   .app-bg, .app-header, .sidebar, .sb-overlay,
@@ -1389,48 +1392,50 @@ mark.hl {
   }
 
   /* ── โลโก้ & หัวเรื่อง ── */
-  .school-emblem img { height: 60px !important; margin-bottom: 4px !important; }
-  .form-header { margin-bottom: 10px !important; }
-  .form-school-title { font-size: 16px !important; margin-bottom: 2px !important; }
-  .form-doc-title    { font-size: 14px !important; margin-bottom: 2px !important; }
+  .school-emblem img { height: 52px !important; margin-bottom: 2px !important; }
+  .form-header { margin-bottom: 12px !important; text-align: center !important; }
+  .form-school-title { font-size: 16px !important; margin-bottom: 2px !important; font-weight: bold !important; }
+  .form-doc-title    { font-size: 14px !important; margin-bottom: 0 !important; font-weight: bold !important; }
 
   /* ── Metadata ── */
   .form-meta-grid {
-    gap: 6px !important;
-    margin-bottom: 12px !important;
-    font-size: 13px !important;
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+    font-size: 12.5px !important;
   }
-  .form-meta-row { gap: 6px !important; }
-  .pf-value { font-size: 13px !important; min-width: 100px !important; padding: 1px 4px !important; }
-  .pf-name  { min-width: 200px !important; }
+  .form-meta-row { gap: 6px !important; display: flex !important; align-items: baseline !important; }
+  .pf-value { font-size: 12.5px !important; border-bottom: 1px dotted #000 !important; }
 
   /* ── ตาราง log ── */
-  .form-log-table { margin-bottom: 12px !important; }
+  .form-log-table { margin-bottom: 14px !important; width: 100% !important; border-collapse: collapse !important; }
   .form-log-table th,
   .form-log-table td {
     padding: 5px 8px !important;
     font-size: 12px !important;
+    border: 1px solid #000 !important;
   }
+  .form-log-table th { font-weight: bold !important; background: #f9f9f9 !important; }
 
   /* ── ลายเซ็น & ผู้ตรวจ ── */
   .form-bottom-section { gap: 10px !important; margin-bottom: 12px !important; }
-  .form-sign-row { font-size: 13px !important; }
-  .pf-sign-line img { max-height: 45px !important; }
+  .form-sign-row { font-size: 12.5px !important; text-align: right !important; }
+  .pf-sign-line img { max-height: 42px !important; display: inline-block !important; vertical-align: middle !important; }
   .form-inspector-box { margin-top: 6px !important; }
-  .fib-label { font-size: 13px !important; margin-bottom: 3px !important; }
-  #pfInspectorNotes { min-height: 40px !important; font-size: 12px !important; padding: 4px !important; }
-  .form-advisor-sign { margin-top: 10px !important; font-size: 12px !important; }
+  .fib-label { font-size: 12.5px !important; margin-bottom: 3px !important; font-weight: bold !important; }
+  #pfInspectorNotes { min-height: 38px !important; font-size: 12px !important; padding: 4px !important; border: 1px dotted #000 !important; }
+  .form-advisor-sign { margin-top: 10px !important; font-size: 12px !important; text-align: right !important; }
 
   /* ── ระเบียบท้ายฟอร์ม ── */
   .form-regulations {
     padding-top: 8px !important;
-    font-size: 10.5px !important;
+    font-size: 10px !important;
+    border-top: 1px solid #ccc !important;
   }
   .reg-detail p { margin: 2px 0 !important; }
 
   @page {
     size: A4 portrait;
-    margin: 12mm;
+    margin: 12mm 15mm;
   }
 }
 
