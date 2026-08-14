@@ -1266,86 +1266,100 @@ function initSignaturePad() {
   const canvas = document.getElementById('sigCanvas');
   if (!canvas) return;
 
-  const resize = () => {
+  const setupCanvas = () => {
     const rect = canvas.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
-    const dpr = window.devicePixelRatio || 1;
 
-    // Save existing content before resize
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    if (canvas.width > 0 && canvas.height > 0) {
-      tempCanvas.getContext('2d').drawImage(canvas, 0, 0);
-    }
+    // Set logical size equal to CSS display size for 1:1 pixel drawing accuracy
+    canvas.width = rect.width;
+    canvas.height = rect.height;
 
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
     const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-    ctx.strokeStyle = '#F0F4FF';
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#60A5FA'; // Bright clear blue stroke for dark mode
+    ctx.lineWidth = 2.8;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-
-    if (tempCanvas.width > 0 && tempCanvas.height > 0) {
-      ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width / dpr, tempCanvas.height / dpr);
-    }
   };
 
-  resize();
-  window.removeEventListener('resize', resize);
-  window.addEventListener('resize', resize);
+  setupCanvas();
+  window.addEventListener('resize', setupCanvas);
 
-  let drawing = false;
-  let lastX = 0, lastY = 0;
+  let isDrawing = false;
+  let lastPos = { x: 0, y: 0 };
 
-  const getPos = (e) => {
+  const getCoordinates = (e) => {
     const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: clientX - rect.left, y: clientY - rect.top };
+    let clientX = e.clientX;
+    let clientY = e.clientY;
+
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    }
+
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
   };
 
-  const startDraw = (e) => {
-    if (e.target !== canvas) return;
+  const startDrawing = (e) => {
     e.preventDefault();
-    drawing = true;
-    const pos = getPos(e);
-    lastX = pos.x; lastY = pos.y;
+    isDrawing = true;
+    lastPos = getCoordinates(e);
+
     const ctx = canvas.getContext('2d');
-    ctx.strokeStyle = '#F0F4FF';
-    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#60A5FA';
+    ctx.lineWidth = 2.8;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+
     ctx.beginPath();
-    ctx.arc(lastX, lastY, 1.2, 0, Math.PI * 2);
-    ctx.fillStyle = '#F0F4FF';
+    ctx.arc(lastPos.x, lastPos.y, 1.4, 0, Math.PI * 2);
+    ctx.fillStyle = '#60A5FA';
     ctx.fill();
   };
 
   const draw = (e) => {
-    if (!drawing) return;
+    if (!isDrawing) return;
     e.preventDefault();
-    const pos = getPos(e);
+
+    const currentPos = getCoordinates(e);
     const ctx = canvas.getContext('2d');
+
     ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(pos.x, pos.y);
+    ctx.moveTo(lastPos.x, lastPos.y);
+    ctx.lineTo(currentPos.x, currentPos.y);
     ctx.stroke();
-    lastX = pos.x; lastY = pos.y;
+
+    lastPos = currentPos;
   };
 
-  const stopDraw = () => { drawing = false; };
+  const stopDrawing = (e) => {
+    if (isDrawing) {
+      isDrawing = false;
+    }
+  };
 
-  canvas.onmousedown = startDraw;
-  canvas.onmousemove = draw;
-  canvas.onmouseup = stopDraw;
-  canvas.onmouseleave = stopDraw;
+  // Attach Pointer Event (Unified Mouse & Touch support)
+  if (window.PointerEvent) {
+    canvas.onpointerdown = startDrawing;
+    canvas.onpointermove = draw;
+    canvas.onpointerup = stopDrawing;
+    canvas.onpointercancel = stopDrawing;
+    canvas.onpointerleave = stopDrawing;
+  } else {
+    // Mouse Event Listeners
+    canvas.onmousedown = startDrawing;
+    canvas.onmousemove = draw;
+    canvas.onmouseup = stopDrawing;
+    canvas.onmouseleave = stopDrawing;
 
-  canvas.ontouchstart = startDraw;
-  canvas.ontouchmove = draw;
-  canvas.ontouchend = stopDraw;
+    // Touch Event Listeners
+    canvas.ontouchstart = startDrawing;
+    canvas.ontouchmove = draw;
+    canvas.ontouchend = stopDrawing;
+  }
 }
 
 function clearSignature() {
