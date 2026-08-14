@@ -565,7 +565,10 @@ function openModal(day) {
 }
 
 function closeModal() {
-  document.getElementById('modalBackdrop').style.display = 'none';
+  const backdrop = document.getElementById('modalBackdrop');
+  if (backdrop) backdrop.style.display = 'none';
+  const box = document.querySelector('.modal-box');
+  if (box) box.classList.remove('modal-box-lg');
   document.body.style.overflow = '';
 }
 
@@ -1882,9 +1885,237 @@ async function renderAdminDashboard() {
   tbody.innerHTML = html;
 }
 
-function adminViewOfficerLog(day, name) {
-  switchTab('log');
-  openShiftLogForOfficer(day, name);
+async function adminViewOfficerLog(dayNum, officerName) {
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const modalHeading  = document.getElementById('modalHeading');
+  const modalContent  = document.getElementById('modalContent');
+  const modalFoot     = document.querySelector('.modal-foot');
+  const modalBox      = document.querySelector('.modal-box');
+  if (!modalBackdrop || !modalContent) return;
+
+  if (modalBox) modalBox.classList.add('modal-box-lg');
+
+  // 1. Determine Officer empId & schedule entry
+  const entry = SCHEDULE.find(d => d.day === dayNum);
+  const matchedKey = Object.keys(OFFICERS_REGISTRY).find(id => {
+    const o = OFFICERS_REGISTRY[id];
+    return `${o.name}${o.surname}`.replace(/\s+/g, '') === officerName.replace(/\s+/g, '');
+  });
+  const empId = matchedKey || '';
+  const officerObj = matchedKey ? OFFICERS_REGISTRY[matchedKey] : null;
+
+  // 2. Fetch Log Data (Cloud or LocalStorage)
+  let logData = null;
+  if (typeof fetchShiftLogCloud === 'function' && empId) {
+    const cloud = await fetchShiftLogCloud(dayNum, empId);
+    if (cloud) {
+      logData = {
+        level: cloud.level || officerObj?.level || 'ปฏิบัติหน้าที่เวร',
+        isDay: cloud.is_day,
+        isNight: cloud.is_night,
+        name: cloud.officer_name || officerName,
+        dayName: entry?.dayName || '',
+        dayNum: dayNum,
+        month: 'สิงหาคม',
+        year: THAI_YEAR,
+        timeIn: cloud.time_in || '17.00 น.',
+        timeOut: cloud.time_out || '07.00 น.',
+        signatureData: cloud.sign_name || null,
+        inspectorNotes: cloud.inspector_notes || '',
+        rows: cloud.rows || []
+      };
+    }
+  }
+
+  if (!logData) {
+    const localKey = `shift_log_${dayNum}_${officerName.replace(/\s+/g, '_')}`;
+    const local = localStorage.getItem(localKey);
+    if (local) {
+      try { logData = JSON.parse(local); } catch(e){}
+    }
+  }
+
+  // Fallback default draft if no saved log exists
+  if (!logData) {
+    const isNight = officerObj ? officerObj.type === 'male' : true;
+    logData = {
+      level: officerObj?.level || 'ปฏิบัติหน้าที่เวร',
+      isDay: !isNight,
+      isNight: isNight,
+      name: officerName,
+      dayName: entry?.dayName || '',
+      dayNum: dayNum,
+      month: 'สิงหาคม',
+      year: THAI_YEAR,
+      timeIn: isNight ? '17.00 น.' : '08.00 น.',
+      timeOut: isNight ? '07.00 น.' : '16.00 น.',
+      signatureData: null,
+      inspectorNotes: '',
+      rows: []
+    };
+  }
+
+  // 3. Build Log Table Rows HTML
+  let rowsHtml = '';
+  const rows = logData.rows || [];
+  rows.forEach(r => {
+    rowsHtml += `
+      <tr>
+        <td style="border:1px solid #000; padding:6px 8px; font-size:12.5px; text-align:center; font-family:'Sarabun';">${r.time || ''}</td>
+        <td style="border:1px solid #000; padding:6px 8px; font-size:12.5px; font-family:'Sarabun';">${r.note || ''}</td>
+        <td style="border:1px solid #000; padding:6px 8px; font-size:12.5px; font-family:'Sarabun';">${r.remark || ''}</td>
+      </tr>
+    `;
+  });
+  // Pad with blank rows to reach at least 7 rows
+  const minRows = Math.max(7, rows.length);
+  for (let i = rows.length; i < minRows; i++) {
+    rowsHtml += `
+      <tr>
+        <td style="border:1px solid #000; padding:6px 8px; height:26px;">&nbsp;</td>
+        <td style="border:1px solid #000; padding:6px 8px;">&nbsp;</td>
+        <td style="border:1px solid #000; padding:6px 8px;">&nbsp;</td>
+      </tr>
+    `;
+  }
+
+  // Checkbox states
+  const cbDayMark = logData.isDay ? '✓' : '';
+  const cbNightMark = logData.isNight ? '✓' : '';
+
+  // Signature HTML
+  let sigHtml = `(${logData.name})`;
+  if (logData.signatureData) {
+    sigHtml = `
+      <div style="display:inline-flex; flex-direction:column; align-items:center; vertical-align:bottom; margin-bottom:-10px;">
+        <img src="${logData.signatureData}" style="max-height:48px; max-width:190px; object-fit:contain;">
+        <span style="font-size:12.5px; font-weight:600; font-family:'Sarabun';">(${logData.name})</span>
+      </div>
+    `;
+  }
+
+  // 4. Build Complete A4 Sheet HTML
+  const a4Html = `
+    <div class="a4-modal-wrapper">
+      <div class="a4-modal-paper">
+        
+        <!-- School Emblem & Header -->
+        <div style="text-align:center; margin-bottom:14px;">
+          <img src="CD Logo TH_Black.svg" alt="ตราโรงเรียนจิตรลดา" style="height:80px; width:auto; margin-bottom:6px;">
+          <h2 style="font-size:18px; margin:0 0 4px 0; font-weight:bold; color:#000;">โรงเรียนจิตรลดา</h2>
+          <h3 style="font-size:15px; margin:0; font-weight:bold; color:#000;">บันทึกเวรประจำวัน</h3>
+        </div>
+
+        <!-- Metadata Grid -->
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px; font-size:13px; color:#000;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline;">
+            <div>
+              <span>อยู่เวร ระดับ </span>
+              <span style="border-bottom:1px dotted #000; padding:0 8px; font-weight:600;">${logData.level || 'ปฏิบัติหน้าที่เวร'}</span>
+            </div>
+            <div style="display:flex; gap:16px;">
+              <span><span style="display:inline-block; width:14px; height:14px; border:1.5px solid #000; text-align:center; line-height:12px; font-weight:bold; font-size:12px;">${cbDayMark}</span> กลางวัน</span>
+              <span><span style="display:inline-block; width:14px; height:14px; border:1.5px solid #000; text-align:center; line-height:12px; font-weight:bold; font-size:12px;">${cbNightMark}</span> กลางคืน</span>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <span>ชื่อ </span>
+            <span style="border-bottom:1px dotted #000; padding:0 8px; font-weight:600; flex:1;">${logData.name}</span>
+          </div>
+
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <span>วัน <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.dayName || ''}</span></span>
+            <span>ที่ <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.dayNum || ''}</span></span>
+            <span>เดือน <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.month || 'สิงหาคม'}</span></span>
+            <span>พ.ศ. <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.year || '2569'}</span></span>
+          </div>
+
+          <div style="display:flex; gap:20px;">
+            <span>เวลาเข้าเวร <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.timeIn || '17.00 น.'}</span></span>
+            <span>เวลาออกเวร <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.timeOut || '07.00 น.'}</span></span>
+          </div>
+        </div>
+
+        <!-- Log Table -->
+        <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+          <thead>
+            <tr style="background:#F1F5F9;">
+              <th style="width:15%; border:1px solid #000; padding:6px; font-size:13px; font-weight:bold; color:#000;">เวลา</th>
+              <th style="width:65%; border:1px solid #000; padding:6px; font-size:13px; font-weight:bold; color:#000;">บันทึกเหตุการณ์ประจำวัน</th>
+              <th style="width:20%; border:1px solid #000; padding:6px; font-size:13px; font-weight:bold; color:#000;">หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+
+        <!-- Signatures & Inspector -->
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
+          <div style="text-align:right; font-size:13px; color:#000;">
+            <span>ลงชื่อ </span>
+            <span style="display:inline-block; border-bottom:1px dotted #000; min-width:200px; text-align:center; padding:0 4px;">${sigHtml}</span>
+            <span> (ตัวบรรจง)</span>
+          </div>
+
+          <div style="border:1px solid #000; border-radius:4px; padding:8px 12px; background:#FAFAFA;">
+            <div style="font-size:13px; font-weight:bold; color:#000; margin-bottom:4px;">บันทึกของผู้ตรวจเวร</div>
+            <div style="font-size:12.5px; color:#000; white-space:pre-wrap; min-height:45px;">${logData.inspectorNotes || '(ไม่มีข้อความบันทึก)'}</div>
+          </div>
+
+          <div style="text-align:center; margin-top:10px; font-size:12.5px; color:#000;">
+            <div style="border-bottom:1px dotted #000; width:180px; margin:0 auto 4px auto; height:20px;"></div>
+            <div style="font-weight:bold;">(นายไพรัช รัตน์ไชย)</div>
+            <div style="font-size:11.5px; color:#333;">ที่ปรึกษาฝ่ายบริการ</div>
+          </div>
+        </div>
+
+        <!-- Footer Regulations -->
+        <div style="border-top:1px solid #CCC; padding-top:10px; font-size:11px; color:#444; line-height:1.4;">
+          <div style="font-weight:bold; color:#000; margin-bottom:2px;">หมายเหตุ : *ให้เดินตรวจความเรียบร้อยทุกชั่วโมง</div>
+          <div><strong>จันทร์-ศุกร์</strong> เข้าเวรกลางคืน เวลา 17.00 น. ออกเวร 07.00 น.</div>
+          <div><strong>เสาร์, อาทิตย์, วันหยุดนักขัตฤกษ์</strong></div>
+          <div style="padding-left:12px;">- เวรกลางวัน เข้าเวร 08.00 น. ออกเวร 16.00 น.</div>
+          <div style="padding-left:12px;">- เวรกลางคืน ประถม, มัธยม เข้าเวร 16.00 น. ออกเวร 08.00 น.</div>
+          <div style="padding-left:12px;">- เวรอาคารสถานที่ อนุบาล เข้าเวร 08.00 น. - 08.00 น. (24 ชม.)</div>
+        </div>
+
+      </div>
+    </div>
+  `;
+
+  if (modalHeading) {
+    modalHeading.innerHTML = `📄 ตรวจสอบใบบันทึกเวร (A4 View) — ${logData.name}`;
+  }
+  modalContent.innerHTML = a4Html;
+
+  if (modalFoot) {
+    modalFoot.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; width:100%; flex-wrap:wrap; gap:10px;">
+        <span style="font-size:12.5px; color:var(--text3); font-weight:600;">👑 สิทธิ์ Admin: ตรวจสอบใบบันทึกเวรฉบับจริง</span>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn-action btn-accent" onclick="adminPrintOfficerLog(${dayNum}, '${officerName}')">🖨️ พิมพ์เอกสาร A4</button>
+          <button class="btn-action btn-primary" onclick="adminSwitchToEditForm(${dayNum}, '${officerName}')">✏️ เปิดโหมดแก้ไข</button>
+          <button class="btn-action btn-secondary" onclick="closeModal()">✕ ปิดหน้าต่าง</button>
+        </div>
+      </div>
+    `;
+  }
+
+  modalBackdrop.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function adminPrintOfficerLog(dayNum, officerName) {
+  closeModal();
+  openShiftLogForOfficer(dayNum, officerName);
+  setTimeout(printShiftForm, 200);
+}
+
+function adminSwitchToEditForm(dayNum, officerName) {
+  closeModal();
+  openShiftLogForOfficer(dayNum, officerName);
 }
 
 function guestViewTab(tabId) {
