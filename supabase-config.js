@@ -170,6 +170,30 @@ async function fetchAllShiftLogsCloud() {
   return [];
 }
 
+// 5. Shift Swap Cloud Sync Helpers
+async function saveSwapRecordCloud(swapRecord) {
+  if (isSupabaseOnline && supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('shift_swap_records')
+        .upsert({
+          id: swapRecord.id,
+          day: swapRecord.day,
+          raw_swap_date: swapRecord.rawSwapDate,
+          shift_date_text: swapRecord.shiftDateText,
+          req_name: swapRecord.reqName,
+          sub_name: swapRecord.subName,
+          return_date_text: swapRecord.returnDateText,
+          photo_data: swapRecord.photoData,
+          created_at: swapRecord.createdAt || new Date().toISOString()
+        }, { onConflict: 'id' });
+      if (!error) console.log('☁️ Swap record synced to Supabase Cloud!');
+    } catch (e) {
+      console.warn('Cloud swap sync fallback:', e);
+    }
+  }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
   initSupabase();
