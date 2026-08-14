@@ -2,30 +2,31 @@
    PWA SERVICE WORKER (โรงเรียนจิตรลดา - ตารางเวร)
    ============================================= */
 
-const CACHE_NAME = 'chitralada-duty-cache-v2';
+const CACHE_NAME = 'chitralada-duty-cache-v3';
 const ASSETS_TO_CACHE = [
   './',
-  './index.html',
-  './style.css',
-  './script.js',
-  './supabase-config.js',
+  './index.html?v=v3',
+  './style.css?v=v3',
+  './script.js?v=v3',
+  './supabase-config.js?v=v3',
   './calendar.png',
   './manifest.json',
   'https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
-// Install Event: Cache Static Assets
+// Install Event: Cache Static Assets & Immediately Skip Waiting
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('✅ PWA Caching all core assets...');
+      console.log('✅ PWA Caching fresh assets v3...');
       return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
-// Activate Event: Clean up old caches
+// Activate Event: Clean up old caches & Claim Clients Immediately
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -41,14 +42,13 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch Event: Network-First with Cache Fallback
+// Fetch Event: Network-First Strategy
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    fetch(event.request)
+    fetch(event.request, { cache: 'no-cache' })
       .then(response => {
-        // Clone and store response in cache for offline use
         if (response && response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then(cache => {
@@ -58,8 +58,8 @@ self.addEventListener('fetch', event => {
         return response;
       })
       .catch(() => {
-        // Offline fallback from cache
         return caches.match(event.request);
       })
   );
 });
+

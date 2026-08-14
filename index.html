@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=v2">
+  <link rel="stylesheet" href="style.css?v=v3">
   <!-- PWA Meta Tags & Manifest -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="calendar.png">
@@ -20,7 +20,7 @@
 
   <!-- Supabase JS Client SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=v2"></script>
+  <script src="supabase-config.js?v=v3"></script>
 </head>
 <body>
 
@@ -569,14 +569,25 @@
     </div>
   </div>
 
-  <script src="script.js?v=v2"></script>
-  <!-- Register PWA Service Worker -->
+  <script src="script.js?v=v3"></script>
+  <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('📱 PWA Service Worker Registered:', reg.scope))
+        navigator.serviceWorker.register('./sw.js?v=v3')
+          .then(reg => {
+            reg.update();
+            console.log('📱 PWA Service Worker Registered & Updated v3:', reg.scope);
+          })
           .catch(err => console.log('⚠️ Service Worker Error:', err));
+
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
       });
     }
   </script>
