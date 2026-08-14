@@ -729,6 +729,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderToday();
   initShiftLog();
   checkLoginSession();
+  initSignaturePad();
 });
 
 /* =============================================
@@ -983,7 +984,7 @@ async function saveShiftLog() {
     year:           document.getElementById('fmYear').value,
     timeIn:         document.getElementById('fmTimeIn').value,
     timeOut:        document.getElementById('fmTimeOut').value,
-    signName:       document.getElementById('fmSignName').value,
+    signatureData:  getSignatureDataUrl() || '',
     inspectorNotes: document.getElementById('fmInspectorNotes').value,
     rows:           rows
   };
@@ -1060,6 +1061,9 @@ async function loadShiftLog() {
     try {
       const data = JSON.parse(saved);
       document.getElementById('fmInspectorNotes').value = data.inspectorNotes || '';
+      if (data.signatureData) {
+        restoreSignatureFromDataUrl(data.signatureData);
+      }
       if (data.rows && data.rows.length > 0) {
         data.rows.forEach(r => addLogTableRow(r.time, r.note, r.remark));
         return;
@@ -1083,16 +1087,24 @@ function printShiftForm() {
   document.getElementById('pfYear').textContent     = document.getElementById('fmYear').value;
   document.getElementById('pfTimeIn').textContent   = document.getElementById('fmTimeIn').value;
   document.getElementById('pfTimeOut').textContent  = document.getElementById('fmTimeOut').value;
-  document.getElementById('pfSignName').textContent = document.getElementById('fmSignName').value;
   document.getElementById('pfInspectorNotes').textContent = document.getElementById('fmInspectorNotes').value;
 
-  // ── 2. Checkboxes ─────────────────────────────────
+  // ── 2. Signature image ────────────────────────────
+  const pfSign = document.getElementById('pfSignName');
+  const sigDataUrl = getSignatureDataUrl();
+  if (sigDataUrl) {
+    pfSign.innerHTML = `<img src="${sigDataUrl}" style="max-height:60px;max-width:200px;display:block;margin:0 auto;">`;
+  } else {
+    pfSign.textContent = '';
+  }
+
+  // ── 3. Checkboxes ─────────────────────────────────
   const cbDay   = document.getElementById('pfCbDay');
   const cbNight = document.getElementById('pfCbNight');
   if (cbDay)   cbDay.classList.toggle('checked',   document.getElementById('fmShiftDay').checked);
   if (cbNight) cbNight.classList.toggle('checked', document.getElementById('fmShiftNight').checked);
 
-  // ── 3. Copy log table rows ─────────────────────────
+  // ── 4. Copy log table rows ─────────────────────────
   const srcRows = document.querySelectorAll('#formLogTbody tr');
   const pfTbody = document.getElementById('pfLogTbody');
   pfTbody.innerHTML = '';
@@ -1117,8 +1129,117 @@ function printShiftForm() {
     pfTbody.appendChild(tr);
   }
 
-  // ── 4. Print ──────────────────────────────────────
+  // ── 5. Print ──────────────────────────────────────
   window.print();
+}
+
+/* =============================================
+   SIGNATURE PAD
+   ============================================= */
+function initSignaturePad() {
+  const canvas = document.getElementById('sigCanvas');
+  if (!canvas) return;
+
+  // Set canvas resolution to match display size
+  const resize = () => {
+    const rect = canvas.getBoundingClientRect();
+    const dpr  = window.devicePixelRatio || 1;
+    canvas.width  = rect.width  * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.strokeStyle = '#F0F4FF';
+    ctx.lineWidth   = 2.2;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+  };
+  resize();
+  window.addEventListener('resize', resize);
+
+  let drawing = false;
+  let lastX = 0, lastY = 0;
+
+  const getPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    if (e.touches) {
+      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+    }
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
+
+  const startDraw = (e) => {
+    e.preventDefault();
+    drawing = true;
+    const pos = getPos(e);
+    lastX = pos.x; lastY = pos.y;
+    const ctx = canvas.getContext('2d');
+    ctx.beginPath();
+    ctx.arc(lastX, lastY, 1.1, 0, Math.PI * 2);
+    ctx.fillStyle = '#F0F4FF';
+    ctx.fill();
+  };
+
+  const draw = (e) => {
+    if (!drawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    const ctx = canvas.getContext('2d');
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastX = pos.x; lastY = pos.y;
+  };
+
+  const stopDraw = () => { drawing = false; };
+
+  // Mouse events
+  canvas.addEventListener('mousedown',  startDraw);
+  canvas.addEventListener('mousemove',  draw);
+  canvas.addEventListener('mouseup',    stopDraw);
+  canvas.addEventListener('mouseleave', stopDraw);
+
+  // Touch events
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove',  draw,      { passive: false });
+  canvas.addEventListener('touchend',   stopDraw);
+}
+
+function clearSignature() {
+  const canvas = document.getElementById('sigCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function getSignatureDataUrl() {
+  const canvas = document.getElementById('sigCanvas');
+  if (!canvas) return null;
+  // Check if canvas is blank
+  const ctx  = canvas.getContext('2d');
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  const hasContent = data.some(v => v !== 0);
+  if (!hasContent) return null;
+  // White background for print
+  const printCanvas = document.createElement('canvas');
+  printCanvas.width  = canvas.width;
+  printCanvas.height = canvas.height;
+  const pCtx = printCanvas.getContext('2d');
+  pCtx.fillStyle = '#FFFFFF';
+  pCtx.fillRect(0, 0, printCanvas.width, printCanvas.height);
+  pCtx.drawImage(canvas, 0, 0);
+  // Recolor strokes to black
+  const imgData = pCtx.getImageData(0, 0, printCanvas.width, printCanvas.height);
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    const r = imgData.data[i], g = imgData.data[i+1], b = imgData.data[i+2];
+    if (r > 200 && g > 200 && b > 200) { // near-white → keep white
+      imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = 255;
+    } else { // stroke → black
+      imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = 0;
+    }
+  }
+  pCtx.putImageData(imgData, 0, 0);
+  return printCanvas.toDataURL('image/png');
 }
 
 function openShiftLogForModal() {
@@ -1586,4 +1707,126 @@ function guestViewTab(tabId) {
   switchTab(tabId);
 }
 
+/* =============================================
+   SIGNATURE PAD
+   ============================================= */
+function initSignaturePad() {
+  const canvas = document.getElementById('sigCanvas');
+  if (!canvas) return;
+
+  const applyCtxStyle = (ctx) => {
+    ctx.strokeStyle = '#E0E7FF';
+    ctx.lineWidth   = 2.5;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+  };
+
+  const resize = () => {
+    const rect = canvas.getBoundingClientRect();
+    const dpr  = window.devicePixelRatio || 1;
+    canvas.width  = Math.round(rect.width  * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    applyCtxStyle(ctx);
+  };
+  resize();
+  window.addEventListener('resize', resize);
+
+  let drawing = false;
+  let lastX = 0, lastY = 0;
+
+  const getPos = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    if (e.touches) {
+      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+    }
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
+
+  const startDraw = (e) => {
+    e.preventDefault();
+    drawing = true;
+    const pos = getPos(e);
+    lastX = pos.x; lastY = pos.y;
+    const ctx = canvas.getContext('2d');
+    applyCtxStyle(ctx);
+    ctx.beginPath();
+    ctx.arc(lastX, lastY, 1.2, 0, Math.PI * 2);
+    ctx.fillStyle = '#E0E7FF';
+    ctx.fill();
+  };
+
+  const draw = (e) => {
+    if (!drawing) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    const ctx = canvas.getContext('2d');
+    applyCtxStyle(ctx);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastX = pos.x; lastY = pos.y;
+  };
+
+  const stopDraw = () => { drawing = false; };
+
+  canvas.addEventListener('mousedown',  startDraw);
+  canvas.addEventListener('mousemove',  draw);
+  canvas.addEventListener('mouseup',    stopDraw);
+  canvas.addEventListener('mouseleave', stopDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove',  draw,      { passive: false });
+  canvas.addEventListener('touchend',   stopDraw);
+}
+
+function clearSignature() {
+  const canvas = document.getElementById('sigCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function getSignatureDataUrl() {
+  const canvas = document.getElementById('sigCanvas');
+  if (!canvas) return null;
+  const ctx  = canvas.getContext('2d');
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  const hasContent = data.some(v => v !== 0);
+  if (!hasContent) return null;
+
+  // Create print version: white bg, black strokes
+  const pc = document.createElement('canvas');
+  pc.width = canvas.width; pc.height = canvas.height;
+  const pCtx = pc.getContext('2d');
+  pCtx.fillStyle = '#FFF';
+  pCtx.fillRect(0, 0, pc.width, pc.height);
+  pCtx.drawImage(canvas, 0, 0);
+
+  const img = pCtx.getImageData(0, 0, pc.width, pc.height);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const bright = (img.data[i] + img.data[i+1] + img.data[i+2]) / 3;
+    if (bright > 200) {
+      img.data[i] = img.data[i+1] = img.data[i+2] = 255;
+    } else {
+      img.data[i] = img.data[i+1] = img.data[i+2] = 0;
+    }
+  }
+  pCtx.putImageData(img, 0, 0);
+  return pc.toDataURL('image/png');
+}
+
+function restoreSignatureFromDataUrl(dataUrl) {
+  if (!dataUrl) return;
+  const canvas = document.getElementById('sigCanvas');
+  if (!canvas) return;
+  const img = new Image();
+  img.onload = () => {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
+  };
+  img.src = dataUrl;
+}
 

@@ -347,8 +347,11 @@
         <!-- Sign & Inspector -->
         <div class="lic-bottom-grid">
           <div class="lic-field lic-field-wide">
-            <label class="lic-label">✍️ ลงชื่อ (ตัวบรรจง)</label>
-            <input type="text" id="fmSignName" class="lic-input" placeholder="ชื่อ-นามสกุล">
+            <label class="lic-label">✍️ ลายเซ็นต์ผู้เข้าเวร</label>
+            <div class="sig-pad-wrap">
+              <canvas id="sigCanvas" class="sig-canvas"></canvas>
+              <button type="button" class="sig-clear-btn" onclick="clearSignature()" title="ล้างลายเซ็นต์">🗑️ ล้าง</button>
+            </div>
           </div>
           <div class="lic-field lic-field-full">
             <label class="lic-label">📝 บันทึกของผู้ตรวจเวร</label>
