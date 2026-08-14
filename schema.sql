@@ -1,110 +1,156 @@
 -- ========================================================
--- SCHEMAS & TABLES FOR CHITRALADA DUTY SCHEDULE & SHIFT LOGS
+-- SUPABASE DATABASE SCHEMA & INITIAL DATA (UPDATED WITH REAL EMP IDs)
 -- ========================================================
 
--- 1. Create Officers Table (ตารางข้อมูลพนักงาน)
 CREATE TABLE IF NOT EXISTS officers (
-    emp_id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    surname TEXT NOT NULL,
-    full_name TEXT GENERATED ALWAYS AS (name || ' ' || surname) STORED,
-    group_key TEXT NOT NULL, -- g1, g2, g3, kg, pr, sc
-    gender TEXT NOT NULL,    -- male, female
-    level TEXT NOT NULL
+  emp_id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  surname VARCHAR(100) NOT NULL,
+  group_key VARCHAR(20) NOT NULL,
+  gender VARCHAR(20) NOT NULL,
+  level VARCHAR(200) NOT NULL,
+  is_admin BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
 );
 
--- 2. Create Shift Logs Table (ตารางใบบันทึกเวรประจำวัน)
 CREATE TABLE IF NOT EXISTS shift_logs (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    day_num INT NOT NULL,
-    emp_id TEXT NOT NULL REFERENCES officers(emp_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    officer_name TEXT NOT NULL,
-    level TEXT,
-    is_day BOOLEAN DEFAULT false,
-    is_night BOOLEAN DEFAULT true,
-    time_in TEXT,
-    time_out TEXT,
-    sign_name TEXT,
-    inspector_notes TEXT,
-    rows JSONB DEFAULT '[]'::jsonb,
-    updated_at TIMESTAMPTZ DEFAULT now(),
-    UNIQUE(day_num, emp_id)
+  id BIGSERIAL PRIMARY KEY,
+  day_num INT NOT NULL,
+  emp_id VARCHAR(50) NOT NULL,
+  officer_name VARCHAR(200) NOT NULL,
+  level VARCHAR(200),
+  is_day BOOLEAN DEFAULT FALSE,
+  is_night BOOLEAN DEFAULT TRUE,
+  time_in VARCHAR(50),
+  time_out VARCHAR(50),
+  sign_name TEXT,
+  inspector_notes TEXT,
+  rows JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
+  UNIQUE(day_num, emp_id)
 );
 
--- Enable Row Level Security (RLS) & Public Policies
-ALTER TABLE officers ENABLE ROW LEVEL SECURITY;
-ALTER TABLE shift_logs ENABLE ROW LEVEL SECURITY;
+CREATE TABLE IF NOT EXISTS shift_swap_records (
+  id VARCHAR(100) PRIMARY KEY,
+  day INT NOT NULL,
+  raw_swap_date VARCHAR(50),
+  shift_date_text VARCHAR(100),
+  req_name VARCHAR(100),
+  sub_name VARCHAR(100),
+  return_date_text VARCHAR(100),
+  photo_data TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
 
-DROP POLICY IF EXISTS "Allow public read officers" ON officers;
-DROP POLICY IF EXISTS "Allow public insert officers" ON officers;
-DROP POLICY IF EXISTS "Allow public update officers" ON officers;
-
-CREATE POLICY "Allow public read officers" ON officers FOR SELECT USING (true);
-CREATE POLICY "Allow public insert officers" ON officers FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public update officers" ON officers FOR UPDATE USING (true);
-
-DROP POLICY IF EXISTS "Allow public read shift_logs" ON shift_logs;
-DROP POLICY IF EXISTS "Allow public insert shift_logs" ON shift_logs;
-DROP POLICY IF EXISTS "Allow public update shift_logs" ON shift_logs;
-
-CREATE POLICY "Allow public read shift_logs" ON shift_logs FOR SELECT USING (true);
-CREATE POLICY "Allow public insert shift_logs" ON shift_logs FOR INSERT WITH CHECK (true);
-CREATE POLICY "Allow public update shift_logs" ON shift_logs FOR UPDATE USING (true);
-
--- Enable Realtime Sync for shift_logs (Safe Check)
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_publication_tables 
-    WHERE pubname = 'supabase_realtime' 
-      AND schemaname = 'public' 
-      AND tablename = 'shift_logs'
-  ) THEN
-    ALTER PUBLICATION supabase_realtime ADD TABLE shift_logs;
-  END IF;
-END $$;
-
--- ========================================================
--- SEED DATA: STAFF LIST WITH EMPLOYEE IDs (รหัสพนักงาน)
--- ========================================================
-
-INSERT INTO officers (emp_id, name, surname, group_key, gender, level) VALUES
-('69001', 'นายนิมิต', 'พิศงาม', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)'),
-('69002', 'นายจักกฤษ', 'เลี่ยมจ้อย', 'g2', 'male', 'ประถมศึกษา'),
-('69003', 'นายสันติ', 'หมู่คำ', 'g3', 'male', 'มัธยมศึกษา'),
-('69004', 'น.ส.บรรจง', 'สีธุรี', 'kg', 'female', 'อนุบาล'),
-('69005', 'น.ส.นิภาพร', 'นิยมไทย', 'pr', 'female', 'ประถมศึกษา'),
-('69006', 'น.ส.วราภา', 'ทิณพงษ์', 'sc', 'female', 'มัธยมศึกษา'),
-('69007', 'นายขนัด', 'ไม่พรั่นใจ', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)'),
-('69008', 'นายอานนท์', 'เลี่ยมจ้อย', 'g2', 'male', 'ประถมศึกษา'),
-('69009', 'นายประเสริฐ', 'เงินเก่า', 'g3', 'male', 'มัธยมศึกษา'),
-('69010', 'น.ส.สุวิมล', 'พัฒนะ', 'kg', 'female', 'อนุบาล'),
-('69011', 'น.ส.สุชาดา', 'บุรีชัย', 'pr', 'female', 'ประถมศึกษา'),
-('69012', 'น.ส.เกตวดี', 'จันทร์เพ็ชร', 'sc', 'female', 'มัธยมศึกษา'),
-('69013', 'นายแกม', 'โสนาพูน', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)'),
-('69014', 'นายสุเมธ', 'ผ่อสุขสวัสดิ์', 'g2', 'male', 'ประถมศึกษา'),
-('69015', 'นายสัมพันธ์', 'ชาติทอง', 'g3', 'male', 'มัธยมศึกษา'),
-('69016', 'นายอัษฎางค์', 'สังเกตกิจ', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)'),
-('69017', 'นายนรินทร์', 'เกตุชิต', 'g2', 'male', 'ประถมศึกษา'),
-('69018', 'นายสวิท', 'ยวงทอง', 'g3', 'male', 'มัธยมศึกษา'),
-('69019', 'นายสหรัฐ', 'มาผาสุข', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)'),
-('69020', 'นายสุรเชษฐ์', 'ศรีข้า', 'g2', 'male', 'ประถมศึกษา'),
-('69021', 'นายประสิทธิ์', 'กิตติกลาง', 'g3', 'male', 'มัธยมศึกษา'),
-('69022', 'นายจินฑาทิพย์', 'สว่างเมฆ', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)'),
-('69023', 'นายณัฐพล', 'เพ็ญขอบ', 'g2', 'male', 'ประถมศึกษา'),
-('69024', 'นายสมพร', 'แผ่นคด', 'g3', 'male', 'มัธยมศึกษา'),
-('69025', 'นายสมบัติ', 'เกิดปั้น', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)'),
-('69026', 'นายพุฒิพงศ์', 'แจ้งศรี', 'g2', 'male', 'ประถมศึกษา'),
-('69027', 'นายกิติศักดิ์', 'เกิดแก่นแก้ว', 'g3', 'male', 'มัธยมศึกษา'),
-('69028', 'นายอดิเรก', 'จันทร์โอ้วมณี', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)'),
-('69029', 'นายสมชาย', 'ผ่องจำปา', 'g2', 'male', 'ประถมศึกษา'),
-('69030', 'นายสุเมต', 'เอี่ยมมาตร', 'g3', 'male', 'มัธยมศึกษา'),
-('20023', 'นางศรีสุดา', 'เย็นคงคา', 'sc', 'female', 'มัธยมศึกษา'),
-('20053', 'นายกรกฎ', 'เย็นคงคา', 'g3', 'male', 'มัธยมศึกษา'),
-('20131', 'นายพิชาวัจน์', 'เกิดเรืองสิน', 'g3', 'male', 'มัธยมศึกษา')
-ON CONFLICT (emp_id) DO UPDATE SET 
-    name = EXCLUDED.name,
-    surname = EXCLUDED.surname,
-    group_key = EXCLUDED.group_key,
-    gender = EXCLUDED.gender,
-    level = EXCLUDED.level;
+-- INSERT/UPSERT OFFICERS DATA (102 Officers)
+INSERT INTO officers (emp_id, name, surname, group_key, gender, level, is_admin) VALUES
+  ('20006', 'น.ส.จันทร์ภรณ์', 'ธนธีรภาพ', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20009', 'น.ส.วราภา', 'ทิณพงษ์', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20011', 'นายประยูร', 'หมู่คำ', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20012', 'นายเฉลิม', 'เหล่าชวลิตกุล', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20015', 'น.ส.วิชุดา', 'ชูผลา', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20018', 'น.ส.ยุวรี', 'ชัชวาลย์', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20023', 'นางศรีสุดา', 'เย็นคงคา', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20025', 'น.ส.สมศรี', 'ก้อนนาค', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20026', 'น.ส.จินตนา', 'แท่งทอง', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20027', 'น.ส.ไพริน', 'จันทวงษ์', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20029', 'นายสมชาย', 'ผ่องจำปา', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20036', 'น.ส.ตติยาพร', 'โชคเจริญ', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20040', 'น.ส.ทิพยวรรณ', 'ผ่องโสภณ', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20042', 'นางจรีรัตน์', 'บุญมา', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20047', 'นายกิตติศักดิ์', 'เกิดแก่นแก้ว', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20053', 'นายกรกฎ', 'เย็นคงคา', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20056', 'นายนรินทร์', 'เกตุชิต', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20059', 'น.ส.สุชาดา', 'บุรีชัย', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20060', 'นายปราโมทย์', 'ศรีสดใส', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20061', 'น.ส.ภาณิชา', 'เกิดเรืองสิน', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20064', 'น.ส.ดวงใจ', 'บัวจันทร์', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20067', 'น.ส.นิภาพร', 'นิยมไทย', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20070', 'นายสหรัฐ', 'มาผาสุข', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20079', 'นางอ้อมใจ', 'อมราภินันท์', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20080', 'นายสมมัคร', 'กองน้ำ', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20090', 'นายสุรเชษฐ์', 'ศรีขำ', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20094', 'นางพรปรียา', 'ทรัพย์กลิ่น', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20098', 'น.ส.อรพรรณ', 'บุญชู', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20101', 'นายสุเมธ', 'ผ่อสุขสวัสดิ์', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20106', 'นายเฉลิมชัย', 'เทียบพิมพ์', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20108', 'นางสุภารีย์', 'วิโรจน์ศิริ', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20111', 'นางดวงพร', 'สุดเสริฐสิน', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20112', 'นายนิมิต', 'พิศงาม', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20117', 'น.ส.เสาวรส', 'สกุลนุ่ม', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20124', 'นายอัษฎางค์', 'สังเกตุกิจ', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20125', 'นายธารา', 'ก้อนนาค', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20128', 'น.ส.สุวิมล', 'พัฒนะ', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20131', 'นายพิชาวัจน์', 'เกิดเรืองสิน', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20133', 'น.ส.ณศิภัสร์', 'ไกรฐิติเกียรติ', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20142', 'น.ส.ณิชกานต์', 'แจ่มใส', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20144', 'นายณัฐพล', 'เพ็ญชอบ', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('20148', 'น.ส.เสาวลักษณ์', 'แข็งขัน', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('20149', 'นายกิตติภูมิ', 'คงจันทร์', 'g1', 'male', 'อาคารสถานที่ (งานช่าง, ไฟฟ้า, ความสะอาด, ยานพาหนะ)', FALSE),
+  ('30011', 'นายสมบัติ', 'เกิดปั้น', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30013', 'นางสายัน', 'อรรถกิจไพบูลย์', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30015', 'นายสันติ', 'หมู่คำ', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30016', 'นายสมพร', 'แฝงคด', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30017', 'นางจินดา', 'แฝงคด', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30018', 'นางธนพร', 'เรียบร้อย', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30019', 'นางพิสมัย', 'บุญโสดากรณ์', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30023', 'นายประเสริฐ', 'เงินเก่า', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30025', 'นายสัมพันธ์', 'ชาติทอง', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30026', 'นางหฤทัย', 'เพราะทอง', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30027', 'นายขนัด', 'ไม่พรั่นใจ', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30032', 'นายสุเมต', 'เอี่ยมมาตร', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30033', 'นางทิพย์', 'อุดมสุข', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30039', 'นายแกม', 'โสนาพูน', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30040', 'นางนิตยา', 'สายสู่', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30041', 'นางปรารถนา', 'สุพรรณเมือง', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30043', 'นายจินฑาทิพย์', 'สว่างเมฆ', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30048', 'น.ส.สุภัคกาญจน์', 'สุ่นศรี', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30083', 'นายสุรินทร์', 'เพชรแท้', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30086', 'นายสวิท', 'ยวงทอง', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30087', 'น.ส.ประไพ', 'เรือเสาร์', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30091', 'น.ส.สมยงค์', 'ติมุลา', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30093', 'นายประสิทธิ์', 'กิตติกลาง', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30099', 'นายนันทกา', 'เสาวรส', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30106', 'นางสาคร', 'คงเสน', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30118', 'น.ส.สมจิตต์', 'รอดอยู่', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30121', 'นายวิรัตน์', 'สุขจำลอง', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30127', 'น.ส.ฉะลอย', 'ชาตรียินดี', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30128', 'นายสมพร', 'สีจีน', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30134', 'นายวรเวทย์', 'อินคง', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30136', 'นายสุริยา', 'กิตติกลาง', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30141', 'นายสุชานนท์', 'สิงห์สุพรรณ', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30150', 'น.ส.บรรจง', 'สีธุรี', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30153', 'น.ส.พรพิมล', 'ไชยสถาน', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30163', 'นายธงชัย', 'เจียมสง่า', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30166', 'นายอานนท์', 'เลี่ยมจ้อย', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30170', 'น.ส.วิภา', 'พูลศรี', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30176', 'นายจักกฤษ', 'เลี่ยมจ้อย', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30180', 'น.ส.อรัญญา', 'สุดแสง', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30181', 'น.ส.บุญทาน', 'จูมดอก', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30182', 'น.ส.วาสนา', 'ปานาราช', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30183', 'นางเกษร', 'ชัชวาลย์', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30184', 'นางชมพูนุช', 'แสงมะลิ', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30186', 'นายจุมพล', 'ดุษฎีพฤฒิพันธุ์', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30188', 'น.ส.อรอุมา', 'ศรีทอง', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30189', 'นายนิยุต', 'ยิ่งยงกิจ', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30192', 'น.ส.เปิ่น', 'เลี่ยมจ้อย', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30193', 'นางประนอม', 'ดุษฎีพฤฒิพันธุ์', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30194', 'น.ส.ปริศนา', 'จินดาศรี', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30195', 'นายอภิชาติ', 'สีชมภู', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30196', 'นายมนตรี', 'สุพะลัม', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30197', 'น.ส.สงกรานต์', 'สีธุรี', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30198', 'น.ส.พัชรา', 'อ่วมทร', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30199', 'นายพุฒิพงศ์', 'แจ้งศรี', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30201', 'น.ส.นภาพร', 'เรืองยศ', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('30202', 'นายอดิเรก', 'จันทร์โฮ้วมณี', 'g1', 'male', 'ประถมศึกษา', FALSE),
+  ('30203', 'น.ส.เกตวดี', 'จันทร์เพ็ชร', 'pr', 'female', 'ประถมศึกษา', FALSE),
+  ('99999', 'ผู้ดูแลระบบ', '(Admin)', 'g1', 'male', 'ผู้ดูแลระบบ', TRUE),
+  ('admin', 'ผู้ดูแลระบบ', '(Admin)', 'g1', 'male', 'ผู้ดูแลระบบ', TRUE)
+ON CONFLICT (emp_id) DO UPDATE SET
+  name = EXCLUDED.name,
+  surname = EXCLUDED.surname,
+  group_key = EXCLUDED.group_key,
+  gender = EXCLUDED.gender,
+  level = EXCLUDED.level,
+  is_admin = EXCLUDED.is_admin;
