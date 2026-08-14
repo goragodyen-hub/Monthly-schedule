@@ -1319,6 +1319,76 @@ function formatThaiDateString(dateStr) {
   return dateStr;
 }
 
+function getOfficersOnDutyForDay(dayNum) {
+  const entry = SCHEDULE.find(s => s.day === parseInt(dayNum, 10));
+  if (!entry) return [];
+
+  const officers = [];
+  if (entry.male) {
+    if (entry.male.g1 && entry.male.g1[0]) officers.push(`${entry.male.g1[0]} ${entry.male.g1[1]}`);
+    if (entry.male.g2 && entry.male.g2[0]) officers.push(`${entry.male.g2[0]} ${entry.male.g2[1]}`);
+    if (entry.male.g3 && entry.male.g3[0]) officers.push(`${entry.male.g3[0]} ${entry.male.g3[1]}`);
+  }
+  if (entry.female) {
+    if (entry.female.kg && entry.female.kg[0]) officers.push(`${entry.female.kg[0]} ${entry.female.kg[1]}`);
+    if (entry.female.pr && entry.female.pr[0]) officers.push(`${entry.female.pr[0]} ${entry.female.pr[1]}`);
+    if (entry.female.sc && entry.female.sc[0]) officers.push(`${entry.female.sc[0]} ${entry.female.sc[1]}`);
+  }
+  return officers;
+}
+
+function handleSwapDateChange() {
+  const val = document.getElementById('swapDateInput')?.value;
+  const reqSel = document.getElementById('swapReqOfficerSelect');
+  if (!reqSel) return;
+
+  reqSel.innerHTML = '<option value="">-- เลือกพนักงานผู้ขอแลกเวร --</option>';
+
+  const allOfficers = Object.values(OFFICERS_REGISTRY).filter(o => !o.isAdmin).map(o => `${o.name} ${o.surname}`).sort();
+
+  if (!val) {
+    allOfficers.forEach(name => reqSel.appendChild(new Option(name, name)));
+    return;
+  }
+
+  const dayNum = parseInt(val.split('-')[2], 10);
+  const onDuty = getOfficersOnDutyForDay(dayNum);
+
+  if (onDuty.length > 0) {
+    onDuty.forEach(name => {
+      reqSel.appendChild(new Option(`👤 ${name} (เวรวันที่ ${dayNum})`, name));
+    });
+  } else {
+    allOfficers.forEach(name => reqSel.appendChild(new Option(name, name)));
+  }
+}
+
+function handleReturnDateChange() {
+  const val = document.getElementById('swapReturnDateInput')?.value;
+  const subSel = document.getElementById('swapSubOfficerSelect');
+  if (!subSel) return;
+
+  subSel.innerHTML = '<option value="">-- เลือกพนักงานผู้รับแทน --</option>';
+
+  const allOfficers = Object.values(OFFICERS_REGISTRY).filter(o => !o.isAdmin).map(o => `${o.name} ${o.surname}`).sort();
+
+  if (!val) {
+    allOfficers.forEach(name => subSel.appendChild(new Option(name, name)));
+    return;
+  }
+
+  const dayNum = parseInt(val.split('-')[2], 10);
+  const onDuty = getOfficersOnDutyForDay(dayNum);
+
+  if (onDuty.length > 0) {
+    onDuty.forEach(name => {
+      subSel.appendChild(new Option(`🤝 ${name} (เวรวันที่ ${dayNum})`, name));
+    });
+  } else {
+    allOfficers.forEach(name => subSel.appendChild(new Option(name, name)));
+  }
+}
+
 function initAdminShiftSwapTab() {
   // 1. Set default date value for date pickers
   const swapDateInput = document.getElementById('swapDateInput');
@@ -1328,24 +1398,8 @@ function initAdminShiftSwapTab() {
     swapDateInput.value = `${SCHED_YEAR}-08-14`;
   }
 
-  // 2. Populate Officer dropdowns (Requester & Substitute)
-  const reqSel = document.getElementById('swapReqOfficerSelect');
-  const subSel = document.getElementById('swapSubOfficerSelect');
-  
-  if (reqSel && subSel) {
-    reqSel.innerHTML = '<option value="">-- เลือกพนักงานผู้ขอแลกเวร --</option>';
-    subSel.innerHTML = '<option value="">-- เลือกพนักงานผู้รับปฏิบัติหน้าที่แทน --</option>';
-    
-    // Collect unique officer names from OFFICERS_REGISTRY
-    const officerList = Object.values(OFFICERS_REGISTRY)
-      .filter(o => !o.isAdmin)
-      .map(o => `${o.name} ${o.surname}`)
-      .sort();
-    officerList.forEach(fullName => {
-      reqSel.appendChild(new Option(fullName, fullName));
-      subSel.appendChild(new Option(fullName, fullName));
-    });
-  }
+  handleSwapDateChange();
+  handleReturnDateChange();
 
   renderSwapRecordsTable();
 }

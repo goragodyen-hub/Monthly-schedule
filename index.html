@@ -579,29 +579,29 @@
         </div>
 
         <form id="swapAdminForm" onsubmit="handleSaveSwapRecord(event)">
-          <div class="lic-info-grid">
+          <div class="lic-info-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
             <div class="lic-field">
-              <label class="lic-label">📅 วันที่ของเวรที่จะขอสลับ (Shift Date)</label>
-              <input type="date" id="swapDateInput" class="lic-input" required>
+              <label class="lic-label">📅 วันที่ขอสลับ (Shift Date)</label>
+              <input type="date" id="swapDateInput" class="lic-input" required onchange="handleSwapDateChange()">
             </div>
 
             <div class="lic-field">
               <label class="lic-label">👤 พนักงานผู้ขอแลกเวร (Requester)</label>
               <select id="swapReqOfficerSelect" class="lic-input" required>
-                <!-- Populated dynamically with officer names -->
+                <option value="">-- เลือกพนักงานผู้ขอแลกเวร --</option>
               </select>
             </div>
 
             <div class="lic-field">
-              <label class="lic-label">🤝 พนักงานผู้รับปฏิบัติหน้าที่แทน (Substitute Officer)</label>
+              <label class="lic-label">🔄 วันที่สลับไปคืนแทน (Return Date)</label>
+              <input type="date" id="swapReturnDateInput" class="lic-input" onchange="handleReturnDateChange()">
+            </div>
+
+            <div class="lic-field">
+              <label class="lic-label">🤝 พนักงานผู้รับหน้าที่แทน (Substitute)</label>
               <select id="swapSubOfficerSelect" class="lic-input" required>
-                <!-- Populated dynamically with officer names -->
+                <option value="">-- เลือกพนักงานผู้รับแทน --</option>
               </select>
-            </div>
-
-            <div class="lic-field">
-              <label class="lic-label">🔄 วันที่สลับไปปฏิบัติหน้าที่คืนแทน (Return Date)</label>
-              <input type="date" id="swapReturnDateInput" class="lic-input">
             </div>
 
             <!-- Photo / Document Attachment Option -->
