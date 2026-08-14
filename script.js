@@ -1144,9 +1144,12 @@ async function loadShiftLog() {
     }
   }
 
-  // 3. Default 1 initial row if no saved data
-  addLogTableRow('', '', '');
+  // 3. Ensure at least 1 row exists if no saved rows were loaded
+  if (document.querySelectorAll('#formLogTbody tr').length === 0) {
+    addLogTableRow('', '', '');
+  }
 }
+
 
 
 function printShiftForm() {

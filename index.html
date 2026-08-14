@@ -341,7 +341,19 @@
                 <th style="width:5%"></th>
               </tr>
             </thead>
-            <tbody id="formLogTbody"></tbody>
+            <tbody id="formLogTbody">
+              <tr>
+                <td><input type="text" class="table-input table-input-time" value="" placeholder="เช่น 18.00 น."></td>
+                <td><input type="text" class="table-input" value="" placeholder="กรอกเหตุการณ์ประจำวัน..."></td>
+                <td>
+                  <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <input type="text" class="table-input" value="" placeholder="หมายเหตุ">
+                    <button class="btn-del-row" onclick="removeLogRow(this)" title="ลบแถว">✕</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+
           </table>
         </div>
 
