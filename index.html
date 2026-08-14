@@ -241,6 +241,7 @@
 
     <!-- SHIFT LOG FORM VIEW -->
     <section class="tab-panel" id="panel-log" role="tabpanel">
+
       <!-- Controls Bar -->
       <div class="log-controls glass">
         <div class="log-ctrl-row">
@@ -253,101 +254,180 @@
             <select id="logOfficerSelect" class="log-select" onchange="onLogOfficerChange()"></select>
           </div>
         </div>
-        <div class="log-btn-group">
-          <button class="btn-action btn-secondary" onclick="addHourlyRows()">📄 แถวว่างเปล่า (7 แถว)</button>
-          <button class="btn-action btn-secondary" onclick="addLogTableRow()">➕ เพิ่มแถวบันทึก</button>
-          <button class="btn-action btn-primary" onclick="saveShiftLog()">💾 บันทึกในเบราว์เซอร์</button>
+      </div>
+
+      <!-- Missing Past Duty Alert Banner -->
+      <div class="log-alert-banner" id="logAlertBanner" style="display:none;"></div>
+
+      <!-- ════════════════════════════════════════
+           INPUT CARD UI — แสดงบนหน้าจอ
+           ════════════════════════════════════════ -->
+      <div class="lic-card glass no-print">
+
+        <!-- Card Header -->
+        <div class="lic-header">
+          <div class="lic-header-icon">📋</div>
+          <div>
+            <div class="lic-header-title">บันทึกเวรประจำวัน</div>
+            <div class="lic-header-sub">โรงเรียนจิตรลดา</div>
+          </div>
+        </div>
+
+        <!-- Info Grid (auto-filled from schedule) -->
+        <div class="lic-info-grid">
+          <div class="lic-field">
+            <label class="lic-label">อยู่เวร ระดับ / แผนก</label>
+            <input type="text" id="fmLevel" class="lic-input" placeholder="มัธยมศึกษา / อาคารสถานที่...">
+          </div>
+          <div class="lic-field">
+            <label class="lic-label">ประเภทเวร</label>
+            <div class="lic-shift-row">
+              <label class="lic-check-opt">
+                <input type="checkbox" id="fmShiftDay" onchange="toggleShiftType('day')">
+                <span class="lic-check-box"></span> ☀️ กลางวัน
+              </label>
+              <label class="lic-check-opt">
+                <input type="checkbox" id="fmShiftNight" onchange="toggleShiftType('night')">
+                <span class="lic-check-box"></span> 🌙 กลางคืน
+              </label>
+            </div>
+          </div>
+          <div class="lic-field lic-field-wide">
+            <label class="lic-label">ชื่อ - นามสกุล</label>
+            <input type="text" id="fmName" class="lic-input" placeholder="ชื่อผู้เข้าเวร">
+          </div>
+          <div class="lic-field">
+            <label class="lic-label">วัน</label>
+            <input type="text" id="fmDayName" class="lic-input" placeholder="พฤหัสบดี">
+          </div>
+          <div class="lic-field lic-field-xs">
+            <label class="lic-label">ที่</label>
+            <input type="text" id="fmDayNum" class="lic-input" placeholder="13">
+          </div>
+          <div class="lic-field">
+            <label class="lic-label">เดือน</label>
+            <input type="text" id="fmMonth" class="lic-input" placeholder="สิงหาคม">
+          </div>
+          <div class="lic-field lic-field-xs">
+            <label class="lic-label">พ.ศ.</label>
+            <input type="text" id="fmYear" class="lic-input" placeholder="2569">
+          </div>
+          <div class="lic-field">
+            <label class="lic-label">⏰ เวลาเข้าเวร</label>
+            <input type="text" id="fmTimeIn" class="lic-input" placeholder="17.00 น.">
+          </div>
+          <div class="lic-field">
+            <label class="lic-label">⏰ เวลาออกเวร</label>
+            <input type="text" id="fmTimeOut" class="lic-input" placeholder="07.00 น.">
+          </div>
+        </div>
+
+        <!-- Log Table -->
+        <div class="lic-table-wrap">
+          <div class="lic-table-toolbar">
+            <span class="lic-section-title">📋 บันทึกเหตุการณ์ประจำวัน</span>
+            <div class="lic-toolbar-btns">
+              <button class="btn-action btn-secondary btn-sm" onclick="addHourlyRows()">📄 7 แถวว่าง</button>
+              <button class="btn-action btn-secondary btn-sm" onclick="addLogTableRow()">➕ เพิ่มแถว</button>
+            </div>
+          </div>
+          <table class="lic-log-table" id="formLogTable">
+            <thead>
+              <tr>
+                <th style="width:12%">เวลา</th>
+                <th style="width:63%">บันทึกเหตุการณ์ประจำวัน</th>
+                <th style="width:20%">หมายเหตุ</th>
+                <th style="width:5%"></th>
+              </tr>
+            </thead>
+            <tbody id="formLogTbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Sign & Inspector -->
+        <div class="lic-bottom-grid">
+          <div class="lic-field lic-field-wide">
+            <label class="lic-label">✍️ ลงชื่อ (ตัวบรรจง)</label>
+            <input type="text" id="fmSignName" class="lic-input" placeholder="ชื่อ-นามสกุล">
+          </div>
+          <div class="lic-field lic-field-full">
+            <label class="lic-label">📝 บันทึกของผู้ตรวจเวร</label>
+            <textarea id="fmInspectorNotes" class="lic-textarea" rows="3" placeholder="ข้อความจากผู้ตรวจเวร..."></textarea>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="lic-actions">
+          <button class="btn-action btn-primary" onclick="saveShiftLog()">💾 บันทึก</button>
+          <button class="btn-action btn-accent" onclick="printShiftForm()">🖨️ บันทึก &amp; พิมพ์แบบฟอร์ม</button>
           <button class="btn-action btn-secondary" onclick="exportShiftLogFile()">📥 โหลดไฟล์ (.json)</button>
-          <button class="btn-action btn-accent" onclick="printShiftForm()">🖨️ พิมพ์ / บันทึกเป็น PDF</button>
         </div>
       </div>
 
-      <!-- Missing Past Duty Log Red Alert Banner -->
-      <div class="log-alert-banner" id="logAlertBanner" style="display:none;"></div>
-
-      <!-- Printable Paper Form Container -->
-      <div class="paper-wrapper">
+      <!-- ════════════════════════════════════════
+           PRINT-ONLY PAPER FORM — ซ่อนบนหน้าจอ
+           ════════════════════════════════════════ -->
+      <div class="paper-wrapper print-only" id="paperWrapper">
         <div class="form-paper" id="printableForm">
-          
+
           <!-- School Emblem & Header -->
           <div class="form-header">
             <div class="school-emblem">
-              <img src="CD Logo TH_Black.svg" alt="ตราโรงเรียนจิตรลดา" style="height: 80px; width: auto; margin-bottom: 6px;">
+              <img src="CD Logo TH_Black.svg" alt="ตราโรงเรียนจิตรลดา" style="height:80px;width:auto;margin-bottom:6px;">
             </div>
             <h2 class="form-school-title">โรงเรียนจิตรลดา</h2>
             <h3 class="form-doc-title">บันทึกเวรประจำวัน</h3>
           </div>
 
-          <!-- Form Top Metadata -->
+          <!-- Metadata (populated by JS on print) -->
           <div class="form-meta-grid">
             <div class="form-meta-row">
               <span class="fm-label">อยู่เวร ระดับ</span>
-              <input type="text" id="fmLevel" class="fm-input" placeholder="อนุบาล / ประถมศึกษา / มัธยมศึกษา / อาคารสถานที่">
+              <span class="pf-value" id="pfLevel"></span>
             </div>
-
             <div class="form-meta-row fm-row-flex">
-              <label class="fm-checkbox-label">
-                <input type="checkbox" id="fmShiftDay" onchange="toggleShiftType('day')">
-                <span class="cb-box"></span> กลางวัน
-              </label>
-              <label class="fm-checkbox-label">
-                <input type="checkbox" id="fmShiftNight" onchange="toggleShiftType('night')">
-                <span class="cb-box"></span> กลางคืน
-              </label>
+              <span class="fm-checkbox-label"><span class="cb-box pf-cb" id="pfCbDay"></span> กลางวัน</span>
+              <span class="fm-checkbox-label"><span class="cb-box pf-cb" id="pfCbNight"></span> กลางคืน</span>
             </div>
-
             <div class="form-meta-row">
               <span class="fm-label">ชื่อ</span>
-              <input type="text" id="fmName" class="fm-input fm-name-input" placeholder="ชื่อ-นามสกุล">
+              <span class="pf-value pf-name" id="pfName"></span>
             </div>
-
             <div class="form-meta-row fm-date-row">
-              <span>วัน</span>
-              <input type="text" id="fmDayName" class="fm-input-dayname" placeholder="พฤหัสบดี">
-              <span>ที่</span>
-              <input type="text" id="fmDayNum" class="fm-input-sm" placeholder="1">
-              <span>เดือน</span>
-              <input type="text" id="fmMonth" class="fm-input-mid" placeholder="สิงหาคม">
-              <span>พ.ศ.</span>
-              <input type="text" id="fmYear" class="fm-input-sm" placeholder="2569">
+              <span>วัน</span><span class="pf-value" id="pfDayName"></span>
+              <span>ที่</span><span class="pf-value" id="pfDayNum"></span>
+              <span>เดือน</span><span class="pf-value" id="pfMonth"></span>
+              <span>พ.ศ.</span><span class="pf-value" id="pfYear"></span>
             </div>
-
             <div class="form-meta-row fm-time-row">
-              <span>เวลาเข้าเวร</span>
-              <input type="text" id="fmTimeIn" class="fm-input-mid" placeholder="17.00 น.">
-              <span>เวลาออกเวร</span>
-              <input type="text" id="fmTimeOut" class="fm-input-mid" placeholder="07.00 น.">
+              <span>เวลาเข้าเวร</span><span class="pf-value" id="pfTimeIn"></span>
+              <span>เวลาออกเวร</span><span class="pf-value" id="pfTimeOut"></span>
             </div>
           </div>
 
-          <!-- Main Log Table -->
-          <table class="form-log-table" id="formLogTable">
+          <!-- Print Log Table (populated by JS) -->
+          <table class="form-log-table">
             <thead>
               <tr>
-                <th style="width: 15%;">เวลา</th>
-                <th style="width: 65%;">บันทึกเหตุการณ์ประจำวัน</th>
-                <th style="width: 20%;">หมายเหตุ</th>
+                <th style="width:15%">เวลา</th>
+                <th style="width:65%">บันทึกเหตุการณ์ประจำวัน</th>
+                <th style="width:20%">หมายเหตุ</th>
               </tr>
             </thead>
-            <tbody id="formLogTbody">
-              <!-- Dynamic rows -->
-            </tbody>
+            <tbody id="pfLogTbody"></tbody>
           </table>
 
-          <!-- Bottom Signatures & Inspector Section -->
+          <!-- Signatures -->
           <div class="form-bottom-section">
             <div class="form-sign-row">
               <span>ลงชื่อ</span>
-              <input type="text" id="fmSignName" class="fm-input-line" placeholder="ชื่อ-นามสกุล">
+              <span class="pf-sign-line" id="pfSignName"></span>
               <span>(ตัวบรรจง)</span>
             </div>
-
             <div class="form-inspector-box">
               <div class="fib-label">บันทึกของผู้ตรวจเวร</div>
-              <textarea id="fmInspectorNotes" class="fm-textarea" rows="3" placeholder="ข้อความจากผู้ตรวจเวร..."></textarea>
-              <div class="fib-line"></div>
+              <div class="fib-line" id="pfInspectorNotes" style="white-space:pre-wrap;min-height:60px;padding:6px;"></div>
             </div>
-
             <div class="form-advisor-sign">
               <div class="fas-line"></div>
               <div class="fas-name">(นายไพรัช รัตน์ไชย)</div>
@@ -367,7 +447,12 @@
             </div>
           </div>
 
-    <!-- ADMIN MONITORING DASHBOARD PANEL -->
+        </div><!-- /.form-paper -->
+      </div><!-- /.paper-wrapper -->
+
+    </section><!-- /#panel-log -->
+
+
     <section class="tab-panel" id="panel-admin" role="tabpanel">
       <div class="panel-header">
         <div class="panel-title-wrap">

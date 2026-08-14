@@ -1074,6 +1074,50 @@ async function loadShiftLog() {
 }
 
 function printShiftForm() {
+  // ── 1. Populate metadata ──────────────────────────
+  document.getElementById('pfLevel').textContent    = document.getElementById('fmLevel').value;
+  document.getElementById('pfName').textContent     = document.getElementById('fmName').value;
+  document.getElementById('pfDayName').textContent  = document.getElementById('fmDayName').value;
+  document.getElementById('pfDayNum').textContent   = document.getElementById('fmDayNum').value;
+  document.getElementById('pfMonth').textContent    = document.getElementById('fmMonth').value;
+  document.getElementById('pfYear').textContent     = document.getElementById('fmYear').value;
+  document.getElementById('pfTimeIn').textContent   = document.getElementById('fmTimeIn').value;
+  document.getElementById('pfTimeOut').textContent  = document.getElementById('fmTimeOut').value;
+  document.getElementById('pfSignName').textContent = document.getElementById('fmSignName').value;
+  document.getElementById('pfInspectorNotes').textContent = document.getElementById('fmInspectorNotes').value;
+
+  // ── 2. Checkboxes ─────────────────────────────────
+  const cbDay   = document.getElementById('pfCbDay');
+  const cbNight = document.getElementById('pfCbNight');
+  if (cbDay)   cbDay.classList.toggle('checked',   document.getElementById('fmShiftDay').checked);
+  if (cbNight) cbNight.classList.toggle('checked', document.getElementById('fmShiftNight').checked);
+
+  // ── 3. Copy log table rows ─────────────────────────
+  const srcRows = document.querySelectorAll('#formLogTbody tr');
+  const pfTbody = document.getElementById('pfLogTbody');
+  pfTbody.innerHTML = '';
+  srcRows.forEach(tr => {
+    const inputs = tr.querySelectorAll('input');
+    const newTr  = document.createElement('tr');
+    newTr.innerHTML = `
+      <td style="border:1px solid #111827;padding:8px 10px;font-size:13.5px;">${inputs[0]?.value || '&nbsp;'}</td>
+      <td style="border:1px solid #111827;padding:8px 10px;font-size:13.5px;">${inputs[1]?.value || '&nbsp;'}</td>
+      <td style="border:1px solid #111827;padding:8px 10px;font-size:13.5px;">${inputs[2]?.value || '&nbsp;'}</td>
+    `;
+    pfTbody.appendChild(newTr);
+  });
+  // Ensure minimum 7 rows
+  while (pfTbody.children.length < 7) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="border:1px solid #111827;padding:8px 10px;height:32px;">&nbsp;</td>
+      <td style="border:1px solid #111827;padding:8px 10px;">&nbsp;</td>
+      <td style="border:1px solid #111827;padding:8px 10px;">&nbsp;</td>
+    `;
+    pfTbody.appendChild(tr);
+  }
+
+  // ── 4. Print ──────────────────────────────────────
   window.print();
 }
 
