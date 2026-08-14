@@ -1159,8 +1159,28 @@ function printShiftForm() {
   const dayNumVal   = document.getElementById('fmDayNum')?.value || daySelVal || '';
   const monthVal    = document.getElementById('fmMonth')?.value || 'สิงหาคม';
   const yearVal     = document.getElementById('fmYear')?.value || THAI_YEAR || '2569';
-  const timeInVal   = document.getElementById('fmTimeIn')?.value || '';
-  const timeOutVal  = document.getElementById('fmTimeOut')?.value || '';
+  // Shift Time Fallback calculation if inputs are empty
+  let defaultTimeIn = '17.00 น.';
+  let defaultTimeOut = '07.00 น.';
+  if (schedEntry) {
+    const woh = isWeekOrHol(schedEntry);
+    const isNightChecked = document.getElementById('fmShiftNight')?.checked;
+    if (!isNightChecked) { // Day shift
+      defaultTimeIn = '08.00 น.';
+      defaultTimeOut = '16.00 น.';
+    } else { // Night shift
+      if (woh) {
+        defaultTimeIn = '16.00 น.';
+        defaultTimeOut = '08.00 น.';
+      } else {
+        defaultTimeIn = '17.00 น.';
+        defaultTimeOut = '07.00 น.';
+      }
+    }
+  }
+
+  const timeInVal   = document.getElementById('fmTimeIn')?.value || defaultTimeIn;
+  const timeOutVal  = document.getElementById('fmTimeOut')?.value || defaultTimeOut;
   const inspectorVal= document.getElementById('fmInspectorNotes')?.value || '';
 
   const setPf = (id, val) => {
