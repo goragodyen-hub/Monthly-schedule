@@ -1346,6 +1346,7 @@ mark.hl {
   body {
     background: #FFF !important;
     color: #000 !important;
+    font-size: 11px !important;
   }
   .app-bg, .app-header, .sidebar, .sb-overlay,
   .log-controls, .log-alert-banner,
@@ -1372,9 +1373,54 @@ mark.hl {
     width: 100% !important;
     max-width: 100% !important;
   }
+
+  /* ── โลโก้ & หัวเรื่อง ── */
+  .school-emblem img { height: 48px !important; margin-bottom: 3px !important; }
+  .form-header { margin-bottom: 8px !important; }
+  .form-school-title { font-size: 14px !important; margin-bottom: 1px !important; }
+  .form-doc-title    { font-size: 12px !important; margin-bottom: 0 !important; }
+
+  /* ── Metadata ── */
+  .form-meta-grid {
+    gap: 4px !important;
+    margin-bottom: 8px !important;
+    font-size: 11px !important;
+  }
+  .form-meta-row { gap: 4px !important; flex-wrap: nowrap !important; }
+  .pf-value { font-size: 11px !important; min-width: 80px !important; padding: 1px 3px !important; }
+  .pf-name  { min-width: 180px !important; }
+
+  /* ── ตาราง log ── */
+  .form-log-table { margin-bottom: 8px !important; }
+  .form-log-table th,
+  .form-log-table td {
+    padding: 3px 6px !important;
+    font-size: 10.5px !important;
+  }
+  .form-log-table th { font-size: 10px !important; }
+
+  /* ── ลายเซ็น & ผู้ตรวจ ── */
+  .form-bottom-section { gap: 6px !important; margin-bottom: 8px !important; }
+  .form-sign-row { font-size: 11px !important; }
+  .pf-sign-line { min-width: 150px !important; font-size: 11px !important; }
+  .pf-sign-line img { max-height: 40px !important; }
+  .form-inspector-box { margin-top: 4px !important; }
+  .fib-label { font-size: 11px !important; margin-bottom: 2px !important; }
+  #pfInspectorNotes { min-height: 36px !important; font-size: 10.5px !important; padding: 3px !important; }
+  .form-advisor-sign { margin-top: 8px !important; font-size: 11px !important; }
+  .fas-line { width: 140px !important; }
+
+  /* ── ระเบียบท้ายฟอร์ม ── */
+  .form-regulations {
+    padding-top: 6px !important;
+    font-size: 9.5px !important;
+  }
+  .reg-title { margin-bottom: 2px !important; }
+  .reg-detail p { margin: 1px 0 !important; }
+
   @page {
     size: A4 portrait;
-    margin: 15mm;
+    margin: 10mm 12mm;
   }
 }
 
