@@ -1227,24 +1227,32 @@ mark.hl {
   border-collapse: collapse;
   border-radius: var(--r-sm);
   overflow: hidden;
-  border: 1px solid var(--border-h);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   background: #FFFFFF;
 }
 .lic-log-table th {
-  background: rgba(79,70,229,.08);
+  background: rgba(79,70,229,.1);
   color: var(--indigo);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   padding: 10px 12px;
   text-align: left;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--border-h);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+}
+.lic-log-table th:last-child {
+  border-right: none;
 }
 .lic-log-table td {
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
   padding: 4px 6px;
   vertical-align: middle;
+}
+.lic-log-table td:last-child {
+  border-right: none;
 }
 .lic-log-table tr:last-child td { border-bottom: none; }
 .lic-log-table tr:hover td { background: rgba(243,239,230,.5); }
@@ -1252,15 +1260,19 @@ mark.hl {
   color: var(--text);
   background: transparent;
   font-size: 14px;
-  padding: 6px 8px;
+  padding: 8px 10px;
   border-radius: 4px;
-  border: none;
-  transition: background var(--dur);
+  border: 1px solid transparent;
+  transition: all var(--dur);
+  width: 100%;
 }
 .lic-log-table .table-input:focus {
-  background: rgba(79,70,229,.06);
+  background: #FFFFFF;
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 2px rgba(79,70,229,.12);
   outline: none;
 }
+
 .lic-log-table .btn-del-row {
   color: var(--rose);
   opacity: 0.7;

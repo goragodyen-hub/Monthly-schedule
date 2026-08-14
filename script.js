@@ -1144,9 +1144,10 @@ async function loadShiftLog() {
     }
   }
 
-  // 3. Default empty 7 rows if no saved data
-  addHourlyRows();
+  // 3. Default 1 initial row if no saved data
+  addLogTableRow('', '', '');
 }
+
 
 function printShiftForm() {
   // ── 1. Populate metadata ──────────────────────────
