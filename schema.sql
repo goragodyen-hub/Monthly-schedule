@@ -100,7 +100,8 @@ INSERT INTO officers (emp_id, name, surname, group_key, gender, level) VALUES
 ('69029', 'นายสมชาย', 'ผ่องจำปา', 'g2', 'male', 'ประถมศึกษา'),
 ('69030', 'นายสุเมต', 'เอี่ยมมาตร', 'g3', 'male', 'มัธยมศึกษา'),
 ('20023', 'นางศรีสุดา', 'เย็นคงคา', 'sc', 'female', 'มัธยมศึกษา'),
-('20053', 'นายกรกฎ', 'เย็นคงคา', 'g3', 'male', 'มัธยมศึกษา')
+('20053', 'นายกรกฎ', 'เย็นคงคา', 'g3', 'male', 'มัธยมศึกษา'),
+('20131', 'นายพิชาวัจน์', 'เกิดเรืองสิน', 'g3', 'male', 'มัธยมศึกษา')
 ON CONFLICT (emp_id) DO UPDATE SET 
     name = EXCLUDED.name,
     surname = EXCLUDED.surname,

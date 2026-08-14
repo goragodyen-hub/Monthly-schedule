@@ -42,6 +42,7 @@ const OFFICERS_REGISTRY = {
   '69030': { emp_id:'69030', name:'นายสุเมต',     surname:'เอี่ยมมาตร',   groupKey:'g3', gender:'male',   level:'มัธยมศึกษา' },
   '20023': { emp_id:'20023', name:'นางศรีสุดา',   surname:'เย็นคงคา',     groupKey:'sc', gender:'female', level:'มัธยมศึกษา' },
   '20053': { emp_id:'20053', name:'นายกรกฎ',      surname:'เย็นคงคา',     groupKey:'g3', gender:'male',   level:'มัธยมศึกษา' },
+  '20131': { emp_id:'20131', name:'นายพิชาวัจน์', surname:'เกิดเรืองสิน', groupKey:'g3', gender:'male',   level:'มัธยมศึกษา' },
   'admin': { emp_id:'admin', name:'ผู้ดูแลระบบ',   surname:'(Admin)',      groupKey:'g1', gender:'male',   level:'ผู้ดูแลระบบ', isAdmin:true },
   '99999': { emp_id:'99999', name:'ผู้ดูแลระบบ',   surname:'(Admin)',      groupKey:'g1', gender:'male',   level:'ผู้ดูแลระบบ', isAdmin:true }
 };
@@ -99,7 +100,7 @@ const SCHEDULE = [
     female: { kg:['น.ส.ณิชกานต์','แจ่มใส'],   pr:['นางสายัน','อรรถกิจไพบูลย์'],sc:['น.ส.พรพิมล','ไชยสถาน']       }
   },
   { day:13, dayName:'พฤหัสบดี',  isWeekend:false, isHoliday:false,
-    male:   { g1:['นายสุรินทร์','เพชรแท้'],    g2:['นายสุชานนท์','สิงห์สุพรรณ'],g3:['นายพิชาวัจน์','เกิดเรืองลิน'] },
+    male:   { g1:['นายสุรินทร์','เพชรแท้'],    g2:['นายสุชานนท์','สิงห์สุพรรณ'],g3:['นายพิชาวัจน์','เกิดเรืองสิน'] },
     female: null
   },
   { day:14, dayName:'ศุกร์',     isWeekend:false, isHoliday:false,
@@ -147,7 +148,7 @@ const SCHEDULE = [
     female: { kg:['น.ส.อรพรรณ','บุญชู'],       pr:['น.ส.เปิ่น','เลี่ยมจ้อย'],   sc:['น.ส.นภาพร','เรืองยศ']          }
   },
   { day:24, dayName:'จันทร์',    isWeekend:false, isHoliday:false,
-    male:   { g1:['นายอดิเรก','จันทร์โอ้วมณี'],  g2:['นายสุริยา','กิตติกลาง'],   g3:['นายพิชาวัจน์','เกิดเรืองลิน'] },
+    male:   { g1:['นายอดิเรก','จันทร์โอ้วมณี'],  g2:['นายสุริยา','กิตติกลาง'],   g3:['นายพิชาวัจน์','เกิดเรืองสิน'] },
     female: null
   },
   { day:25, dayName:'อังคาร',    isWeekend:false, isHoliday:false,

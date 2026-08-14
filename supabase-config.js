@@ -64,7 +64,18 @@ async function authWithEmpId(empId) {
         .eq('emp_id', cleanId)
         .single();
       
-      if (data && !error) return data;
+      if (data && !error) {
+        // Normalize Supabase snake_case → camelCase ให้ตรงกับ OFFICERS_REGISTRY format
+        return {
+          emp_id:   data.emp_id,
+          name:     data.name,
+          surname:  data.surname,
+          groupKey: data.group_key,   // group_key → groupKey
+          gender:   data.gender,
+          level:    data.level,
+          isAdmin:  data.is_admin || false
+        };
+      }
     } catch (e) {
       console.error('Supabase auth query error:', e);
     }
