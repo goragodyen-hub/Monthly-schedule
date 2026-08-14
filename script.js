@@ -1547,10 +1547,10 @@ function updateMenuVisibility() {
     if (sbLogBtn) sbLogBtn.style.display = 'none';
     if (sbAdminBtn) sbAdminBtn.style.display = 'none';
   } else if (loggedInOfficer.isAdmin) {
-    if (sbLogBtn) sbLogBtn.style.display = 'flex';
+    if (sbLogBtn) sbLogBtn.style.display = 'none'; // Admin menu: Hide Shift Log
     if (sbAdminBtn) sbAdminBtn.style.display = 'flex';
   } else {
-    if (sbLogBtn) sbLogBtn.style.display = 'flex';
+    if (sbLogBtn) sbLogBtn.style.display = 'flex'; // Officer menu: Show Shift Log
     if (sbAdminBtn) sbAdminBtn.style.display = 'none';
   }
 }
