@@ -2,58 +2,59 @@
    CSS VARIABLES & RESET
    ============================================= */
 :root {
-  --bg:         #060B17;
-  --bg2:        #0C1220;
-  --surface:    rgba(14, 22, 40, 0.75);
-  --surface2:   rgba(25, 35, 58, 0.6);
-  --border:     rgba(255,255,255,0.07);
-  --border-h:   rgba(255,255,255,0.14);
+  --bg:         #FBF9F5; /* ขาวนวล สบายตา */
+  --bg2:        #F3EFE6;
+  --surface:    rgba(255, 255, 255, 0.85);
+  --surface2:   rgba(243, 239, 230, 0.8);
+  --border:     rgba(0, 0, 0, 0.08);
+  --border-h:   rgba(0, 0, 0, 0.16);
 
-  --text:       #F0F4FF;
-  --text2:      #8A97B0;
-  --text3:      #556070;
+  --text:       #1E293B; /* ตัวอักษรสีเข้ม อ่านง่าย */
+  --text2:      #475569;
+  --text3:      #64748B;
 
-  --indigo:     #6366F1;
-  --indigo-l:   #818CF8;
-  --violet:     #7C3AED;
-  --blue:       #3B82F6;
-  --blue-l:     #60A5FA;
-  --sky:        #0EA5E9;
-  --sky-l:      #38BDF8;
-  --emerald:    #10B981;
-  --emerald-l:  #34D399;
-  --amber:      #F59E0B;
-  --amber-l:    #FCD34D;
-  --rose:       #F43F5E;
-  --rose-l:     #FB7185;
-  --pink:       #EC4899;
-  --pink-l:     #F472B6;
-  --purple:     #8B5CF6;
-  --purple-l:   #A78BFA;
-  --green:      #4ADE80;
-  --green-d:    #0F2218;
-  --red-l:      #F87171;
+  --indigo:     #4F46E5;
+  --indigo-l:   #4338CA;
+  --violet:     #6D28D9;
+  --blue:       #2563EB;
+  --blue-l:     #1D4ED8;
+  --sky:        #0284C7;
+  --sky-l:      #0369A1;
+  --emerald:    #059669;
+  --emerald-l:  #047857;
+  --amber:      #D97706;
+  --amber-l:    #B45309;
+  --rose:       #E11D48;
+  --rose-l:     #BE123C;
+  --pink:       #DB2777;
+  --pink-l:     #BE185D;
+  --purple:     #7C3AED;
+  --purple-l:   #6D28D9;
+  --green:      #16A34A;
+  --green-d:    #F0FDF4;
+  --red-l:      #DC2626;
 
-  /* Group colour tokens */
-  --g1: #6366F1;  --g1-l: #818CF8;  --g1-bg: rgba(99,102,241,.12);  --g1-bd: rgba(99,102,241,.35);
-  --g2: #10B981;  --g2-l: #34D399;  --g2-bg: rgba(16,185,129,.12);  --g2-bd: rgba(16,185,129,.35);
-  --g3: #F59E0B;  --g3-l: #FCD34D;  --g3-bg: rgba(245,158,11,.12);  --g3-bd: rgba(245,158,11,.35);
-  --kg: #EC4899;  --kg-l: #F472B6;  --kg-bg: rgba(236,72,153,.12);  --kg-bd: rgba(236,72,153,.35);
-  --pr: #8B5CF6;  --pr-l: #A78BFA;  --pr-bg: rgba(139,92,246,.12);  --pr-bd: rgba(139,92,246,.35);
-  --sc: #F43F5E;  --sc-l: #FB7185;  --sc-bg: rgba(244,63,94,.12);   --sc-bd: rgba(244,63,94,.35);
+  /* Group colour tokens for Light Theme */
+  --g1: #4F46E5;  --g1-l: #3730A3;  --g1-bg: rgba(79,70,229,.08);   --g1-bd: rgba(79,70,229,.25);
+  --g2: #059669;  --g2-l: #065F46;  --g2-bg: rgba(5,150,105,.08);   --g2-bd: rgba(5,150,105,.25);
+  --g3: #D97706;  --g3-l: #92400E;  --g3-bg: rgba(217,119,6,.08);   --g3-bd: rgba(217,119,6,.25);
+  --kg: #DB2777;  --kg-l: #9D174D;  --kg-bg: rgba(219,39,119,.08);  --kg-bd: rgba(219,39,119,.25);
+  --pr: #7C3AED;  --pr-l: #5B21B6;  --pr-bg: rgba(124,58,237,.08);  --pr-bd: rgba(124,58,237,.25);
+  --sc: #E11D48;  --sc-l: #9F1239;  --sc-bg: rgba(225,29,72,.08);   --sc-bd: rgba(225,29,72,.25);
 
   --r:    12px;
   --r-lg: 20px;
   --r-sm: 8px;
   --r-xs: 6px;
 
-  --shadow:    0 4px 24px rgba(0,0,0,.35);
-  --shadow-lg: 0 8px 48px rgba(0,0,0,.45);
+  --shadow:    0 4px 20px rgba(0,0,0,.06);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,.1);
 
   --ease: cubic-bezier(.4,0,.2,1);
   --dur:  .28s;
   --font: 'Sarabun', sans-serif;
 }
+
 
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 html { scroll-behavior:smooth; }
@@ -79,20 +80,29 @@ input  { font-family:var(--font); }
    ============================================= */
 .app-bg {
   position:fixed; inset:0; z-index:-1;
-  background: radial-gradient(ellipse at 20% 10%, #0B1535 0%, #060B17 60%);
+  background: radial-gradient(ellipse at 20% 10%, #F5F0E6 0%, #FBF9F5 60%);
   overflow:hidden;
 }
 .bg-orb {
   position:absolute; border-radius:50%;
-  filter:blur(90px); opacity:.13;
+  filter:blur(90px); opacity:.35;
   animation:orbFloat 10s var(--ease) infinite alternate;
 }
-.bg-orb-1 { width:700px;height:700px; background:radial-gradient(circle,#6366F1,transparent); top:-250px;left:-200px; animation-delay:0s; }
-.bg-orb-2 { width:500px;height:500px; background:radial-gradient(circle,#EC4899,transparent); bottom:-150px;right:-150px; animation-delay:4s; }
-.bg-orb-3 { width:350px;height:350px; background:radial-gradient(circle,#10B981,transparent); top:45%;left:45%; animation-delay:7s; }
+.bg-orb-1 { width:700px;height:700px; background:radial-gradient(circle,rgba(79,70,229,.15),transparent); top:-250px;left:-200px; animation-delay:0s; }
+.bg-orb-2 { width:500px;height:500px; background:radial-gradient(circle,rgba(219,39,119,.15),transparent); bottom:-150px;right:-150px; animation-delay:4s; }
+.bg-orb-3 { width:350px;height:350px; background:radial-gradient(circle,rgba(5,150,105,.15),transparent); top:45%;left:45%; animation-delay:7s; }
 @keyframes orbFloat {
   0%   { transform:translate(0,0) scale(1); }
   100% { transform:translate(40px,-40px) scale(1.08); }
+}
+
+/* Glass Utility */
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 
 /* =============================================
@@ -100,9 +110,10 @@ input  { font-family:var(--font); }
    ============================================= */
 .app-header {
   position:sticky; top:0; z-index:200;
-  background:rgba(6,11,23,.88);
+  background:rgba(251,249,245,.92);
   backdrop-filter:blur(22px);
   border-bottom:1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
 }
 .header-inner {
   max-width:1200px; margin:0 auto;
@@ -113,14 +124,12 @@ input  { font-family:var(--font); }
 .header-brand { display:flex; align-items:center; gap:12px; }
 .brand-icon {
   font-size:24px;
-  filter:drop-shadow(0 0 10px rgba(99,102,241,.5));
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.1));
   flex-shrink:0;
 }
 .brand-text h1 {
   font-size:16px; font-weight:800; line-height:1.1;
-  background:linear-gradient(135deg,#818CF8 0%,#F472B6 100%);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  background-clip:text;
+  color: #1E293B;
 }
 .brand-text p { font-size:10.5px; color:var(--text3); margin-top:1px; }
 
@@ -133,9 +142,10 @@ input  { font-family:var(--font); }
 .clock-time {
   font-size:18px; font-weight:700;
   font-variant-numeric:tabular-nums; letter-spacing:1.5px;
-  color:var(--indigo-l);
+  color:var(--indigo);
 }
 .clock-date { font-size:10px; color:var(--text3); margin-top:1px; }
+
 
 /* =============================================
    HAMBURGER BUTTON
@@ -1110,7 +1120,7 @@ mark.hl {
   color: var(--text3);
 }
 .lic-input {
-  background: rgba(255,255,255,0.04);
+  background: #FFFFFF;
   border: 1px solid var(--border-h);
   border-radius: var(--r-sm);
   color: var(--text);
@@ -1121,14 +1131,15 @@ mark.hl {
   outline: none;
   transition: all var(--dur) var(--ease);
   width: 100%;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
 }
 .lic-input:focus {
   border-color: var(--indigo);
-  background: rgba(99,102,241,.08);
-  box-shadow: 0 0 0 3px rgba(99,102,241,.2);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(79,70,229,.15);
 }
 .lic-textarea {
-  background: rgba(255,255,255,0.04);
+  background: #FFFFFF;
   border: 1px solid var(--border-h);
   border-radius: var(--r-sm);
   color: var(--text);
@@ -1139,11 +1150,12 @@ mark.hl {
   width: 100%;
   resize: vertical;
   transition: all var(--dur) var(--ease);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
 }
 .lic-textarea:focus {
   border-color: var(--indigo);
-  background: rgba(99,102,241,.08);
-  box-shadow: 0 0 0 3px rgba(99,102,241,.2);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(79,70,229,.15);
 }
 
 .lic-shift-row {
@@ -1159,7 +1171,7 @@ mark.hl {
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  color: var(--text2);
+  color: var(--text);
   transition: color var(--dur);
 }
 .lic-check-opt input { display: none; }
@@ -1171,13 +1183,13 @@ mark.hl {
   align-items: center;
   justify-content: center;
   transition: all var(--dur) var(--ease);
-  background: rgba(255,255,255,.04);
+  background: #FFFFFF;
   flex-shrink: 0;
 }
 .lic-check-opt input:checked ~ .lic-check-box {
   background: var(--indigo);
   border-color: var(--indigo);
-  box-shadow: 0 0 10px rgba(99,102,241,.5);
+  box-shadow: 0 2px 6px rgba(79,70,229,.3);
 }
 .lic-check-opt input:checked ~ .lic-check-box::after {
   content: '✓';
@@ -1203,7 +1215,7 @@ mark.hl {
 .lic-section-title {
   font-size: 14px;
   font-weight: 700;
-  color: var(--text2);
+  color: var(--text);
   letter-spacing: 0.3px;
 }
 .lic-toolbar-btns {
@@ -1216,10 +1228,11 @@ mark.hl {
   border-radius: var(--r-sm);
   overflow: hidden;
   border: 1px solid var(--border-h);
+  background: #FFFFFF;
 }
 .lic-log-table th {
-  background: rgba(99,102,241,.12);
-  color: var(--indigo-l);
+  background: rgba(79,70,229,.08);
+  color: var(--indigo);
   font-size: 12px;
   font-weight: 700;
   padding: 10px 12px;
@@ -1234,8 +1247,7 @@ mark.hl {
   vertical-align: middle;
 }
 .lic-log-table tr:last-child td { border-bottom: none; }
-.lic-log-table tr:hover td { background: rgba(255,255,255,.03); }
-/* Override table-input inside lic-log-table for dark mode */
+.lic-log-table tr:hover td { background: rgba(243,239,230,.5); }
 .lic-log-table .table-input {
   color: var(--text);
   background: transparent;
@@ -1246,12 +1258,12 @@ mark.hl {
   transition: background var(--dur);
 }
 .lic-log-table .table-input:focus {
-  background: rgba(99,102,241,.08);
+  background: rgba(79,70,229,.06);
   outline: none;
 }
 .lic-log-table .btn-del-row {
-  color: var(--rose-l);
-  opacity: 0.6;
+  color: var(--rose);
+  opacity: 0.7;
   transition: opacity var(--dur);
 }
 .lic-log-table .btn-del-row:hover { opacity: 1; }
@@ -1276,9 +1288,10 @@ mark.hl {
   position: relative;
   border: 1.5px solid var(--border-h);
   border-radius: var(--r-sm);
-  background: rgba(255,255,255,0.03);
+  background: #FFFFFF;
   overflow: hidden;
   transition: border-color var(--dur);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
 }
 .sig-pad-wrap:hover { border-color: var(--indigo); }
 .sig-canvas {
@@ -1292,9 +1305,9 @@ mark.hl {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(244,63,94,.15);
-  border: 1px solid rgba(244,63,94,.35);
-  color: var(--rose-l);
+  background: rgba(225,29,72,.1);
+  border: 1px solid rgba(225,29,72,.3);
+  color: var(--rose);
   font-size: 11.5px;
   font-weight: 700;
   font-family: var(--font);
@@ -1307,6 +1320,7 @@ mark.hl {
   background: var(--rose);
   color: #FFF;
 }
+
 
 .print-only { display: none !important; }
 .no-print   { display: flex; }

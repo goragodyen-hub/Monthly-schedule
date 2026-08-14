@@ -1275,7 +1275,7 @@ function initSignaturePad() {
     canvas.height = rect.height;
 
     const ctx = canvas.getContext('2d');
-    ctx.strokeStyle = '#60A5FA'; // Bright clear blue stroke for dark mode
+    ctx.strokeStyle = '#1E40AF'; // Deep navy blue stroke for warm light background
     ctx.lineWidth = 2.8;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -1309,16 +1309,17 @@ function initSignaturePad() {
     lastPos = getCoordinates(e);
 
     const ctx = canvas.getContext('2d');
-    ctx.strokeStyle = '#60A5FA';
+    ctx.strokeStyle = '#1E40AF';
     ctx.lineWidth = 2.8;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
     ctx.beginPath();
     ctx.arc(lastPos.x, lastPos.y, 1.4, 0, Math.PI * 2);
-    ctx.fillStyle = '#60A5FA';
+    ctx.fillStyle = '#1E40AF';
     ctx.fill();
   };
+
 
   const draw = (e) => {
     if (!isDrawing) return;
