@@ -1150,25 +1150,35 @@ async function loadShiftLog() {
 
 function printShiftForm() {
   // ── 1. Populate metadata ──────────────────────────
-  const levelVal    = document.getElementById('fmLevel').value || '';
-  const nameVal     = document.getElementById('fmName').value || '';
-  const dayNameVal  = document.getElementById('fmDayName').value || '';
-  const dayNumVal   = document.getElementById('fmDayNum').value || '';
-  const monthVal    = document.getElementById('fmMonth').value || '';
-  const yearVal     = document.getElementById('fmYear').value || '';
-  const timeInVal   = document.getElementById('fmTimeIn').value || '';
-  const timeOutVal  = document.getElementById('fmTimeOut').value || '';
-  const inspectorVal= document.getElementById('fmInspectorNotes').value || '';
+  const daySelVal = parseInt(document.getElementById('logDateSelect')?.value || '1', 10);
+  const schedEntry = SCHEDULE.find(d => d.day === daySelVal);
 
-  document.getElementById('pfLevel').innerHTML    = levelVal || '&nbsp;';
-  document.getElementById('pfName').innerHTML     = nameVal || '&nbsp;';
-  document.getElementById('pfDayName').innerHTML  = dayNameVal || '&nbsp;';
-  document.getElementById('pfDayNum').innerHTML   = dayNumVal || '&nbsp;';
-  document.getElementById('pfMonth').innerHTML    = monthVal || '&nbsp;';
-  document.getElementById('pfYear').innerHTML     = yearVal || '&nbsp;';
-  document.getElementById('pfTimeIn').innerHTML   = timeInVal || '&nbsp;';
-  document.getElementById('pfTimeOut').innerHTML  = timeOutVal || '&nbsp;';
-  document.getElementById('pfInspectorNotes').textContent = inspectorVal;
+  const levelVal    = document.getElementById('fmLevel')?.value || 'มัธยมศึกษา';
+  const nameVal     = document.getElementById('fmName')?.value || '';
+  const dayNameVal  = document.getElementById('fmDayName')?.value || schedEntry?.dayName || '';
+  const dayNumVal   = document.getElementById('fmDayNum')?.value || daySelVal || '';
+  const monthVal    = document.getElementById('fmMonth')?.value || 'สิงหาคม';
+  const yearVal     = document.getElementById('fmYear')?.value || THAI_YEAR || '2569';
+  const timeInVal   = document.getElementById('fmTimeIn')?.value || '';
+  const timeOutVal  = document.getElementById('fmTimeOut')?.value || '';
+  const inspectorVal= document.getElementById('fmInspectorNotes')?.value || '';
+
+  const setPf = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = (val !== null && val !== undefined && val !== '') ? val : '&nbsp;';
+  };
+
+  setPf('pfLevel', levelVal);
+  setPf('pfName', nameVal);
+  setPf('pfDayName', dayNameVal);
+  setPf('pfDayNum', dayNumVal);
+  setPf('pfMonth', monthVal);
+  setPf('pfYear', yearVal);
+  setPf('pfTimeIn', timeInVal);
+  setPf('pfTimeOut', timeOutVal);
+  
+  const inspEl = document.getElementById('pfInspectorNotes');
+  if (inspEl) inspEl.textContent = inspectorVal;
 
   // ── 2. Checkboxes ─────────────────────────────────
   const cbDay   = document.getElementById('pfCbDay');
