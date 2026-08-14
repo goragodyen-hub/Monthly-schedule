@@ -879,9 +879,10 @@ function onLogOfficerChange() {
   const woh = isWeekOrHol(entry);
 
   // Fill Header Data
-  document.getElementById('fmLevel').value   = off.level;
-  document.getElementById('fmName').value    = off.name;
-  document.getElementById('fmSignName').value= off.name;
+  if (document.getElementById('fmLevel')) document.getElementById('fmLevel').value = off.level;
+  if (document.getElementById('fmName')) document.getElementById('fmName').value = off.name;
+  const fmSign = document.getElementById('fmSignName');
+  if (fmSign) fmSign.value = off.name;
 
   document.getElementById('fmDayName').value = entry.dayName;
   document.getElementById('fmDayNum').value  = entry.day;
@@ -1088,7 +1089,7 @@ function exportShiftLogFile() {
     year:           document.getElementById('fmYear').value,
     timeIn:         document.getElementById('fmTimeIn').value,
     timeOut:        document.getElementById('fmTimeOut').value,
-    signName:       document.getElementById('fmSignName').value,
+    signName:       document.getElementById('fmSignName')?.value || '',
     inspectorNotes: document.getElementById('fmInspectorNotes').value,
     rows:           Array.from(document.querySelectorAll('#formLogTbody tr')).map(tr => {
       const inputs = tr.querySelectorAll('input');
