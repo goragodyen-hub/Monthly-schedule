@@ -1518,6 +1518,17 @@ async function handleMainLogin(event) {
   }
 }
 
+async function handleEmpIdLogin() {
+  const sbInput = document.getElementById('sbEmpIdInput');
+  if (sbInput && sbInput.value.trim() !== '') {
+    const mainInput = document.getElementById('mainEmpIdInput');
+    if (mainInput) {
+      mainInput.value = sbInput.value.trim();
+    }
+    await handleMainLogin();
+  }
+}
+
 function quickFillEmpId(empId) {
   const input = document.getElementById('mainEmpIdInput');
   if (input) {
@@ -1967,112 +1978,3 @@ function restoreSignatureFromDataUrl(dataUrl) {
   img.src = dataUrl;
 }
 
-/* =============================================
-   LOGIN & AUTH SYSTEM
-   ============================================= */
-let currentUser = null;
-
-function showLoginScreenOverlay() {
-  const sc = document.getElementById('loginScreen');
-  if (sc) {
-    sc.classList.remove('hidden');
-    setTimeout(() => {
-      const input = document.getElementById('mainEmpIdInput');
-      if (input) input.focus();
-    }, 100);
-  }
-}
-
-function hideLoginScreenOverlay() {
-  const sc = document.getElementById('loginScreen');
-  if (sc) sc.classList.add('hidden');
-}
-
-async function processLogin(empId) {
-  if (!empId) return;
-  // authWithEmpId is defined in supabase-config.js
-  const user = await authWithEmpId(empId);
-  if (user) {
-    currentUser = user;
-    localStorage.setItem('loggedInEmpId', user.emp_id);
-    localStorage.setItem('loggedInUser', JSON.stringify(user));
-    
-    document.getElementById('userProfileBadge').style.display = 'flex';
-    document.getElementById('upbName').textContent = user.name + ' ' + user.surname;
-    document.getElementById('headerLoginBtn').style.display = 'none';
-    
-    hideLoginScreenOverlay();
-    closeMenu(); // if logged in from sidebar
-    
-    // Auto-fill form if on log page
-    if (document.getElementById('panel-log').classList.contains('active')) {
-      autoFillLogFormWithCurrentUser();
-    }
-  } else {
-    alert('❌ ไม่พบรหัสพนักงานนี้ในระบบ');
-  }
-}
-
-function handleMainLogin(e) {
-  e.preventDefault();
-  const val = document.getElementById('mainEmpIdInput').value;
-  processLogin(val);
-}
-
-function handleEmpIdLogin() {
-  const val = document.getElementById('sbEmpIdInput').value;
-  processLogin(val);
-}
-
-function logoutUser() {
-  currentUser = null;
-  localStorage.removeItem('loggedInEmpId');
-  localStorage.removeItem('loggedInUser');
-  document.getElementById('userProfileBadge').style.display = 'none';
-  document.getElementById('headerLoginBtn').style.display = 'block';
-  document.getElementById('mainEmpIdInput').value = '';
-  document.getElementById('sbEmpIdInput').value = '';
-  showLoginScreenOverlay();
-}
-
-function checkSavedLogin() {
-  const saved = localStorage.getItem('loggedInUser');
-  if (saved) {
-    currentUser = JSON.parse(saved);
-    document.getElementById('userProfileBadge').style.display = 'flex';
-    document.getElementById('upbName').textContent = currentUser.name + ' ' + currentUser.surname;
-    document.getElementById('headerLoginBtn').style.display = 'none';
-    hideLoginScreenOverlay();
-  }
-}
-
-function autoFillLogFormWithCurrentUser() {
-  if (!currentUser) return;
-  const sel = document.getElementById('logOfficerSelect');
-  if (!sel) return;
-  for (let i = 0; i < sel.options.length; i++) {
-    if (sel.options[i].value === currentUser.emp_id) {
-      sel.selectedIndex = i;
-      if (typeof onLogOfficerChange === 'function') {
-        onLogOfficerChange();
-      }
-      break;
-    }
-  }
-}
-
-// Call on startup
-document.addEventListener('DOMContentLoaded', () => {
-  checkSavedLogin();
-  
-  // Hook into switchTab to auto-fill form when Log tab is opened
-  if (typeof window.switchTab === 'function') {
-    const origSwitchTab = window.switchTab;
-    window.switchTab = function(tabId) {
-      origSwitchTab(tabId);
-      if (tabId === 'log') {
-        setTimeout(autoFillLogFormWithCurrentUser, 150);
-      }
-    };
-  }
-});
