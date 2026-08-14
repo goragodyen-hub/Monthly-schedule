@@ -110,14 +110,15 @@
     <div class="sb-section-label">สิงหาคม ๒๕๖๙</div>
 
     <!-- Quick Employee ID Login Box -->
-    <div class="sb-emp-login glass" style="margin: 0 10px 14px; padding: 12px;">
-      <div style="font-size: 11px; font-weight: 700; color: var(--text3); margin-bottom: 6px; text-transform: uppercase;">🔑 เข้าสู่ระบบด้วยรหัสพนักงาน</div>
+    <div class="sb-emp-login glass" style="margin: 0 10px 14px; padding: 12px; border-radius: 8px;">
+      <div style="font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase;">🔑 เข้าสู่ระบบด้วยรหัสพนักงาน</div>
       <div style="display: flex; gap: 6px;">
-        <input type="text" id="sbEmpIdInput" placeholder="เช่น 69001" style="flex: 1; background: rgba(0,0,0,.3); border: 1px solid var(--border); color: #FFF; border-radius: 4px; padding: 5px 8px; font-size: 13px; outline: none;">
-        <button onclick="handleEmpIdLogin()" style="background: var(--indigo); color: #FFF; border: none; padding: 5px 10px; border-radius: 4px; font-weight: 600; font-size: 12px; cursor: pointer;">เข้าสู่ระบบ</button>
+        <input type="text" id="sbEmpIdInput" placeholder="เช่น 20131" style="flex: 1; background: #FFFFFF; border: 1px solid var(--border-h); color: #0F172A; border-radius: 4px; padding: 6px 8px; font-size: 13px; font-weight: 600; outline: none;">
+        <button onclick="handleEmpIdLogin()" style="background: var(--indigo); color: #FFF; border: none; padding: 6px 10px; border-radius: 4px; font-weight: 700; font-size: 12px; cursor: pointer;">เข้าสู่ระบบ</button>
       </div>
       <div id="sbEmpLoginMsg" style="font-size: 11px; color: var(--emerald-l); margin-top: 4px; display: none;"></div>
     </div>
+
 
     <nav class="sb-nav">
       <button class="sb-nav-item active" id="sb-today" onclick="switchTab('today')">

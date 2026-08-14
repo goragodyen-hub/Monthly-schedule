@@ -1581,6 +1581,12 @@ function updateLoggedInUserUI(officer) {
   const loginOverlay = document.getElementById('loginScreen');
   if (loginOverlay) loginOverlay.classList.add('hidden');
 
+  // Sync emp_id to both login inputs
+  const mainInput = document.getElementById('mainEmpIdInput');
+  const sbInput   = document.getElementById('sbEmpIdInput');
+  if (mainInput) mainInput.value = officer.emp_id;
+  if (sbInput)   sbInput.value   = officer.emp_id;
+
   // Update header user profile badge
   const upb = document.getElementById('userProfileBadge');
   const upbName = document.getElementById('upbName');
@@ -1630,12 +1636,14 @@ function logoutUser() {
   // Reset shift log dropdowns for clean state
   initShiftLog();
 
-  const input = document.getElementById('mainEmpIdInput');
-  if (input) {
-    input.value = '';
-    input.focus();
-  }
+  const mainInput = document.getElementById('mainEmpIdInput');
+  const sbInput   = document.getElementById('sbEmpIdInput');
+  if (mainInput) mainInput.value = '';
+  if (sbInput)   sbInput.value   = '';
+
+  if (mainInput) mainInput.focus();
 }
+
 
 async function checkMissingPastLogs() {
   const alertBanner = document.getElementById('logAlertBanner');
