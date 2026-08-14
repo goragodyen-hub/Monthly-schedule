@@ -1392,7 +1392,7 @@ mark.hl {
   }
 
   /* ── โลโก้ & หัวเรื่อง ── */
-  .school-emblem img { height: 52px !important; margin-bottom: 2px !important; }
+  .school-emblem img { height: 75px !important; margin-bottom: 4px !important; }
   .form-header { margin-bottom: 12px !important; text-align: center !important; }
   .form-school-title { font-size: 16px !important; margin-bottom: 2px !important; font-weight: bold !important; }
   .form-doc-title    { font-size: 14px !important; margin-bottom: 0 !important; font-weight: bold !important; }
