@@ -1225,13 +1225,10 @@ function printShiftForm() {
   if (cbDay)   cbDay.classList.toggle('checked', isDayChecked);
   if (cbNight) cbNight.classList.toggle('checked', isNightChecked);
 
-  // ── 3. Signature image ────────────────────────────
+  // ── 3. Signature Name (Auto-fill typed name) ─────────
   const pfSign = document.getElementById('pfSignName');
-  const sigDataUrl = getSignatureDataUrl();
-  if (sigDataUrl) {
-    pfSign.innerHTML = `<img src="${sigDataUrl}" style="max-height:45px;max-width:180px;display:inline-block;vertical-align:middle;">`;
-  } else {
-    pfSign.innerHTML = nameVal ? `<span style="font-family:'Sarabun';">${nameVal}</span>` : '&nbsp;';
+  if (pfSign) {
+    pfSign.innerHTML = nameVal ? `<span style="font-family:'Sarabun';font-weight:600;">${nameVal}</span>` : '&nbsp;';
   }
 
   // ── 4. Copy log table rows ─────────────────────────
@@ -1263,105 +1260,6 @@ function printShiftForm() {
   window.print();
 }
 
-/* =============================================
-   SIGNATURE PAD
-   ============================================= */
-function initSignaturePad() {
-  const canvas = document.getElementById('sigCanvas');
-  if (!canvas) return;
-
-  const ctx = canvas.getContext('2d');
-
-  const resizeCanvas = () => {
-    const rect = canvas.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-
-    // Check if dimensions actually changed
-    if (canvas.width !== rect.width || canvas.height !== rect.height) {
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-    }
-  };
-
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  let isDrawing = false;
-  let lastPos = { x: 0, y: 0 };
-
-  const getPos = (e) => {
-    const rect = canvas.getBoundingClientRect();
-    let clientX = e.clientX;
-    let clientY = e.clientY;
-
-    if (e.touches && e.touches.length > 0) {
-      clientX = e.touches[0].clientX;
-      clientY = e.touches[0].clientY;
-    }
-
-    return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
-    };
-  };
-
-  const startDraw = (e) => {
-    resizeCanvas();
-    isDrawing = true;
-    lastPos = getPos(e);
-
-    ctx.strokeStyle = '#1E40AF';
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    ctx.beginPath();
-    ctx.arc(lastPos.x, lastPos.y, 1.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#1E40AF';
-    ctx.fill();
-  };
-
-  const draw = (e) => {
-    if (!isDrawing) return;
-    e.preventDefault();
-
-    const currentPos = getPos(e);
-
-    ctx.strokeStyle = '#1E40AF';
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    ctx.beginPath();
-    ctx.moveTo(lastPos.x, lastPos.y);
-    ctx.lineTo(currentPos.x, currentPos.y);
-    ctx.stroke();
-
-    lastPos = currentPos;
-  };
-
-  const stopDraw = () => {
-    isDrawing = false;
-  };
-
-  // Attach Event Listeners directly
-  canvas.onmousedown = startDraw;
-  canvas.onmousemove = draw;
-  canvas.onmouseup = stopDraw;
-  canvas.onmouseleave = stopDraw;
-
-  canvas.ontouchstart = (e) => { e.preventDefault(); startDraw(e); };
-  canvas.ontouchmove = (e) => { e.preventDefault(); draw(e); };
-  canvas.ontouchend = stopDraw;
-}
-
-
-function clearSignature() {
-  const canvas = document.getElementById('sigCanvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
 
 function getSignatureDataUrl() {
   const canvas = document.getElementById('sigCanvas');
