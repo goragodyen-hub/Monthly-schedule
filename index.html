@@ -582,9 +582,7 @@
           <div class="lic-info-grid">
             <div class="lic-field">
               <label class="lic-label">📅 วันที่ของเวรที่จะขอสลับ (Shift Date)</label>
-              <select id="swapDaySelect" class="lic-input" required>
-                <!-- Populated dynamically 1-31 สิงหาคม 2569 -->
-              </select>
+              <input type="date" id="swapDateInput" class="lic-input" required>
             </div>
 
             <div class="lic-field">
@@ -602,8 +600,8 @@
             </div>
 
             <div class="lic-field">
-              <label class="lic-label">🔄 วันที่สลับไปปฏิบัติหน้าที่คืนแทน (ถ้ามี)</label>
-              <input type="text" id="swapReturnDateInput" class="lic-input" placeholder="เช่น 25 สิงหาคม 2569 (ไม่บังคับ)">
+              <label class="lic-label">🔄 วันที่สลับไปปฏิบัติหน้าที่คืนแทน (Return Date)</label>
+              <input type="date" id="swapReturnDateInput" class="lic-input">
             </div>
 
             <!-- Photo / Document Attachment Option -->

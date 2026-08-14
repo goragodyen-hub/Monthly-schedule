@@ -2,12 +2,12 @@
    PWA SERVICE WORKER (โรงเรียนจิตรลดา - ตารางเวร)
    ============================================= */
 
-const CACHE_NAME = 'chitralada-duty-cache-v15';
+const CACHE_NAME = 'chitralada-duty-cache-v16';
 const ASSETS_TO_CACHE = [
   './',
-  './index.html?v=v15',
+  './index.html?v=v16',
   './style.css?v=v11',
-  './script.js?v=v15',
+  './script.js?v=v16',
   './supabase-config.js?v=v3',
   './calendar.png',
   './manifest.json',

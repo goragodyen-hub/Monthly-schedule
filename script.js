@@ -1306,17 +1306,26 @@ function printShiftForm() {
    ============================================= */
 let currentSwapPhotoBase64 = '';
 
+function formatThaiDateString(dateStr) {
+  if (!dateStr) return '-';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    const y = parseInt(parts[0], 10) + 543;
+    const mIndex = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    const monthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+    return `วันที่ ${d} ${monthNames[mIndex] || ''} ${y}`;
+  }
+  return dateStr;
+}
+
 function initAdminShiftSwapTab() {
-  // 1. Populate Day selection dropdown (1 - 31 สิงหาคม 2569)
-  const daySel = document.getElementById('swapDaySelect');
-  if (daySel) {
-    daySel.innerHTML = '';
-    for (let d = 1; d <= 31; d++) {
-      const opt = document.createElement('option');
-      opt.value = d;
-      opt.textContent = `วันที่ ${d} สิงหาคม ${THAI_YEAR}`;
-      daySel.appendChild(opt);
-    }
+  // 1. Set default date value for date pickers
+  const swapDateInput = document.getElementById('swapDateInput');
+  const returnDateInput = document.getElementById('swapReturnDateInput');
+  
+  if (swapDateInput && !swapDateInput.value) {
+    swapDateInput.value = `${SCHED_YEAR}-08-14`;
   }
 
   // 2. Populate Officer dropdowns (Requester & Substitute)
@@ -1390,13 +1399,13 @@ function handleSaveSwapRecord(event) {
     return;
   }
 
-  const day = document.getElementById('swapDaySelect')?.value;
+  const rawSwapDate = document.getElementById('swapDateInput')?.value;
+  const rawReturnDate = document.getElementById('swapReturnDateInput')?.value;
   const reqName = document.getElementById('swapReqOfficerSelect')?.value;
   const subName = document.getElementById('swapSubOfficerSelect')?.value;
-  const returnDate = document.getElementById('swapReturnDateInput')?.value || '-';
 
-  if (!day || !reqName || !subName) {
-    alert('กรุณาเลือกวันที่ และระบุพนักงานทั้งผู้ขอแลกและผู้ปฏิบัติหน้าที่แทน');
+  if (!rawSwapDate || !reqName || !subName) {
+    alert('กรุณาเลือกวันที่ขอสลับ และระบุพนักงานทั้งผู้ขอแลกและผู้ปฏิบัติหน้าที่แทน');
     return;
   }
 
@@ -1405,13 +1414,19 @@ function handleSaveSwapRecord(event) {
     return;
   }
 
+  const shiftDateText = formatThaiDateString(rawSwapDate);
+  const returnDateText = rawReturnDate ? formatThaiDateString(rawReturnDate) : '-';
+
+  const dayNum = parseInt(rawSwapDate.split('-')[2] || '1', 10);
+
   const record = {
     id: 'swap_' + Date.now(),
-    day: parseInt(day),
-    shiftDateText: `วันที่ ${day} สิงหาคม ${THAI_YEAR}`,
+    day: dayNum,
+    rawSwapDate: rawSwapDate,
+    shiftDateText: shiftDateText,
     reqName: reqName,
     subName: subName,
-    returnDateText: returnDate,
+    returnDateText: returnDateText,
     photoData: currentSwapPhotoBase64,
     createdAt: new Date().toLocaleString('th-TH')
   };
@@ -1425,10 +1440,10 @@ function handleSaveSwapRecord(event) {
     window.saveSwapRecordCloud(record);
   }
 
-  alert(`✅ บันทึกการขอแลกเวรระหว่าง "${reqName}" กับ "${subName}" สำเร็จ!`);
+  alert(`✅ บันทึกการขอแลกเวรประจำ "${shiftDateText}" ระหว่าง "${reqName}" กับ "${subName}" สำเร็จ!`);
 
   // Reset Form
-  document.getElementById('swapReturnDateInput').value = '';
+  if (document.getElementById('swapReturnDateInput')) document.getElementById('swapReturnDateInput').value = '';
   clearSwapPhoto();
   renderSwapRecordsTable();
 }
