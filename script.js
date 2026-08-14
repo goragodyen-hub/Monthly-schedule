@@ -1165,15 +1165,28 @@ function printShiftForm() {
   if (schedEntry) {
     const woh = isWeekOrHol(schedEntry);
     const isNightChecked = document.getElementById('fmShiftNight')?.checked;
+
+    // Check selected officer group key
+    let offGroupKey = null;
+    const offSelVal = document.getElementById('logOfficerSelect')?.value;
+    if (offSelVal) {
+      try { offGroupKey = JSON.parse(offSelVal)?.groupKey; } catch(e){}
+    }
+
     if (!isNightChecked) { // Day shift
       defaultTimeIn = '08.00 น.';
       defaultTimeOut = '16.00 น.';
     } else { // Night shift
       if (woh) {
-        defaultTimeIn = '16.00 น.';
-        defaultTimeOut = '08.00 น.';
+        if (offGroupKey === 'g1') {
+          defaultTimeIn  = '08.00 น.';
+          defaultTimeOut = '08.00 น. (24 ชม.)';
+        } else {
+          defaultTimeIn  = '16.00 น.';
+          defaultTimeOut = '08.00 น.';
+        }
       } else {
-        defaultTimeIn = '17.00 น.';
+        defaultTimeIn  = '17.00 น.';
         defaultTimeOut = '07.00 น.';
       }
     }
