@@ -1294,6 +1294,33 @@ function printShiftForm() {
   window.print();
 }
 
+function printSwapForm() {
+  const docDate = document.getElementById('swapDocDate')?.value || '....................';
+  const reqName = document.getElementById('swapReqName')?.value || '....................';
+  const reqDept = document.getElementById('swapReqDept')?.value || '....................';
+  const reqLevel = document.getElementById('swapReqLevel')?.value || '....................';
+  const reqOrigDate = document.getElementById('swapReqOrigDate')?.value || '....................';
+  const reqReason = document.getElementById('swapReqReason')?.value || '........................................';
+  const subName = document.getElementById('swapSubName')?.value || '....................';
+  const subDate = document.getElementById('swapSubDate')?.value || reqOrigDate || '....................';
+  const returnDate = document.getElementById('swapReturnDate')?.value || '....................';
+
+  if (document.getElementById('pfSwapDocDate')) document.getElementById('pfSwapDocDate').textContent = docDate;
+  if (document.getElementById('pfSwapReqName')) document.getElementById('pfSwapReqName').textContent = reqName;
+  if (document.getElementById('pfSwapReqDept')) document.getElementById('pfSwapReqDept').textContent = reqDept;
+  if (document.getElementById('pfSwapReqLevel')) document.getElementById('pfSwapReqLevel').textContent = reqLevel;
+  if (document.getElementById('pfSwapReqOrigDate')) document.getElementById('pfSwapReqOrigDate').textContent = reqOrigDate;
+  if (document.getElementById('pfSwapReqReason')) document.getElementById('pfSwapReqReason').textContent = reqReason;
+  if (document.getElementById('pfSwapSubName')) document.getElementById('pfSwapSubName').textContent = subName;
+  if (document.getElementById('pfSwapSubDateVal')) document.getElementById('pfSwapSubDateVal').textContent = subDate;
+  if (document.getElementById('pfSwapReturnDate')) document.getElementById('pfSwapReturnDate').textContent = returnDate;
+
+  if (document.getElementById('pfSwapReqNameSub')) document.getElementById('pfSwapReqNameSub').textContent = reqName;
+  if (document.getElementById('pfSwapSubNameSub')) document.getElementById('pfSwapSubNameSub').textContent = subName;
+
+  window.print();
+}
+
 /* =============================================
    SIGNATURE PAD ENGINE (PORTED FROM INK-INVENTORY)
    ============================================= */
@@ -1542,16 +1569,20 @@ let loggedInOfficer = null;
 function updateMenuVisibility() {
   const sbLogBtn = document.getElementById('sb-log');
   const sbAdminBtn = document.getElementById('sb-admin');
+  const sbSwapBtn = document.getElementById('sb-swap');
 
   if (!loggedInOfficer) {
     if (sbLogBtn) sbLogBtn.style.display = 'none';
     if (sbAdminBtn) sbAdminBtn.style.display = 'none';
+    if (sbSwapBtn) sbSwapBtn.style.display = 'none';
   } else if (loggedInOfficer.isAdmin) {
     if (sbLogBtn) sbLogBtn.style.display = 'none'; // Admin menu: Hide Shift Log
     if (sbAdminBtn) sbAdminBtn.style.display = 'flex';
+    if (sbSwapBtn) sbSwapBtn.style.display = 'flex'; // Admin menu: Show Shift Swap
   } else {
     if (sbLogBtn) sbLogBtn.style.display = 'flex'; // Officer menu: Show Shift Log
     if (sbAdminBtn) sbAdminBtn.style.display = 'none';
+    if (sbSwapBtn) sbSwapBtn.style.display = 'flex'; // Officers can also access Shift Swap
   }
 }
 

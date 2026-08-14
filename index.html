@@ -146,6 +146,11 @@
         <span class="sb-nav-label">รายงานสรุป Admin</span>
         <span class="sb-nav-arrow">›</span>
       </button>
+      <button class="sb-nav-item" id="sb-swap" onclick="switchTab('swap')">
+        <span class="sb-nav-icon">🔄</span>
+        <span class="sb-nav-label">แบบขอแลกเวร</span>
+        <span class="sb-nav-arrow">›</span>
+      </button>
     </nav>
 
     <div class="sb-footer">
@@ -543,6 +548,170 @@
           </thead>
           <tbody id="adminTableBody"></tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- Shift Swap Tab (แบบขอแลกเวร) -->
+    <section class="tab-panel" id="panel-swap" role="tabpanel">
+      <div class="panel-header">
+        <div class="panel-title-wrap">
+          <span class="panel-icon">🔄</span>
+          <div>
+            <h2>แบบขอแลกเวรของพนักงาน (Shift Swap Form)</h2>
+            <p class="panel-sub">กรอกแบบฟอร์มขอแลกเวร พิมพ์เอกสาร A4 หรือเปิดไฟล์ PDF ต้นฉบับ (Shift Swap.pdf)</p>
+          </div>
+        </div>
+        <div class="admin-top-actions" style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="Shift Swap.pdf" target="_blank" download class="btn-action btn-accent" style="text-decoration:none;">📄 ดาวน์โหลด Shift Swap.pdf</a>
+          <button class="btn-action btn-primary" onclick="printSwapForm()">🖨️ พิมพ์แบบฟอร์มขอแลกเวร (A4)</button>
+        </div>
+      </div>
+
+      <!-- Shift Swap Form Input Card -->
+      <div class="log-input-card glass" style="margin-bottom:24px;">
+        <div class="lic-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:28px;">📄</span>
+            <div>
+              <h3 style="font-size:16px; font-weight:800; color:var(--text);">บันทึกข้อมูลแบบขอแลกเวร</h3>
+              <p style="font-size:12px; color:var(--text3);">ระบุรายละเอียดพนักงานผู้ขอแลกและผู้ปฏิบัติหน้าที่แทน</p>
+            </div>
+          </div>
+          <a href="Shift Swap.pdf" target="_blank" class="btn-action btn-secondary" style="text-decoration:none; font-size:12.5px;">🔍 เปิดดู Shift Swap.pdf</a>
+        </div>
+
+        <form id="swapForm" onsubmit="event.preventDefault(); printSwapForm();">
+          <div class="lic-info-grid">
+            <div class="lic-field">
+              <label class="lic-label">📅 วันที่ยื่นคำขอ</label>
+              <input type="text" id="swapDocDate" class="lic-input" placeholder="เช่น 14 สิงหาคม 2569">
+            </div>
+
+            <div class="lic-field">
+              <label class="lic-label">👤 พนักงานผู้ขอแลกเวร</label>
+              <input type="text" id="swapReqName" class="lic-input" placeholder="ชื่อ-นามสกุล ผู้ขอแลก">
+            </div>
+
+            <div class="lic-field">
+              <label class="lic-label">🏢 ฝ่าย / งาน</label>
+              <input type="text" id="swapReqDept" class="lic-input" placeholder="เช่น ฝ่ายบริการ / งานอาคาร">
+            </div>
+
+            <div class="lic-field">
+              <label class="lic-label">⭐ ระดับ</label>
+              <input type="text" id="swapReqLevel" class="lic-input" placeholder="เช่น มัธยมศึกษา">
+            </div>
+
+            <div class="lic-field">
+              <label class="lic-label">📅 ได้รับมอบหมายให้ปฏิบัติหน้าที่เวรในวันที่</label>
+              <input type="text" id="swapReqOrigDate" class="lic-input" placeholder="เช่น 18 สิงหาคม 2569">
+            </div>
+
+            <div class="lic-field lic-field-full">
+              <label class="lic-label">⚠️ เนื่องจากในวันดังกล่าวมีความจำเป็นต้อง</label>
+              <input type="text" id="swapReqReason" class="lic-input" placeholder="ระบุภารกิจจำเป็น เช่น ติดภารกิจครอบครัว / ลาป่วย">
+            </div>
+
+            <div class="lic-field">
+              <label class="lic-label">🤝 จึงขออนุญาตให้ (ผู้ปฏิบัติหน้าที่แทน)</label>
+              <input type="text" id="swapSubName" class="lic-input" placeholder="ชื่อ-นามสกุล ผู้ปฏิบัติหน้าที่แทน">
+            </div>
+
+            <div class="lic-field">
+              <label class="lic-label">📅 มาปฏิบัติหน้าที่เวรแทนในวันที่</label>
+              <input type="text" id="swapSubDate" class="lic-input" placeholder="วันที่มาปฏิบัติหน้าที่แทน">
+            </div>
+
+            <div class="lic-field lic-field-full">
+              <label class="lic-label">🔄 โดยข้าพเจ้าจะไปปฏิบัติหน้าที่เวรในวันที่ (คืนแทน)</label>
+              <input type="text" id="swapReturnDate" class="lic-input" placeholder="เช่น 24 สิงหาคม 2569 แทน">
+            </div>
+          </div>
+
+          <div class="lic-actions" style="margin-top:20px;">
+            <button type="button" class="btn-action btn-primary" onclick="printSwapForm()">🖨️ พิมพ์แบบฟอร์มขอแลกเวร A4</button>
+            <a href="Shift Swap.pdf" target="_blank" download class="btn-action btn-accent" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">📥 ดาวน์โหลดไฟล์ Shift Swap.pdf</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Printable A4 Swap Paper Form -->
+      <div class="paper-wrapper print-only" id="swapPaperWrapper">
+        <div class="form-paper" id="printableSwapForm" style="padding:40px 48px; font-family:'Sarabun',sans-serif; color:#000;">
+          
+          <div style="text-align:center; margin-bottom:18px;">
+            <img src="CD Logo TH_Black.svg" alt="ตราโรงเรียนจิตรลดา" style="height:85px; width:auto; margin-bottom:8px;">
+            <h2 style="font-size:20px; margin:0 0 6px 0; font-weight:bold;">แบบขอแลกเวรของพนักงาน</h2>
+            <div style="font-size:14px;">วันที่ <span id="pfSwapDocDate" style="border-bottom:1px dotted #000; min-width:180px; display:inline-block; text-align:center;"></span></div>
+          </div>
+
+          <div style="font-size:14px; line-height:2.1; margin-bottom:24px;">
+            <div>ด้วยข้าพเจ้า <span id="pfSwapReqName" style="border-bottom:1px dotted #000; min-width:220px; display:inline-block; font-weight:bold; text-align:center;"></span> ฝ่าย / งาน <span id="pfSwapReqDept" style="border-bottom:1px dotted #000; min-width:180px; display:inline-block; text-align:center;"></span></div>
+            <div>ระดับ <span id="pfSwapReqLevel" style="border-bottom:1px dotted #000; min-width:150px; display:inline-block; text-align:center;"></span> ได้รับมอบหมายให้ปฏิบัติหน้าที่เวรในวันที่ <span id="pfSwapReqOrigDate" style="border-bottom:1px dotted #000; min-width:200px; display:inline-block; font-weight:bold; text-align:center;"></span></div>
+            <div>แต่เนื่องจากในวันดังกล่าวข้าพเจ้ามีภารกิจที่จำเป็นต้อง <span id="pfSwapReqReason" style="border-bottom:1px dotted #000; min-width:320px; display:inline-block;"></span></div>
+            <div>ดังนั้น จึงขออนุญาตให้ <span id="pfSwapSubName" style="border-bottom:1px dotted #000; min-width:240px; display:inline-block; font-weight:bold; text-align:center;"></span> มาปฏิบัติหน้าที่เวรแทนข้าพเจ้า</div>
+            <div>โดยที่ข้าพเจ้าจะไปปฏิบัติหน้าที่เวร ในวันที่ <span id="pfSwapReturnDate" style="border-bottom:1px dotted #000; min-width:220px; display:inline-block; font-weight:bold; text-align:center;"></span> แทน</div>
+            <div style="text-align:center; margin-top:8px;">จึงเรียนมาเพื่อโปรดพิจารณาอนุญาต</div>
+          </div>
+
+          <!-- Signatures Section -->
+          <div style="display:flex; flex-direction:column; gap:20px; margin-bottom:24px; font-size:13.5px;">
+            <div style="display:flex; flex-direction:column; align-items:flex-end;">
+              <div style="display:flex; align-items:baseline; gap:8px;">
+                <span>ลงชื่อ</span>
+                <span id="pfSwapSignReq" style="border-bottom:1px dotted #000; min-width:200px; display:inline-block; text-align:center;"></span>
+              </div>
+              <div style="min-width:200px; text-align:center; font-size:13px;">(<span id="pfSwapReqNameSub"></span>)</div>
+              <div style="font-size:12.5px; color:#333; margin-top:2px;">ตำแหน่ง..................................................</div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; align-items:flex-end;">
+              <div style="font-size:13.5px; margin-bottom:4px;">ยินดีมาปฏิบัติหน้าที่เวรในวันที่ <span id="pfSwapSubDateVal" style="border-bottom:1px dotted #000; min-width:180px; display:inline-block; text-align:center;"></span></div>
+              <div style="display:flex; align-items:baseline; gap:8px;">
+                <span>ลงชื่อ</span>
+                <span id="pfSwapSignSub" style="border-bottom:1px dotted #000; min-width:200px; display:inline-block; text-align:center;"></span>
+              </div>
+              <div style="min-width:200px; text-align:center; font-size:13px;">(<span id="pfSwapSubNameSub"></span>)</div>
+              <div style="font-size:12.5px; color:#333; margin-top:2px;">ตำแหน่ง..................................................</div>
+            </div>
+          </div>
+
+          <!-- Approvals 2x2 Grid -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; font-size:13px; margin-top:20px;">
+            <div style="border:1px solid #000; padding:12px; border-radius:4px;">
+              <div style="font-weight:bold; margin-bottom:8px;">ความเห็นหัวหน้างาน</div>
+              <div style="height:35px; border-bottom:1px dotted #000; margin-bottom:8px;"></div>
+              <div>ลงชื่อ..............................................................</div>
+              <div style="text-align:center; margin-top:4px;">(..............................................................)</div>
+              <div style="text-align:center; margin-top:4px;">วันที่......../......../........</div>
+            </div>
+
+            <div style="border:1px solid #000; padding:12px; border-radius:4px;">
+              <div style="font-weight:bold; margin-bottom:8px;">ความเห็นผู้ช่วย /รองผู้อำนวยการที่เกี่ยวข้อง</div>
+              <div style="height:35px; border-bottom:1px dotted #000; margin-bottom:8px;"></div>
+              <div>ลงชื่อ..............................................................</div>
+              <div style="text-align:center; margin-top:4px;">(..............................................................)</div>
+              <div style="text-align:center; margin-top:4px;">วันที่......../......../........</div>
+            </div>
+
+            <div style="border:1px solid #000; padding:12px; border-radius:4px;">
+              <div style="font-weight:bold; margin-bottom:8px;">ความเห็นผู้ช่วยผู้อำนวยการงานบุคคล</div>
+              <div style="height:35px; border-bottom:1px dotted #000; margin-bottom:8px;"></div>
+              <div>ลงชื่อ..............................................................</div>
+              <div style="text-align:center; font-weight:bold; margin-top:4px;">(นางคณัสนันท์ ผ่องพันธุ์งาม)</div>
+              <div style="text-align:center; margin-top:4px;">วันที่......../......../........</div>
+            </div>
+
+            <div style="border:1px solid #000; padding:12px; border-radius:4px;">
+              <div style="font-weight:bold; margin-bottom:8px;">ความเห็นที่ปรึกษาฝ่ายบริการ</div>
+              <div style="height:35px; border-bottom:1px dotted #000; margin-bottom:8px;"></div>
+              <div>ลงชื่อ..............................................................</div>
+              <div style="text-align:center; font-weight:bold; margin-top:4px;">(นายไพรัช รัตน์ไชย)</div>
+              <div style="text-align:center; margin-top:4px;">วันที่......../......../........</div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </section>
 
