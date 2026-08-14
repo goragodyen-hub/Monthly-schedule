@@ -889,6 +889,8 @@ function onLogOfficerChange() {
   document.getElementById('fmMonth').value   = 'สิงหาคม';
   document.getElementById('fmYear').value    = THAI_YEAR;
 
+  updateLiveSignaturePreview();
+
   // Shift Type & Times
   const isNight = off.type === 'male'; // Males are night shift, Females are day shift
   document.getElementById('fmShiftDay').checked   = !isNight;
@@ -1230,13 +1232,7 @@ function printShiftForm() {
   if (cbNight) cbNight.classList.toggle('checked', isNightChecked);
 
   // ── 3. Signature image ────────────────────────────
-  const pfSign = document.getElementById('pfSignName');
-  const sigDataUrl = getSignatureDataUrl();
-  if (sigDataUrl && pfSign) {
-    pfSign.innerHTML = `<img src="${sigDataUrl}" style="max-height:45px;max-width:180px;display:inline-block;vertical-align:middle;">`;
-  } else if (pfSign) {
-    pfSign.innerHTML = nameVal ? `<span style="font-family:'Sarabun';font-weight:600;">${nameVal}</span>` : '&nbsp;';
-  }
+  updateLiveSignaturePreview();
 
   // ── 4. Copy log table rows ─────────────────────────
   const srcRows = document.querySelectorAll('#formLogTbody tr');
@@ -1322,6 +1318,7 @@ function initSignaturePad() {
     if (isSigDrawing) {
       sigCtx.closePath();
       isSigDrawing = false;
+      updateLiveSignaturePreview();
     }
   };
 
@@ -1341,6 +1338,7 @@ function initSignaturePad() {
 function clearSignature() {
   if (sigCtx && sigCanvas) {
     sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+    updateLiveSignaturePreview();
   }
 }
 
@@ -1364,9 +1362,49 @@ function restoreSignatureFromDataUrl(dataUrl) {
     if (sigCtx) {
       sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
       sigCtx.drawImage(img, 0, 0, sigCanvas.offsetWidth, sigCanvas.offsetHeight);
+      updateLiveSignaturePreview();
     }
   };
   img.src = dataUrl;
+}
+
+function updateLiveSignaturePreview() {
+  const sigDataUrl = getSignatureDataUrl();
+  const nameVal = document.getElementById('fmName')?.value || '';
+
+  // 1. Update printable paper form
+  const pfSign = document.getElementById('pfSignName');
+  if (pfSign) {
+    if (sigDataUrl) {
+      pfSign.innerHTML = `
+        <div style="display:inline-flex; flex-direction:column; align-items:center; vertical-align:bottom; margin-bottom:-10px;">
+          <img src="${sigDataUrl}" style="max-height:45px; max-width:180px; object-fit:contain;">
+          <span style="font-size:12.5px; font-weight:600; font-family:'Sarabun';">(${nameVal})</span>
+        </div>
+      `;
+    } else {
+      pfSign.innerHTML = nameVal ? `<span style="font-size:13px; font-weight:600; font-family:'Sarabun';">(${nameVal})</span>` : '&nbsp;';
+    }
+  }
+
+  // 2. Update interactive screen live preview box
+  const previewBox = document.getElementById('sigLivePreviewBox');
+  if (previewBox) {
+    if (sigDataUrl) {
+      previewBox.style.display = 'flex';
+      previewBox.innerHTML = `
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <span style="font-size:12px; font-weight:700; color:var(--emerald-l);">🟢 ลายเซ็นต์ในแบบฟอร์ม:</span>
+          <img src="${sigDataUrl}" style="max-height:36px; border:1px dashed var(--indigo); border-radius:4px; background:#fff; padding:2px 8px;">
+          <span style="font-size:13px; font-weight:700; color:var(--text);">(${nameVal})</span>
+        </div>
+        <span style="font-size:11.5px; color:var(--text3); font-weight:600;">พร้อมพิมพ์ / ส่งบันทึก</span>
+      `;
+    } else {
+      previewBox.style.display = 'none';
+      previewBox.innerHTML = '';
+    }
+  }
 }
 
 
