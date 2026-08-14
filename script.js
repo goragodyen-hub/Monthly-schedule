@@ -1083,30 +1083,42 @@ async function loadShiftLog() {
 
 function printShiftForm() {
   // ── 1. Populate metadata ──────────────────────────
-  document.getElementById('pfLevel').textContent    = document.getElementById('fmLevel').value;
-  document.getElementById('pfName').textContent     = document.getElementById('fmName').value;
-  document.getElementById('pfDayName').textContent  = document.getElementById('fmDayName').value;
-  document.getElementById('pfDayNum').textContent   = document.getElementById('fmDayNum').value;
-  document.getElementById('pfMonth').textContent    = document.getElementById('fmMonth').value;
-  document.getElementById('pfYear').textContent     = document.getElementById('fmYear').value;
-  document.getElementById('pfTimeIn').textContent   = document.getElementById('fmTimeIn').value;
-  document.getElementById('pfTimeOut').textContent  = document.getElementById('fmTimeOut').value;
-  document.getElementById('pfInspectorNotes').textContent = document.getElementById('fmInspectorNotes').value;
+  const levelVal    = document.getElementById('fmLevel').value || '';
+  const nameVal     = document.getElementById('fmName').value || '';
+  const dayNameVal  = document.getElementById('fmDayName').value || '';
+  const dayNumVal   = document.getElementById('fmDayNum').value || '';
+  const monthVal    = document.getElementById('fmMonth').value || '';
+  const yearVal     = document.getElementById('fmYear').value || '';
+  const timeInVal   = document.getElementById('fmTimeIn').value || '';
+  const timeOutVal  = document.getElementById('fmTimeOut').value || '';
+  const inspectorVal= document.getElementById('fmInspectorNotes').value || '';
 
-  // ── 2. Signature image ────────────────────────────
+  document.getElementById('pfLevel').innerHTML    = levelVal || '&nbsp;';
+  document.getElementById('pfName').innerHTML     = nameVal || '&nbsp;';
+  document.getElementById('pfDayName').innerHTML  = dayNameVal || '&nbsp;';
+  document.getElementById('pfDayNum').innerHTML   = dayNumVal || '&nbsp;';
+  document.getElementById('pfMonth').innerHTML    = monthVal || '&nbsp;';
+  document.getElementById('pfYear').innerHTML     = yearVal || '&nbsp;';
+  document.getElementById('pfTimeIn').innerHTML   = timeInVal || '&nbsp;';
+  document.getElementById('pfTimeOut').innerHTML  = timeOutVal || '&nbsp;';
+  document.getElementById('pfInspectorNotes').textContent = inspectorVal;
+
+  // ── 2. Checkboxes ─────────────────────────────────
+  const cbDay   = document.getElementById('pfCbDay');
+  const cbNight = document.getElementById('pfCbNight');
+  const isDayChecked   = document.getElementById('fmShiftDay').checked;
+  const isNightChecked = document.getElementById('fmShiftNight').checked;
+  if (cbDay)   cbDay.classList.toggle('checked', isDayChecked);
+  if (cbNight) cbNight.classList.toggle('checked', isNightChecked);
+
+  // ── 3. Signature image ────────────────────────────
   const pfSign = document.getElementById('pfSignName');
   const sigDataUrl = getSignatureDataUrl();
   if (sigDataUrl) {
-    pfSign.innerHTML = `<img src="${sigDataUrl}" style="max-height:60px;max-width:200px;display:block;margin:0 auto;">`;
+    pfSign.innerHTML = `<img src="${sigDataUrl}" style="max-height:45px;max-width:180px;display:inline-block;vertical-align:middle;">`;
   } else {
-    pfSign.textContent = '';
+    pfSign.innerHTML = nameVal ? `<span style="font-family:'Sarabun';">${nameVal}</span>` : '&nbsp;';
   }
-
-  // ── 3. Checkboxes ─────────────────────────────────
-  const cbDay   = document.getElementById('pfCbDay');
-  const cbNight = document.getElementById('pfCbNight');
-  if (cbDay)   cbDay.classList.toggle('checked',   document.getElementById('fmShiftDay').checked);
-  if (cbNight) cbNight.classList.toggle('checked', document.getElementById('fmShiftNight').checked);
 
   // ── 4. Copy log table rows ─────────────────────────
   const srcRows = document.querySelectorAll('#formLogTbody tr');
@@ -1116,9 +1128,9 @@ function printShiftForm() {
     const inputs = tr.querySelectorAll('input');
     const newTr  = document.createElement('tr');
     newTr.innerHTML = `
-      <td style="border:1px solid #111827;padding:8px 10px;font-size:13.5px;">${inputs[0]?.value || '&nbsp;'}</td>
-      <td style="border:1px solid #111827;padding:8px 10px;font-size:13.5px;">${inputs[1]?.value || '&nbsp;'}</td>
-      <td style="border:1px solid #111827;padding:8px 10px;font-size:13.5px;">${inputs[2]?.value || '&nbsp;'}</td>
+      <td style="border:1px solid #000;padding:4px 6px;font-size:12px;text-align:center;">${inputs[0]?.value || '&nbsp;'}</td>
+      <td style="border:1px solid #000;padding:4px 6px;font-size:12px;">${inputs[1]?.value || '&nbsp;'}</td>
+      <td style="border:1px solid #000;padding:4px 6px;font-size:12px;">${inputs[2]?.value || '&nbsp;'}</td>
     `;
     pfTbody.appendChild(newTr);
   });
@@ -1126,9 +1138,9 @@ function printShiftForm() {
   while (pfTbody.children.length < 7) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td style="border:1px solid #111827;padding:8px 10px;height:32px;">&nbsp;</td>
-      <td style="border:1px solid #111827;padding:8px 10px;">&nbsp;</td>
-      <td style="border:1px solid #111827;padding:8px 10px;">&nbsp;</td>
+      <td style="border:1px solid #000;padding:4px 6px;height:24px;">&nbsp;</td>
+      <td style="border:1px solid #000;padding:4px 6px;">&nbsp;</td>
+      <td style="border:1px solid #000;padding:4px 6px;">&nbsp;</td>
     `;
     pfTbody.appendChild(tr);
   }
@@ -1144,20 +1156,35 @@ function initSignaturePad() {
   const canvas = document.getElementById('sigCanvas');
   if (!canvas) return;
 
-  // Set canvas resolution to match display size
   const resize = () => {
     const rect = canvas.getBoundingClientRect();
-    const dpr  = window.devicePixelRatio || 1;
-    canvas.width  = rect.width  * dpr;
+    if (rect.width === 0 || rect.height === 0) return;
+    const dpr = window.devicePixelRatio || 1;
+
+    // Save existing content before resize
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    if (canvas.width > 0 && canvas.height > 0) {
+      tempCanvas.getContext('2d').drawImage(canvas, 0, 0);
+    }
+
+    canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
     ctx.strokeStyle = '#F0F4FF';
-    ctx.lineWidth   = 2.2;
-    ctx.lineCap     = 'round';
-    ctx.lineJoin    = 'round';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    if (tempCanvas.width > 0 && tempCanvas.height > 0) {
+      ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width / dpr, tempCanvas.height / dpr);
+    }
   };
+
   resize();
+  window.removeEventListener('resize', resize);
   window.addEventListener('resize', resize);
 
   let drawing = false;
@@ -1165,20 +1192,24 @@ function initSignaturePad() {
 
   const getPos = (e) => {
     const rect = canvas.getBoundingClientRect();
-    if (e.touches) {
-      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
-    }
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
   };
 
   const startDraw = (e) => {
+    if (e.target !== canvas) return;
     e.preventDefault();
     drawing = true;
     const pos = getPos(e);
     lastX = pos.x; lastY = pos.y;
     const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#F0F4FF';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.beginPath();
-    ctx.arc(lastX, lastY, 1.1, 0, Math.PI * 2);
+    ctx.arc(lastX, lastY, 1.2, 0, Math.PI * 2);
     ctx.fillStyle = '#F0F4FF';
     ctx.fill();
   };
@@ -1197,16 +1228,14 @@ function initSignaturePad() {
 
   const stopDraw = () => { drawing = false; };
 
-  // Mouse events
-  canvas.addEventListener('mousedown',  startDraw);
-  canvas.addEventListener('mousemove',  draw);
-  canvas.addEventListener('mouseup',    stopDraw);
-  canvas.addEventListener('mouseleave', stopDraw);
+  canvas.onmousedown = startDraw;
+  canvas.onmousemove = draw;
+  canvas.onmouseup = stopDraw;
+  canvas.onmouseleave = stopDraw;
 
-  // Touch events
-  canvas.addEventListener('touchstart', startDraw, { passive: false });
-  canvas.addEventListener('touchmove',  draw,      { passive: false });
-  canvas.addEventListener('touchend',   stopDraw);
+  canvas.ontouchstart = startDraw;
+  canvas.ontouchmove = draw;
+  canvas.ontouchend = stopDraw;
 }
 
 function clearSignature() {
