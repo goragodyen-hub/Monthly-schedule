@@ -1346,7 +1346,8 @@ mark.hl {
   body {
     background: #FFF !important;
     color: #000 !important;
-    font-size: 11px !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
   }
   .app-bg, .app-header, .sidebar, .sb-overlay,
   .log-controls, .log-alert-banner,
@@ -1375,52 +1376,48 @@ mark.hl {
   }
 
   /* ── โลโก้ & หัวเรื่อง ── */
-  .school-emblem img { height: 48px !important; margin-bottom: 3px !important; }
-  .form-header { margin-bottom: 8px !important; }
-  .form-school-title { font-size: 14px !important; margin-bottom: 1px !important; }
-  .form-doc-title    { font-size: 12px !important; margin-bottom: 0 !important; }
+  .school-emblem img { height: 60px !important; margin-bottom: 4px !important; }
+  .form-header { margin-bottom: 10px !important; }
+  .form-school-title { font-size: 16px !important; margin-bottom: 2px !important; }
+  .form-doc-title    { font-size: 14px !important; margin-bottom: 2px !important; }
 
   /* ── Metadata ── */
   .form-meta-grid {
-    gap: 4px !important;
-    margin-bottom: 8px !important;
-    font-size: 11px !important;
+    gap: 6px !important;
+    margin-bottom: 12px !important;
+    font-size: 13px !important;
   }
-  .form-meta-row { gap: 4px !important; flex-wrap: nowrap !important; }
-  .pf-value { font-size: 11px !important; min-width: 80px !important; padding: 1px 3px !important; }
-  .pf-name  { min-width: 180px !important; }
+  .form-meta-row { gap: 6px !important; }
+  .pf-value { font-size: 13px !important; min-width: 100px !important; padding: 1px 4px !important; }
+  .pf-name  { min-width: 200px !important; }
 
   /* ── ตาราง log ── */
-  .form-log-table { margin-bottom: 8px !important; }
+  .form-log-table { margin-bottom: 12px !important; }
   .form-log-table th,
   .form-log-table td {
-    padding: 3px 6px !important;
-    font-size: 10.5px !important;
+    padding: 5px 8px !important;
+    font-size: 12px !important;
   }
-  .form-log-table th { font-size: 10px !important; }
 
   /* ── ลายเซ็น & ผู้ตรวจ ── */
-  .form-bottom-section { gap: 6px !important; margin-bottom: 8px !important; }
-  .form-sign-row { font-size: 11px !important; }
-  .pf-sign-line { min-width: 150px !important; font-size: 11px !important; }
-  .pf-sign-line img { max-height: 40px !important; }
-  .form-inspector-box { margin-top: 4px !important; }
-  .fib-label { font-size: 11px !important; margin-bottom: 2px !important; }
-  #pfInspectorNotes { min-height: 36px !important; font-size: 10.5px !important; padding: 3px !important; }
-  .form-advisor-sign { margin-top: 8px !important; font-size: 11px !important; }
-  .fas-line { width: 140px !important; }
+  .form-bottom-section { gap: 10px !important; margin-bottom: 12px !important; }
+  .form-sign-row { font-size: 13px !important; }
+  .pf-sign-line img { max-height: 45px !important; }
+  .form-inspector-box { margin-top: 6px !important; }
+  .fib-label { font-size: 13px !important; margin-bottom: 3px !important; }
+  #pfInspectorNotes { min-height: 40px !important; font-size: 12px !important; padding: 4px !important; }
+  .form-advisor-sign { margin-top: 10px !important; font-size: 12px !important; }
 
   /* ── ระเบียบท้ายฟอร์ม ── */
   .form-regulations {
-    padding-top: 6px !important;
-    font-size: 9.5px !important;
+    padding-top: 8px !important;
+    font-size: 10.5px !important;
   }
-  .reg-title { margin-bottom: 2px !important; }
-  .reg-detail p { margin: 1px 0 !important; }
+  .reg-detail p { margin: 2px 0 !important; }
 
   @page {
     size: A4 portrait;
-    margin: 10mm 12mm;
+    margin: 12mm;
   }
 }
 
