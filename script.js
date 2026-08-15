@@ -2053,34 +2053,6 @@ function checkLoginSession() {
   document.getElementById('loginScreen')?.classList.remove('hidden');
 }
 
-async function handleMainLogin(event) {
-  if (event) event.preventDefault();
-  const input = document.getElementById('mainEmpIdInput');
-  const err   = document.getElementById('loginErrorMsg');
-  if (!input) return;
-
-  const empId = input.value.trim();
-  if (!empId) {
-    showLoginError('กรุณากรอกรหัสพนักงาน');
-    return;
-  }
-
-  let officer = null;
-  if (typeof authWithEmpId === 'function') {
-    officer = await authWithEmpId(empId);
-  } else {
-    officer = OFFICERS_REGISTRY[empId];
-  }
-
-  if (officer) {
-    if (err) err.style.display = 'none';
-    sessionStorage.setItem('logged_in_officer', JSON.stringify(officer));
-    updateLoggedInUserUI(officer);
-  } else {
-    showLoginError(`ไม่พบพนักงานรหัส "${empId}" ในระบบ กรุณาตรวจสอบรหัสพนักงานอีกครั้ง`);
-  }
-}
-
 async function handleEmpIdLogin() {
   const sbInput = document.getElementById('sbEmpIdInput');
   if (sbInput && sbInput.value.trim() !== '') {
