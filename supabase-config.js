@@ -192,9 +192,45 @@ async function saveSwapRecordCloud(swapRecord) {
       console.warn('Cloud swap sync fallback:', e);
     }
   }
+async function fetchSwapRecordsCloud() {
+  if (isSupabaseOnline && supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('shift_swap_records')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (data && !error && data.length > 0) {
+        const mappedRecords = data.map(row => ({
+          id: row.id,
+          day: row.day,
+          rawSwapDate: row.raw_swap_date,
+          rawReturnDate: row.raw_return_date || '',
+          returnDay: row.return_day || null,
+          shiftDateText: row.shift_date_text,
+          reqName: row.req_name,
+          subName: row.sub_name,
+          returnDateText: row.return_date_text,
+          photoData: row.photo_data,
+          createdAt: row.created_at
+        }));
+
+        localStorage.setItem('shift_swap_records', JSON.stringify(mappedRecords));
+        if (window.buildTable) window.buildTable();
+        if (window.renderToday) window.renderToday();
+        if (window.initShiftLog) window.initShiftLog();
+        if (window.renderSwapRecordsTable) window.renderSwapRecordsTable();
+        return mappedRecords;
+      }
+    } catch (e) {
+      console.warn('Fetch cloud swap records fallback:', e);
+    }
+  }
+  return null;
 }
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
   initSupabase();
+  setTimeout(fetchSwapRecordsCloud, 500);
 });

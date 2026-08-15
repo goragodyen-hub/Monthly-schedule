@@ -860,7 +860,7 @@ function setFilter(f) {
 /* =============================================
    INIT
    ============================================= */
-const CURRENT_APP_VERSION = 'v35';
+const CURRENT_APP_VERSION = 'v36';
 
 function checkAppAutoUpdate() {
   const savedVersion = localStorage.getItem('chitralada_app_version');
@@ -1597,11 +1597,32 @@ function clearSwapPhoto() {
   if (previewBox) previewBox.style.display = 'none';
 }
 
+const DEFAULT_SWAP_RECORDS = [
+  {
+    id: 'swap_default_23_24',
+    day: 23,
+    rawSwapDate: '2026-08-23',
+    rawReturnDate: '2026-08-24',
+    returnDay: 24,
+    shiftDateText: 'วันที่ 23 สิงหาคม 2569',
+    returnDateText: 'วันที่ 24 สิงหาคม 2569',
+    reqName: 'นายกรกฎ เย็นคงคา',
+    subName: 'นายพิชาวัจน์ เกิดเรืองสิน',
+    createdAt: '15/8/2569 21:00:00'
+  }
+];
+
 function getSwapRecords() {
   try {
-    return JSON.parse(localStorage.getItem('shift_swap_records') || '[]');
+    const local = localStorage.getItem('shift_swap_records');
+    if (local) {
+      const parsed = JSON.parse(local);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+    localStorage.setItem('shift_swap_records', JSON.stringify(DEFAULT_SWAP_RECORDS));
+    return DEFAULT_SWAP_RECORDS;
   } catch (e) {
-    return [];
+    return DEFAULT_SWAP_RECORDS;
   }
 }
 
