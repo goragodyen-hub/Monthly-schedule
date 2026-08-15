@@ -403,19 +403,46 @@ function switchTab(tab) {
 }
 
 
+function getRecordReturnDay(r) {
+  if (r.returnDay) return parseInt(r.returnDay, 10);
+  if (r.rawReturnDate) {
+    const parts = r.rawReturnDate.split('-');
+    if (parts.length === 3) return parseInt(parts[2], 10);
+  }
+  const dateTxt = r.returnDateText || r.return_date_text;
+  if (dateTxt && dateTxt !== '-') {
+    const match = dateTxt.match(/^(\d+)/);
+    if (match) return parseInt(match[1], 10);
+  }
+  return null;
+}
+
 function getEffectiveOfficer(dayNum, originalFullName) {
   const swapRecords = getSwapRecords();
   if (!swapRecords || swapRecords.length === 0) {
     return { name: originalFullName, isSwapped: false, displayHtml: originalFullName };
   }
 
-  // 1. Check if originalFullName requested a swap on dayNum (someone else is substituting)
+  // 1. Check if originalFullName requested a swap on dayNum (subName is substituting for them)
   const reqSwap = swapRecords.find(r => r.day === dayNum && r.reqName === originalFullName);
   if (reqSwap) {
     return {
       name: reqSwap.subName,
       isSwapped: true,
       displayHtml: `${reqSwap.subName} <span class="swap-tag" style="color:#DC2626; font-weight:800; font-size:0.88em;">(แลกเวร)</span>`
+    };
+  }
+
+  // 2. Check if originalFullName is the substitute who is receiving a return shift on dayNum (reqName takes their place)
+  const returnSwap = swapRecords.find(r => {
+    const retDay = getRecordReturnDay(r);
+    return retDay === dayNum && r.subName === originalFullName;
+  });
+  if (returnSwap) {
+    return {
+      name: returnSwap.reqName,
+      isSwapped: true,
+      displayHtml: `${returnSwap.reqName} <span class="swap-tag" style="color:#DC2626; font-weight:800; font-size:0.88em;">(แลกเวร)</span>`
     };
   }
 
@@ -1655,11 +1682,14 @@ function handleSaveSwapRecord(event) {
   const returnDateText = rawReturnDate ? formatThaiDateString(rawReturnDate) : '-';
 
   const dayNum = parseInt(rawSwapDate.split('-')[2] || '1', 10);
+  const returnDayNum = rawReturnDate ? parseInt(rawReturnDate.split('-')[2] || '0', 10) : null;
 
   const record = {
     id: 'swap_' + Date.now(),
     day: dayNum,
     rawSwapDate: rawSwapDate,
+    rawReturnDate: rawReturnDate || '',
+    returnDay: returnDayNum,
     shiftDateText: shiftDateText,
     reqName: reqName,
     subName: subName,
