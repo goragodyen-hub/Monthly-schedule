@@ -411,7 +411,7 @@ function getRecordReturnDay(r) {
   }
   const dateTxt = r.returnDateText || r.return_date_text;
   if (dateTxt && dateTxt !== '-') {
-    const match = dateTxt.match(/^(\d+)/);
+    const match = dateTxt.match(/(\d+)/);
     if (match) return parseInt(match[1], 10);
   }
   return null;
@@ -860,7 +860,7 @@ function setFilter(f) {
 /* =============================================
    INIT
    ============================================= */
-const CURRENT_APP_VERSION = 'v34';
+const CURRENT_APP_VERSION = 'v35';
 
 function checkAppAutoUpdate() {
   const savedVersion = localStorage.getItem('chitralada_app_version');
@@ -1764,6 +1764,7 @@ function handleSaveSwapRecord(event) {
   renderSwapRecordsTable();
   buildTable();
   renderToday();
+  initShiftLog();
   calRendered = false;
 }
 
@@ -2044,6 +2045,7 @@ function deleteSwapRecord(recordId) {
   renderSwapRecordsTable();
   buildTable();
   renderToday();
+  initShiftLog();
   calRendered = false;
 }
 
