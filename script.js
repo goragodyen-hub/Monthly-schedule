@@ -860,7 +860,45 @@ function setFilter(f) {
 /* =============================================
    INIT
    ============================================= */
+const CURRENT_APP_VERSION = 'v34';
+
+function checkAppAutoUpdate() {
+  const savedVersion = localStorage.getItem('chitralada_app_version');
+  if (savedVersion !== CURRENT_APP_VERSION) {
+    localStorage.setItem('chitralada_app_version', CURRENT_APP_VERSION);
+    if ('caches' in window) {
+      caches.keys().then(keys => {
+        keys.forEach(key => caches.delete(key));
+      });
+    }
+  }
+}
+
+async function forceRefreshApp() {
+  if (confirm('⚡ ต้องการโหลดข้อมูลและอัปเดตเวอร์ชันล่าสุดหรือไม่?\n\n(ระบบจะล้างแคช Service Worker และดึงไฟล์เวอร์ชันล่าสุดจากเซิร์ฟเวอร์โดยอัตโนมัติ โดยที่คุณไม่ต้องไปกดล้างแคชโทรศัพท์เอง)')) {
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let reg of registrations) {
+          await reg.unregister();
+        }
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        for (let key of keys) {
+          await caches.delete(key);
+        }
+      }
+      localStorage.removeItem('chitralada_app_version');
+      window.location.href = window.location.pathname + '?v=' + Date.now();
+    } catch (e) {
+      window.location.reload(true);
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  checkAppAutoUpdate();
   tickClock();
   setInterval(tickClock, 1000);
   renderToday();
