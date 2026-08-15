@@ -679,6 +679,30 @@
     </div>
   </div>
 
+  <!-- ADMIN PASSWORD VERIFICATION MODAL POPUP -->
+  <div class="modal-backdrop" id="adminPasswordModal" style="display:none; z-index:11000;" role="dialog" aria-modal="true">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width:400px; padding:28px 24px; border-radius:18px; background:#0F172A; border:1.5px solid #334155; color:#FFF; box-shadow:0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(99,102,241,0.3);">
+      <div style="text-align:center; margin-bottom:18px;">
+        <div style="font-size:38px; margin-bottom:10px; filter:drop-shadow(0 0 12px rgba(129,140,248,0.5));">🔒</div>
+        <h3 style="font-size:18px; font-weight:800; color:#FFF; margin-bottom:4px;">ยืนยันรหัสผ่านผู้ดูแลระบบ (Admin)</h3>
+        <p style="font-size:13px; color:#94A3B8; margin:0;">กรุณากรอกรหัสผ่านเพื่อสิทธิ์ใช้งาน Admin</p>
+      </div>
+
+      <form onsubmit="verifyAdminPassword(event)">
+        <div style="margin-bottom:18px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#CBD5E1; margin-bottom:8px;">🔑 รหัสผ่าน Admin:</label>
+          <input type="password" id="adminPasswordInput" class="lic-input" placeholder="กรอกรหัสผ่าน (รหัสเริ่มต้น: 1234)" required style="width:100%; padding:12px; background:#1E293B; border:1.5px solid #475569; color:#FFF; font-size:15px; border-radius:8px; outline:none;" autocomplete="current-password">
+          <div id="adminPassError" style="display:none; color:#EF4444; font-size:12.5px; margin-top:8px; font-weight:600; background:rgba(239,68,68,0.12); padding:8px 12px; border-radius:6px; border:1px solid rgba(239,68,68,0.3);">❌ รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</div>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button type="button" class="btn-action btn-secondary" onclick="closeAdminPasswordModal()" style="padding:10px 16px; font-size:13.5px; background:#334155; color:#FFF; border:none;">ยกเลิก</button>
+          <button type="submit" class="btn-action btn-primary" style="padding:10px 20px; font-size:13.5px; background:linear-gradient(135deg, #4F46E5, #7C3AED); border:none; box-shadow:0 4px 14px rgba(79,70,229,0.4);">🔓 ยืนยันรหัสผ่าน</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="script.js?v=v3"></script>
   <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>

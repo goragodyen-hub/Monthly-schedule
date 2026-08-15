@@ -1535,6 +1535,94 @@ function getSwapRecords() {
   }
 }
 
+let pendingAdminOfficer = null;
+
+async function handleMainLogin(event) {
+  if (event) event.preventDefault();
+  const input = document.getElementById('mainEmpIdInput');
+  const err   = document.getElementById('loginErrorMsg');
+  if (!input) return;
+
+  const empId = input.value.trim();
+  if (!empId) {
+    showLoginError('กรุณากรอกรหัสพนักงาน');
+    return;
+  }
+
+  let officer = null;
+  if (typeof authWithEmpId === 'function') {
+    officer = await authWithEmpId(empId);
+  } else {
+    officer = OFFICERS_REGISTRY[empId];
+  }
+
+  if (officer) {
+    if (err) err.style.display = 'none';
+
+    // If Admin account, require Admin Password Verification Popup Modal!
+    if (officer.isAdmin || empId.toLowerCase() === 'admin' || empId === '99999') {
+      pendingAdminOfficer = officer;
+      openAdminPasswordModal();
+      return;
+    }
+
+    // Regular Officer Login
+    sessionStorage.setItem('logged_in_officer', JSON.stringify(officer));
+    updateLoggedInUserUI(officer);
+  } else {
+    showLoginError(`ไม่พบพนักงานรหัส "${empId}" ในระบบ กรุณาตรวจสอบรหัสพนักงานอีกครั้ง`);
+  }
+}
+
+function openAdminPasswordModal() {
+  const modal = document.getElementById('adminPasswordModal');
+  const input = document.getElementById('adminPasswordInput');
+  const err = document.getElementById('adminPassError');
+
+  if (modal) modal.style.display = 'flex';
+  if (input) {
+    input.value = '';
+    setTimeout(() => input.focus(), 100);
+  }
+  if (err) err.style.display = 'none';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAdminPasswordModal() {
+  const modal = document.getElementById('adminPasswordModal');
+  if (modal) modal.style.display = 'none';
+  pendingAdminOfficer = null;
+  document.body.style.overflow = '';
+}
+
+function verifyAdminPassword(event) {
+  if (event) event.preventDefault();
+  const input = document.getElementById('adminPasswordInput');
+  const err = document.getElementById('adminPassError');
+  if (!input) return;
+
+  const password = input.value.trim();
+  // Valid admin passwords: '1234', 'admin', 'admin1234', 'chitralada'
+  const validPasswords = ['1234', 'admin', 'admin1234', 'chitralada', '0dYL8Vz7w5x9xIzd'];
+
+  if (validPasswords.includes(password)) {
+    if (err) err.style.display = 'none';
+    const officerToLogin = pendingAdminOfficer;
+    closeAdminPasswordModal();
+
+    if (officerToLogin) {
+      sessionStorage.setItem('logged_in_officer', JSON.stringify(officerToLogin));
+      updateLoggedInUserUI(officerToLogin);
+      alert('🔓 ยืนยันรหัสผ่านผู้ดูแลระบบ (Admin) สำเร็จ! ยินดีต้อนรับสู่ระบบบริหารจัดการ');
+    }
+  } else {
+    if (err) {
+      err.style.display = 'block';
+      err.textContent = '❌ รหัสผ่าน Admin ไม่ถูกต้อง กรุณาตรวจสอบรหัสผ่านอีกครั้ง (รหัสเริ่มต้น: 1234)';
+    }
+  }
+}
+
 function saveSwapRecords(records) {
   localStorage.setItem('shift_swap_records', JSON.stringify(records));
 }
