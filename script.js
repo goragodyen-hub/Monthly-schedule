@@ -439,12 +439,11 @@ function dutyCardsHtml(entry) {
     const p = entry.male[k];
     const fullName = `${p[0]} ${p[1]}`;
     const eff = getEffectiveOfficer(entry.day, fullName);
-    const isG1Weekend = k === 'g1' && woh;
     html += `
       <div class="duty-card ${k}">
         <div class="dc-badge ${k}">${lbl}</div>
         <div class="dc-name">${eff.displayHtml}</div>
-        ${isG1Weekend ? '' : `<button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${eff.name}')">📝 บันทึกเวร</button>`}
+        ${woh ? '' : `<button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${eff.name}')">📝 บันทึกเวร</button>`}
         <div class="dc-time">⏰ ${shiftForEntry(entry,'male',k)}</div>
       </div>`;
   });
@@ -465,7 +464,6 @@ function dutyCardsHtml(entry) {
         <div class="duty-card ${k}">
           <div class="dc-badge ${k}">${lbl}</div>
           <div class="dc-name">${eff.displayHtml}</div>
-          <button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${eff.name}')">📝 บันทึกเวร</button>
           <div class="dc-time">⏰ ${SHIFT.weekend_female}</div>
         </div>`;
     });
@@ -487,12 +485,11 @@ function modalDutyHtml(entry) {
     const p = entry.male[k];
     const fullName = `${p[0]} ${p[1]}`;
     const eff = getEffectiveOfficer(entry.day, fullName);
-    const isG1Weekend = k === 'g1' && woh;
     html += `<div class="duty-list-row">
       <div class="dlr-dot ${k}"></div>
       <div class="dlr-group">${lbl}</div>
       <div class="dlr-name">${eff.displayHtml}</div>
-      ${isG1Weekend ? '' : `<button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${eff.name}')">📝 บันทึกเวร</button>`}
+      ${woh ? '' : `<button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${eff.name}')">📝 บันทึกเวร</button>`}
       <div class="dlr-time">${shiftForEntry(entry,'male',k)}</div>
     </div>`;
   });
@@ -511,7 +508,6 @@ function modalDutyHtml(entry) {
         <div class="dlr-dot ${k}"></div>
         <div class="dlr-group">${lbl}</div>
         <div class="dlr-name">${eff.displayHtml}</div>
-        <button class="btn-quick-log" onclick="openShiftLogForOfficer(${entry.day}, '${eff.name}')">📝 บันทึกเวร</button>
         <div class="dlr-time">${SHIFT.weekend_female}</div>
       </div>`;
     });
