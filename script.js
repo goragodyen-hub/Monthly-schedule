@@ -866,6 +866,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderToday();
   initShiftLog();
   checkLoginSession();
+  initOfficersDatalist();
 });
 
 /* =============================================
@@ -1665,8 +1666,8 @@ function handleSaveSwapRecord(event) {
 
   const rawSwapDate = document.getElementById('swapDateInput')?.value;
   const rawReturnDate = document.getElementById('swapReturnDateInput')?.value;
-  const reqName = document.getElementById('swapReqOfficerSelect')?.value;
-  const subName = document.getElementById('swapSubOfficerSelect')?.value;
+  const reqName = (document.getElementById('swapReqOfficerInput')?.value || document.getElementById('swapReqOfficerSelect')?.value || '').trim();
+  const subName = (document.getElementById('swapSubOfficerInput')?.value || document.getElementById('swapSubOfficerSelect')?.value || '').trim();
 
   if (!rawSwapDate || !reqName || !subName) {
     alert('กรุณาเลือกวันที่ขอสลับ และระบุพนักงานทั้งผู้ขอแลกและผู้ปฏิบัติหน้าที่แทน');
@@ -1710,12 +1711,211 @@ function handleSaveSwapRecord(event) {
   alert(`✅ บันทึกการขอแลกเวรประจำ "${shiftDateText}" ระหว่าง "${reqName}" กับ "${subName}" สำเร็จ!`);
 
   // Reset Form
+  if (document.getElementById('swapReqOfficerInput')) document.getElementById('swapReqOfficerInput').value = '';
+  if (document.getElementById('swapSubOfficerInput')) document.getElementById('swapSubOfficerInput').value = '';
   if (document.getElementById('swapReturnDateInput')) document.getElementById('swapReturnDateInput').value = '';
+  if (document.getElementById('crossMonthNotice')) document.getElementById('crossMonthNotice').style.display = 'none';
   clearSwapPhoto();
   renderSwapRecordsTable();
   buildTable();
   renderToday();
   calRendered = false;
+}
+
+/* =============================================
+   CROSS-MONTH SWAP & IMPORT SCHEDULE SYSTEM
+   ============================================= */
+let uploadedScheduleData = null;
+
+function initOfficersDatalist() {
+  const datalist = document.getElementById('officersDatalist');
+  if (!datalist) return;
+
+  datalist.innerHTML = '';
+  const officers = Object.values(OFFICERS_REGISTRY).filter(o => !o.isAdmin);
+
+  officers.forEach(o => {
+    const fullName = `${o.name} ${o.surname}`;
+    const option = document.createElement('option');
+    option.value = fullName;
+    const groupLabel = GROUP_META[o.groupKey]?.label || '';
+    option.setAttribute('label', `[${o.emp_id}] ${fullName} (${groupLabel})`);
+    datalist.appendChild(option);
+  });
+}
+
+function handleReturnDateChange() {
+  const returnInput = document.getElementById('swapReturnDateInput');
+  const notice = document.getElementById('crossMonthNotice');
+  const monthText = document.getElementById('crossMonthText');
+  if (!returnInput || !notice) return;
+
+  const val = returnInput.value;
+  if (!val) {
+    notice.style.display = 'none';
+    return;
+  }
+
+  const parts = val.split('-');
+  if (parts.length === 3) {
+    const m = parseInt(parts[1], 10);
+    const y = parseInt(parts[0], 10) + 543;
+    // If month is different from current active SCHED_MONTH (1-indexed m vs SCHED_MONTH + 1)
+    if (m !== (SCHED_MONTH + 1)) {
+      notice.style.display = 'inline-block';
+      if (monthText) monthText.textContent = `${THAI_MONTHS[m - 1]} ${y}`;
+    } else {
+      notice.style.display = 'none';
+    }
+  }
+}
+
+function downloadScheduleTemplate() {
+  const templateSchedule = [];
+  const daysInMonth = 30; // Default September template
+  const thDays = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    // September 1, 2026 is Tuesday (2)
+    const dateObj = new Date(2026, 8, i);
+    const dayOfWeek = dateObj.getDay();
+    const isWk = (dayOfWeek === 0 || dayOfWeek === 6);
+
+    templateSchedule.push({
+      day: i,
+      dayName: thDays[dayOfWeek],
+      isWeekend: isWk,
+      isHoliday: false,
+      male: {
+        g1: ["ชื่อพนักงาน1", "นามสกุล1"],
+        g2: ["ชื่อพนักงาน2", "นามสกุล2"],
+        g3: ["ชื่อพนักงาน3", "นามสกุล3"]
+      },
+      female: isWk ? {
+        kg: ["ชื่ออนุบาล", "นามสกุล"],
+        pr: ["ชื่อประถม", "นามสกุล"],
+        sc: ["ชื่อมัธยม", "นามสกุล"]
+      } : null
+    });
+  }
+
+  const jsonStr = JSON.stringify(templateSchedule, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'schedule_template_september_2026.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  alert('📥 ดาวน์โหลดไฟล์เทมเพลตตารางเวร (.json) เรียบร้อยแล้ว! สามารถนำไฟล์นี้ไปแก้ไขรายชื่อเดือนใหม่แล้วนำกลับมาอัปโหลดได้เลยครับ');
+}
+
+function handleScheduleFileUpload(input) {
+  const file = input?.files[0];
+  const statusBox = document.getElementById('importStatusBox');
+  const statusText = document.getElementById('importStatusText');
+
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const content = e.target.result;
+      let parsed = null;
+
+      if (file.name.endsWith('.json')) {
+        parsed = JSON.parse(content);
+      } else {
+        alert('กรุณาใช้อัปโหลดไฟล์รูปแบบ .json (สามารถโหลดไฟล์เทมเพลตไปแก้ไขได้)');
+        return;
+      }
+
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].day && parsed[0].male) {
+        uploadedScheduleData = parsed;
+        if (statusBox && statusText) {
+          statusBox.style.display = 'block';
+          statusText.textContent = `✅ อ่านไฟล์ "${file.name}" สำเร็จ! พบข้อมูลตารางเวรจำนวน ${parsed.length} วัน กดปุ่ม "ยืนยันเปิดใช้งานตารางเดือนนี้" เพื่อบันทึกใช้งาน`;
+        }
+      } else {
+        alert('⚠️ รูปแบบโครงสร้างข้อมูลในไฟล์ไม่ถูกต้อง กรุณาใช้ไฟล์เทมเพลตที่ดาวน์โหลดจากระบบ');
+      }
+    } catch (err) {
+      alert('❌ เกิดข้อผิดพลาดในการอ่านไฟล์: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function applyImportedSchedule() {
+  const mSelect = document.getElementById('importMonthSelect');
+  if (!mSelect) return;
+
+  const val = mSelect.value; // e.g. "9-2026"
+  const [mStr, yStr] = val.split('-');
+  const targetMonth = parseInt(mStr, 10) - 1; // 0-indexed
+  const targetYear = parseInt(yStr, 10);
+
+  if (uploadedScheduleData) {
+    // Save imported data to localStorage
+    const storageKey = `custom_schedule_${val}`;
+    localStorage.setItem(storageKey, JSON.stringify(uploadedScheduleData));
+
+    // Activate schedule
+    SCHEDULE.length = 0;
+    uploadedScheduleData.forEach(item => SCHEDULE.push(item));
+    SCHED_MONTH = targetMonth;
+    SCHED_YEAR = targetYear;
+
+    alert(`🎉 นำเข้าและเปิดใช้งานตารางเวรประจำเดือน "${THAI_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
+  } else {
+    // Check if custom schedule already exists in localStorage
+    const storageKey = `custom_schedule_${val}`;
+    const savedCustom = localStorage.getItem(storageKey);
+    if (savedCustom) {
+      const parsed = JSON.parse(savedCustom);
+      SCHEDULE.length = 0;
+      parsed.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = targetMonth;
+      SCHED_YEAR = targetYear;
+      alert(`🔄 สลับแสดงตารางเวรประจำเดือน "${THAI_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
+    } else if (targetMonth === 7 && targetYear === 2026) {
+      // Default August 2026 schedule
+      location.reload();
+      return;
+    } else {
+      alert(`ℹ️ ยังไม่มีไฟล์ตารางเวรของเดือน "${THAI_MONTHS[targetMonth]} ${targetYear + 543}" กรุณาอัปโหลดไฟล์ตารางเวรประจำเดือนก่อนกดบันทึก`);
+      return;
+    }
+  }
+
+  // Re-render UI
+  buildTable();
+  renderToday();
+  renderAdminDashboard();
+  uploadedScheduleData = null;
+  const fileInput = document.getElementById('importScheduleFileInput');
+  if (fileInput) fileInput.value = '';
+  const statusBox = document.getElementById('importStatusBox');
+  if (statusBox) statusBox.style.display = 'none';
+}
+
+function handleMonthSelectChange(select) {
+  const val = select?.value;
+  if (!val) return;
+  const storageKey = `custom_schedule_${val}`;
+  const savedCustom = localStorage.getItem(storageKey);
+  const statusBox = document.getElementById('importStatusBox');
+  const statusText = document.getElementById('importStatusText');
+
+  if (savedCustom && statusBox && statusText) {
+    statusBox.style.display = 'block';
+    statusText.textContent = `ℹ️ มีข้อมูลตารางเวรของเดือนนี้ถูกบันทึกไว้ในระบบแล้ว สามารถกด "ยืนยันเปิดใช้งานตารางเดือนนี้" ได้ทันที`;
+  } else if (statusBox) {
+    statusBox.style.display = 'none';
+  }
 }
 
 function renderSwapRecordsTable() {

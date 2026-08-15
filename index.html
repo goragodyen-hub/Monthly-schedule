@@ -519,6 +519,50 @@
         </div>
       </div>
 
+      <!-- Import / Manage Monthly Schedule Card (เฉพาะ Admin) -->
+      <div class="log-input-card glass" style="margin-bottom:20px; padding:18px 20px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:24px;">📅</span>
+            <div>
+              <h3 style="font-size:15px; font-weight:800; color:var(--text); margin:0;">นำเข้า / จัดการตารางเวรประจำเดือนใหม่ (Import Monthly Schedule)</h3>
+              <p style="font-size:12px; color:var(--text3); margin:2px 0 0 0;">เลือกเดือน/ปี และอัปโหลดไฟล์ตารางเวร (.json / .csv) หรือเลือกสลับดูตารางเวรเดือนที่ต้องการ</p>
+            </div>
+          </div>
+          <button type="button" class="btn-action btn-secondary" onclick="downloadScheduleTemplate()" style="padding:6px 12px; font-size:12px; display:inline-flex; align-items:center; gap:4px;">
+            <span>📥</span> ดาวน์โหลดไฟล์เทมเพลต (.json)
+          </button>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; align-items:end;">
+          <div class="lic-field">
+            <label class="lic-label" style="font-size:12.5px; font-weight:700; margin-bottom:4px;">📆 เลือกเดือน/ปี ประจำตารางเวร:</label>
+            <select id="importMonthSelect" class="lic-input" style="font-weight:700;" onchange="handleMonthSelectChange(this)">
+              <option value="8-2026">สิงหาคม ๒๕๖๙ (ปัจจุบัน)</option>
+              <option value="9-2026">กันยายน ๒๕๖๙</option>
+              <option value="10-2026">ตุลาคม ๒๕๖๙</option>
+              <option value="11-2026">พฤศจิกายน ๒๕๖๙</option>
+              <option value="12-2026">ธันวาคม ๒๕๖๙</option>
+            </select>
+          </div>
+
+          <div class="lic-field">
+            <label class="lic-label" style="font-size:12.5px; font-weight:700; margin-bottom:4px;">📤 อัปโหลดไฟล์ตารางเวรเดือนใหม่ (.json/.csv):</label>
+            <input type="file" id="importScheduleFileInput" accept=".json,.csv" class="lic-input" style="padding:6px 10px; font-size:12px;" onchange="handleScheduleFileUpload(this)">
+          </div>
+
+          <div class="lic-field" style="display:flex; gap:8px;">
+            <button type="button" class="btn-action btn-primary" onclick="applyImportedSchedule()" style="flex:1; padding:10px; font-size:13px; background:linear-gradient(135deg, #10B981, #059669); justify-content:center;">
+              🚀 ยืนยันเปิดใช้งานตารางเดือนนี้
+            </button>
+          </div>
+        </div>
+
+        <div id="importStatusBox" style="display:none; margin-top:12px; padding:8px 12px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:6px;">
+          <span id="importStatusText" style="font-size:12px; font-weight:700; color:#059669;"></span>
+        </div>
+      </div>
+
       <!-- Filter & Matrix Controls -->
       <div class="admin-matrix-controls glass" style="margin-bottom:16px; padding:12px 18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <div class="admin-filter-group" style="display:flex; align-items:center; gap:8px;">
@@ -587,22 +631,21 @@
 
             <div class="lic-field" style="display:flex; flex-direction:column; justify-content:flex-end;">
               <label class="lic-label" style="min-height:36px; display:flex; align-items:flex-end; margin-bottom:6px;">👤 พนักงานผู้ขอแลกเวร (Requester)</label>
-              <select id="swapReqOfficerSelect" class="lic-input" required>
-                <option value="">-- เลือกพนักงานผู้ขอแลกเวร --</option>
-              </select>
+              <input type="text" id="swapReqOfficerInput" class="lic-input" list="officersDatalist" placeholder="พิมพ์ค้นหาชื่อ หรือเลือกพนักงาน..." required autocomplete="off">
             </div>
 
             <div class="lic-field" style="display:flex; flex-direction:column; justify-content:flex-end;">
               <label class="lic-label" style="min-height:36px; display:flex; align-items:flex-end; margin-bottom:6px;">🔄 วันที่สลับไปคืนแทน (Return Date)</label>
               <input type="date" id="swapReturnDateInput" class="lic-input" onchange="handleReturnDateChange()">
+              <span id="crossMonthNotice" style="display:none; font-size:11.5px; font-weight:700; color:#D97706; margin-top:4px;">🔄 สลับเวรข้ามเดือนไป <span id="crossMonthText"></span> (ระบุชื่อพนักงานคืนเวรอิสระ)</span>
             </div>
 
             <div class="lic-field" style="display:flex; flex-direction:column; justify-content:flex-end;">
               <label class="lic-label" style="min-height:36px; display:flex; align-items:flex-end; margin-bottom:6px;">🤝 พนักงานผู้รับหน้าที่แทน (Substitute)</label>
-              <select id="swapSubOfficerSelect" class="lic-input" required>
-                <option value="">-- เลือกพนักงานผู้รับแทน --</option>
-              </select>
+              <input type="text" id="swapSubOfficerInput" class="lic-input" list="officersDatalist" placeholder="พิมพ์ค้นหาชื่อ หรือเลือกพนักงาน..." required autocomplete="off">
             </div>
+
+            <datalist id="officersDatalist"></datalist>
 
             <!-- Photo / Document Attachment Option -->
             <div class="lic-field lic-field-full" style="background:rgba(37,99,235,0.04); border:1.5px dashed var(--indigo); border-radius:8px; padding:16px; margin-top:8px;">
