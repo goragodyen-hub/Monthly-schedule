@@ -1579,7 +1579,11 @@ function openAdminPasswordModal() {
   const input = document.getElementById('adminPasswordInput');
   const err = document.getElementById('adminPassError');
 
-  if (modal) modal.style.display = 'flex';
+  if (modal) {
+    modal.style.setProperty('display', 'flex', 'important');
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+  }
   if (input) {
     input.value = '';
     setTimeout(() => input.focus(), 100);
