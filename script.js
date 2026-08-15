@@ -935,8 +935,11 @@ function onLogDateChange() {
     [['g1','กลุ่ม 1'],['g2','กลุ่ม 2'],['g3','กลุ่ม 3']].forEach(([k, lbl]) => {
       const p = entry.male[k];
       if (p) {
+        const originalFullName = `${p[0]} ${p[1]}`;
+        const eff = getEffectiveOfficer(entry.day, originalFullName);
         officers.push({
-          name: `${p[0]} ${p[1]}`,
+          name: eff.name,
+          displayName: eff.isSwapped ? `${eff.name} (แลกเวร)` : eff.name,
           groupKey: k,
           groupLabel: lbl,
           type: 'male',
@@ -950,8 +953,11 @@ function onLogDateChange() {
       [['kg','ระดับอนุบาล'],['pr','ระดับประถมศึกษา'],['sc','ระดับมัธยมศึกษา']].forEach(([k, lbl]) => {
         const p = entry.female[k];
         if (p) {
+          const originalFullName = `${p[0]} ${p[1]}`;
+          const eff = getEffectiveOfficer(entry.day, originalFullName);
           officers.push({
-            name: `${p[0]} ${p[1]}`,
+            name: eff.name,
+            displayName: eff.isSwapped ? `${eff.name} (แลกเวร)` : eff.name,
             groupKey: k,
             groupLabel: lbl,
             type: 'female',
@@ -991,7 +997,8 @@ function onLogDateChange() {
   filteredOfficers.forEach(off => {
     const opt = document.createElement('option');
     opt.value = JSON.stringify(off);
-    opt.textContent = `${off.name} [${off.groupLabel}]`;
+    const labelText = off.displayName || off.name;
+    opt.textContent = `${labelText} [${off.groupLabel}]`;
     offSel.appendChild(opt);
   });
 
@@ -2171,24 +2178,44 @@ function openShiftLogForModal() {
 function findDaysForOfficer(officerName) {
   const days = [];
   const cleanName = officerName.replace(/\s+/g, '');
+  if (!cleanName) return days;
+
   SCHEDULE.forEach(d => {
+    let isWorkingOnThisDay = false;
+
+    // Check Male groups for effective officer
     if (d.male) {
       ['g1','g2','g3'].forEach(k => {
         if (d.male[k]) {
-          const fn = `${d.male[k][0]}${d.male[k][1]}`;
-          if (fn.includes(cleanName) || cleanName.includes(fn)) days.push(d.day);
+          const originalFullName = `${d.male[k][0]} ${d.male[k][1]}`;
+          const eff = getEffectiveOfficer(d.day, originalFullName);
+          const effClean = eff.name.replace(/\s+/g, '');
+          if (effClean.includes(cleanName) || cleanName.includes(effClean)) {
+            isWorkingOnThisDay = true;
+          }
         }
       });
     }
+
+    // Check Female groups for effective officer
     if (d.female) {
       ['kg','pr','sc'].forEach(k => {
         if (d.female[k]) {
-          const fn = `${d.female[k][0]}${d.female[k][1]}`;
-          if (fn.includes(cleanName) || cleanName.includes(fn)) days.push(d.day);
+          const originalFullName = `${d.female[k][0]} ${d.female[k][1]}`;
+          const eff = getEffectiveOfficer(d.day, originalFullName);
+          const effClean = eff.name.replace(/\s+/g, '');
+          if (effClean.includes(cleanName) || cleanName.includes(effClean)) {
+            isWorkingOnThisDay = true;
+          }
         }
       });
     }
+
+    if (isWorkingOnThisDay && !days.includes(d.day)) {
+      days.push(d.day);
+    }
   });
+
   return days;
 }
 
