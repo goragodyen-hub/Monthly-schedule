@@ -1228,35 +1228,6 @@ function exportShiftLogFile() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
-
-function verifyAdminPassword(event) {
-  if (event) event.preventDefault();
-  const input = document.getElementById('adminPasswordInput');
-  const err = document.getElementById('adminPassError');
-  if (!input) return;
-
-  const password = input.value.trim();
-  // Valid admin password: 'GOR@god1'
-  const validPasswords = ['GOR@god1'];
-
-  if (validPasswords.includes(password)) {
-    if (err) err.style.display = 'none';
-    const officerToLogin = pendingAdminOfficer;
-    closeAdminPasswordModal();
-
-    if (officerToLogin) {
-      sessionStorage.setItem('logged_in_officer', JSON.stringify(officerToLogin));
-      updateLoggedInUserUI(officerToLogin);
-      alert('🔓 ยืนยันรหัสผ่านผู้ดูแลระบบ (Admin) สำเร็จ! ยินดีต้อนรับสู่ระบบบริหารจัดการ');
-    }
-  } else {
-    if (err) {
-      err.style.display = 'block';
-      err.textContent = '❌ รหัสผ่าน Admin ไม่ถูกต้อง กรุณาตรวจสอบรหัสผ่านอีกครั้ง';
-    }
-  }
-}
-
 async function loadShiftLog() {
   const tbody = document.getElementById('formLogTbody');
   if (!tbody) return;
