@@ -192,6 +192,8 @@ async function saveSwapRecordCloud(swapRecord) {
       console.warn('Cloud swap sync fallback:', e);
     }
   }
+}
+
 async function fetchSwapRecordsCloud() {
   if (isSupabaseOnline && supabaseClient) {
     try {
