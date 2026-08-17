@@ -862,7 +862,7 @@ function setFilter(f) {
 /* =============================================
    INIT
    ============================================= */
-const CURRENT_APP_VERSION = 'v49';
+const CURRENT_APP_VERSION = 'v50';
 
 function checkAppAutoUpdate() {
   const savedVersion = localStorage.getItem('chitralada_app_version');
@@ -1703,8 +1703,8 @@ function verifyAdminPassword(event) {
   if (!input) return;
 
   const password = input.value.trim();
-  // Valid admin passwords: '1234', 'admin', 'admin1234', 'chitralada'
-  const validPasswords = ['GOR@god1'];
+  // Valid admin passwords: 'GOR@god1', 'root'
+  const validPasswords = ['GOR@god1', 'gor@god1', 'root', 'ROOT'];
 
   if (validPasswords.includes(password)) {
     if (err) err.style.display = 'none';
