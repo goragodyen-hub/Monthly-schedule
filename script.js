@@ -862,7 +862,7 @@ function setFilter(f) {
 /* =============================================
    INIT
    ============================================= */
-const CURRENT_APP_VERSION = 'v48';
+const CURRENT_APP_VERSION = 'v49';
 
 function checkAppAutoUpdate() {
   const savedVersion = localStorage.getItem('chitralada_app_version');
@@ -1617,9 +1617,13 @@ const DEFAULT_SWAP_RECORDS = [
 function getSwapRecords() {
   try {
     const local = localStorage.getItem('shift_swap_records');
-    if (local) {
+    const cleared = localStorage.getItem('shift_swap_records_cleared');
+    if (local !== null) {
       const parsed = JSON.parse(local);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) {
+        if (parsed.length > 0) return parsed;
+        if (cleared === 'true') return [];
+      }
     }
     localStorage.setItem('shift_swap_records', JSON.stringify(DEFAULT_SWAP_RECORDS));
     return DEFAULT_SWAP_RECORDS;
@@ -2060,15 +2064,24 @@ function viewSwapPhotoModal(recordId) {
   document.body.style.overflow = 'hidden';
 }
 
-function deleteSwapRecord(recordId) {
+async function deleteSwapRecord(recordId) {
   if (!confirm('คุณต้องการลบรายการขอแลกเวรนี้ใช่หรือไม่?')) return;
   let records = getSwapRecords();
   records = records.filter(r => r.id !== recordId);
+  
   saveSwapRecords(records);
+  if (records.length === 0) {
+    localStorage.setItem('shift_swap_records_cleared', 'true');
+  }
+
+  if (typeof deleteSwapRecordCloud === 'function') {
+    await deleteSwapRecordCloud(recordId);
+  }
+
   renderSwapRecordsTable();
-  buildTable();
-  renderToday();
-  initShiftLog();
+  if (window.buildTable) window.buildTable();
+  if (window.renderToday) window.renderToday();
+  if (window.initShiftLog) window.initShiftLog();
   calRendered = false;
 }
 
