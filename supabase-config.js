@@ -223,6 +223,16 @@ async function fetchSwapRecordsCloud() {
         if (window.initShiftLog) window.initShiftLog();
         if (window.renderSwapRecordsTable) window.renderSwapRecordsTable();
         return mappedRecords;
+      } else if (data && !error && data.length === 0) {
+        // Auto-seed DEFAULT_SWAP_RECORDS to Supabase Cloud if cloud table is empty
+        if (typeof DEFAULT_SWAP_RECORDS !== 'undefined' && Array.isArray(DEFAULT_SWAP_RECORDS)) {
+          for (const rec of DEFAULT_SWAP_RECORDS) {
+            await saveSwapRecordCloud(rec);
+          }
+          localStorage.setItem('shift_swap_records', JSON.stringify(DEFAULT_SWAP_RECORDS));
+          if (window.renderSwapRecordsTable) window.renderSwapRecordsTable();
+          return DEFAULT_SWAP_RECORDS;
+        }
       }
     } catch (e) {
       console.warn('Fetch cloud swap records fallback:', e);

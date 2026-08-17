@@ -750,16 +750,16 @@
 
   <!-- Supabase JS SDK & Cloud Database Sync -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=v41"></script>
-  <script src="script.js?v=v41"></script>
+  <script src="supabase-config.js?v=v42"></script>
+  <script src="script.js?v=v42"></script>
   <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=v41')
+        navigator.serviceWorker.register('./sw.js?v=v42')
           .then(reg => {
             reg.update();
-            console.log('📱 PWA Service Worker Registered & Updated v41:', reg.scope);
+            console.log('📱 PWA Service Worker Registered & Updated v42:', reg.scope);
           })
           .catch(err => console.log('⚠️ Service Worker Error:', err));
 
