@@ -367,11 +367,13 @@ function switchTab(tab) {
   }
   if (tab === 'admin' && (!loggedInOfficer || !loggedInOfficer.isAdmin)) {
     alert('เมนูรายงานสรุปเฉพาะผู้ดูแลระบบ (Admin) เท่านั้น');
+    switchTab('today');
     return;
   }
   if (tab === 'swap') {
     if (!loggedInOfficer || !loggedInOfficer.isAdmin) {
       alert('เมนูบันทึกขอแลกเวรเฉพาะผู้ดูแลระบบ (Admin) เท่านั้น');
+      switchTab('today');
       return;
     }
     initAdminShiftSwapTab();
@@ -860,7 +862,7 @@ function setFilter(f) {
 /* =============================================
    INIT
    ============================================= */
-const CURRENT_APP_VERSION = 'v44';
+const CURRENT_APP_VERSION = 'v47';
 
 function checkAppAutoUpdate() {
   const savedVersion = localStorage.getItem('chitralada_app_version');
@@ -2339,11 +2341,15 @@ function updateMenuVisibility() {
   const sbLogBtn = document.getElementById('sb-log');
   const sbAdminBtn = document.getElementById('sb-admin');
   const sbSwapBtn = document.getElementById('sb-swap');
+  const panelAdmin = document.getElementById('panel-admin');
+  const panelSwap = document.getElementById('panel-swap');
 
   if (!loggedInOfficer) {
     if (sbLogBtn) sbLogBtn.style.display = 'none';
     if (sbAdminBtn) sbAdminBtn.style.display = 'none';
     if (sbSwapBtn) sbSwapBtn.style.display = 'none';
+    if (panelAdmin) panelAdmin.classList.remove('active');
+    if (panelSwap) panelSwap.classList.remove('active');
   } else if (loggedInOfficer.isAdmin) {
     if (sbLogBtn) sbLogBtn.style.display = 'none'; // Admin menu: Hide Shift Log
     if (sbAdminBtn) sbAdminBtn.style.display = 'flex';
@@ -2352,6 +2358,8 @@ function updateMenuVisibility() {
     if (sbLogBtn) sbLogBtn.style.display = 'flex'; // Officer menu: Show Shift Log
     if (sbAdminBtn) sbAdminBtn.style.display = 'none';
     if (sbSwapBtn) sbSwapBtn.style.display = 'none'; // HIDE for Officers (Admin Only)
+    if (panelAdmin) panelAdmin.classList.remove('active');
+    if (panelSwap) panelSwap.classList.remove('active');
   }
 }
 
