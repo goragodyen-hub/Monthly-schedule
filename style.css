@@ -1661,36 +1661,39 @@ mark.hl {
   border-color: var(--indigo);
 }
 
-/* User Profile Badge in Header */
+/* User Profile Badge in Header (Compact Pill) */
 .user-profile-badge {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  border-radius: var(--r-sm);
-  padding: 4px 10px;
+  gap: 6px;
+  background: #EEF2FF;
+  border: 1.5px solid #C7D2FE;
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
 }
-.upb-icon { font-size: 14px; }
+.upb-icon { font-size: 13px; }
 .upb-name {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
-  color: var(--indigo-l);
+  color: #3730A3;
+  white-space: nowrap;
 }
 .upb-logout-btn {
-  background: rgba(244, 63, 94, 0.15);
-  border: 1px solid rgba(244, 63, 94, 0.3);
-  color: var(--rose-l);
+  background: #FEE2E2;
+  border: 1px solid #FCA5A5;
+  color: #DC2626;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 2px 7px;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all var(--dur);
-  margin-left: 4px;
+  margin-left: 2px;
+  white-space: nowrap;
 }
 .upb-logout-btn:hover {
-  background: var(--rose);
+  background: #DC2626;
   color: #FFF;
 }
 

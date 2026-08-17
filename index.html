@@ -78,21 +78,17 @@
           </div>
         </div>
       </div>
-      <div class="header-right-group" style="display:flex; align-items:center; gap:12px;">
+      <div class="header-right-group" style="display:flex; align-items:center; gap:8px; flex-wrap:nowrap;">
         <div class="user-profile-badge" id="userProfileBadge" style="display:none;">
           <span class="upb-icon">👤</span>
           <span class="upb-name" id="upbName">--</span>
           <button class="upb-logout-btn" onclick="logoutUser()" title="ออกจากระบบ">🚪 ออกจากระบบ</button>
         </div>
-        <button class="btn-action btn-primary btn-sm" id="headerLoginBtn" onclick="showLoginScreenOverlay()" style="font-size:12.5px; padding:5px 12px;">🔑 เข้าสู่ระบบบันทึกเวร</button>
-        <button type="button" onclick="forceRefreshApp()" class="btn-action btn-sm" style="font-size:11.5px; padding:5px 10px; background:linear-gradient(135deg, #FFF7ED, #FFEDD5); color:#C2410C; border:1.5px solid #FDBA74; border-radius:8px; display:inline-flex; align-items:center; gap:5px; font-weight:700; box-shadow:0 2px 6px rgba(249,115,22,0.18); transition:all 0.2s;" title="ดึงข้อมูลและอัปเดตเวอร์ชันล่าสุดสำหรับมือถือโดยไม่ต้องล้างแคชเครื่อง">
-          <span style="font-size:13px; filter:drop-shadow(0 1px 2px rgba(249,115,22,0.3));">⚡</span> <span style="color:#C2410C; font-weight:700;">อัปเดตข้อมูลมือถือ</span>
+        <button class="btn-action btn-primary btn-sm" id="headerLoginBtn" onclick="showLoginScreenOverlay()" style="font-size:12px; padding:4px 10px; border-radius:20px;">🔑 เข้าสู่ระบบ</button>
+        <button type="button" onclick="forceRefreshApp()" class="btn-action btn-sm" style="font-size:11.5px; padding:4px 9px; background:linear-gradient(135deg, #FFF7ED, #FFEDD5); color:#C2410C; border:1.5px solid #FDBA74; border-radius:20px; display:inline-flex; align-items:center; gap:4px; font-weight:700; box-shadow:0 2px 5px rgba(249,115,22,0.15); transition:all 0.2s;" title="ดึงข้อมูลและอัปเดตเวอร์ชันล่าสุด">
+          <span style="font-size:12px;">⚡</span> <span style="color:#C2410C; font-weight:700;">อัปเดต</span>
         </button>
-        <span class="sp-badge sp-local" id="spStatusBadge" title="สถานะฐานข้อมูล Supabase">🟡 โหมดรหัสพนักงาน</span>
-        <div class="live-clock" id="liveClock" aria-live="polite">
-          <span class="clock-time" id="clockTime">--:--:--</span>
-          <span class="clock-date" id="clockDate">--</span>
-        </div>
+        <span class="sp-badge sp-local" id="spStatusBadge" title="สถานะฐานข้อมูล Supabase" style="border-radius:20px; padding:3px 9px; font-size:11.5px;">🟡 Local</span>
       </div>
     </div>
   </header>
@@ -754,16 +750,16 @@
 
   <!-- Supabase JS SDK & Cloud Database Sync -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=v38"></script>
-  <script src="script.js?v=v38"></script>
+  <script src="supabase-config.js?v=v41"></script>
+  <script src="script.js?v=v41"></script>
   <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=v37')
+        navigator.serviceWorker.register('./sw.js?v=v41')
           .then(reg => {
             reg.update();
-            console.log('📱 PWA Service Worker Registered & Updated v37:', reg.scope);
+            console.log('📱 PWA Service Worker Registered & Updated v41:', reg.scope);
           })
           .catch(err => console.log('⚠️ Service Worker Error:', err));
 

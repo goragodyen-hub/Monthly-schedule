@@ -37,15 +37,15 @@ function updateSupabaseBadge(status) {
 
   if (status === 'online') {
     badge.className = 'sp-badge sp-online';
-    badge.innerHTML = '🟢 Supabase Cloud';
+    badge.innerHTML = '🟢 Cloud';
     badge.title = 'เชื่อมต่อฐานข้อมูลคลาวด์ ซิงก์ข้อมูลเรียลไทม์แล้ว';
   } else if (status === 'offline') {
     badge.className = 'sp-badge sp-offline';
-    badge.innerHTML = '🔴 Cloud Offline';
+    badge.innerHTML = '🔴 Offline';
     badge.title = 'ไม่สามารถเชื่อมต่อคลาวด์ได้ ใช้โหมดเซฟในเครื่อง';
   } else {
     badge.className = 'sp-badge sp-local';
-    badge.innerHTML = '🟡 โหมดรหัสพนักงาน (Local)';
+    badge.innerHTML = '🟡 Local';
     badge.title = 'ใช้รหัสพนักงานเข้าสู่ระบบ และบันทึกในเบราว์เซอร์';
   }
 }
