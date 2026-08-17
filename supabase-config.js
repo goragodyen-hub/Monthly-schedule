@@ -90,26 +90,49 @@ async function authWithEmpId(empId) {
 }
 
 // 2. Fetch Shift Log (Cloud + Local Fallback)
-async function fetchShiftLogCloud(dayNum, empId) {
+async function fetchShiftLogCloud(dayNum, empId, officerName) {
   if (isSupabaseOnline && supabaseClient) {
     try {
-      const { data, error } = await supabaseClient
-        .from('shift_logs')
-        .select('*')
-        .eq('day_num', dayNum)
-        .eq('emp_id', empId)
-        .single();
+      if (empId) {
+        const { data, error } = await supabaseClient
+          .from('shift_logs')
+          .select('*')
+          .eq('day_num', dayNum)
+          .eq('emp_id', empId)
+          .maybeSingle();
 
-      if (data && !error) return data;
+        if (data && !error) return data;
+      }
+
+      if (officerName) {
+        const cleanName = officerName.trim();
+        const { data, error } = await supabaseClient
+          .from('shift_logs')
+          .select('*')
+          .eq('day_num', dayNum)
+          .ilike('officer_name', `%${cleanName}%`)
+          .maybeSingle();
+
+        if (data && !error) return data;
+      }
     } catch (e) {
       console.warn('Cloud fetch fallback:', e);
     }
   }
 
   // Fallback to localStorage
-  const key = `shift_log_${dayNum}_${empId}`;
-  const local = localStorage.getItem(key);
-  return local ? JSON.parse(local) : null;
+  if (empId) {
+    const key = `shift_log_${dayNum}_${empId}`;
+    const local = localStorage.getItem(key);
+    if (local) return JSON.parse(local);
+  }
+  if (officerName) {
+    const key = `shift_log_${dayNum}_${officerName.replace(/\s+/g, '_')}`;
+    const local = localStorage.getItem(key);
+    if (local) return JSON.parse(local);
+  }
+
+  return null;
 }
 
 // 3. Upsert Shift Log to Cloud
@@ -161,8 +184,19 @@ async function fetchAllShiftLogsCloud() {
     try {
       const { data, error } = await supabaseClient
         .from('shift_logs')
-        .select('day_num, emp_id, officer_name, rows, updated_at');
-      if (data && !error) return data;
+        .select('*');
+      if (data && !error) {
+        // Cache fetched cloud logs to localStorage for instant offline access
+        data.forEach(log => {
+          if (log.day_num && log.emp_id) {
+            localStorage.setItem(`shift_log_${log.day_num}_${log.emp_id}`, JSON.stringify(log));
+          }
+          if (log.day_num && log.officer_name) {
+            localStorage.setItem(`shift_log_${log.day_num}_${log.officer_name.replace(/\s+/g, '_')}`, JSON.stringify(log));
+          }
+        });
+        return data;
+      }
     } catch (e) {
       console.warn('Fetch all shift logs error:', e);
     }

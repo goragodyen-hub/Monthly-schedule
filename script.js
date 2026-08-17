@@ -862,7 +862,7 @@ function setFilter(f) {
 /* =============================================
    INIT
    ============================================= */
-const CURRENT_APP_VERSION = 'v47';
+const CURRENT_APP_VERSION = 'v48';
 
 function checkAppAutoUpdate() {
   const savedVersion = localStorage.getItem('chitralada_app_version');
@@ -2727,29 +2727,31 @@ async function adminViewOfficerLog(dayNum, officerName) {
   const entry = SCHEDULE.find(d => d.day === dayNum);
   const matchedKey = Object.keys(OFFICERS_REGISTRY).find(id => {
     const o = OFFICERS_REGISTRY[id];
-    return `${o.name}${o.surname}`.replace(/\s+/g, '') === officerName.replace(/\s+/g, '');
+    const fullReg = `${o.name}${o.surname}`.replace(/\s+/g, '');
+    const cleanOff = officerName.replace(/\s+/g, '');
+    return fullReg === cleanOff || cleanOff.includes(o.surname);
   });
   const empId = matchedKey || '';
   const officerObj = matchedKey ? OFFICERS_REGISTRY[matchedKey] : null;
 
   // 2. Fetch Log Data (Cloud or LocalStorage)
   let logData = null;
-  if (typeof fetchShiftLogCloud === 'function' && empId) {
-    const cloud = await fetchShiftLogCloud(dayNum, empId);
+  if (typeof fetchShiftLogCloud === 'function') {
+    const cloud = await fetchShiftLogCloud(dayNum, empId, officerName);
     if (cloud) {
       logData = {
         level: cloud.level || officerObj?.level || 'ปฏิบัติหน้าที่เวร',
-        isDay: cloud.is_day,
-        isNight: cloud.is_night,
-        name: cloud.officer_name || officerName,
+        isDay: cloud.is_day !== undefined ? cloud.is_day : cloud.isDay,
+        isNight: cloud.is_night !== undefined ? cloud.is_night : cloud.isNight,
+        name: cloud.officer_name || cloud.name || officerName,
         dayName: entry?.dayName || '',
         dayNum: dayNum,
         month: 'สิงหาคม',
         year: THAI_YEAR,
-        timeIn: cloud.time_in || '17.00 น.',
-        timeOut: cloud.time_out || '07.00 น.',
-        signatureData: cloud.sign_name || null,
-        inspectorNotes: cloud.inspector_notes || '',
+        timeIn: cloud.time_in || cloud.timeIn || '17.00 น.',
+        timeOut: cloud.time_out || cloud.timeOut || '07.00 น.',
+        signatureData: cloud.sign_name || cloud.signatureData || null,
+        inspectorNotes: cloud.inspector_notes || cloud.inspectorNotes || '',
         rows: cloud.rows || []
       };
     }
