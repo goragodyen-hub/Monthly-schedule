@@ -752,15 +752,15 @@
     </div>
   </div>
 
-  <script src="script.js?v=v36"></script>
+  <script src="script.js?v=v37"></script>
   <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=v36')
+        navigator.serviceWorker.register('./sw.js?v=v37')
           .then(reg => {
             reg.update();
-            console.log('📱 PWA Service Worker Registered & Updated v36:', reg.scope);
+            console.log('📱 PWA Service Worker Registered & Updated v37:', reg.scope);
           })
           .catch(err => console.log('⚠️ Service Worker Error:', err));
 

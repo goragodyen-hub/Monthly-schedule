@@ -860,7 +860,7 @@ function setFilter(f) {
 /* =============================================
    INIT
    ============================================= */
-const CURRENT_APP_VERSION = 'v36';
+const CURRENT_APP_VERSION = 'v37';
 
 function checkAppAutoUpdate() {
   const savedVersion = localStorage.getItem('chitralada_app_version');
@@ -2562,8 +2562,9 @@ async function renderAdminDashboard() {
 
   const cloudSavedSet = new Set();
   cloudLogs.forEach(log => {
-    if (log.rows && log.rows.length > 0) {
-      cloudSavedSet.add(`${log.day_num}_${log.emp_id}`);
+    if (log.day_num) {
+      if (log.emp_id) cloudSavedSet.add(`${log.day_num}_${log.emp_id}`);
+      if (log.officer_name) cloudSavedSet.add(`${log.day_num}_${log.officer_name.replace(/\s+/g, '')}`);
     }
   });
 
@@ -2581,12 +2582,16 @@ async function renderAdminDashboard() {
         const p = d.male[k];
         if (p) {
           const fn = `${p[0]} ${p[1]}`;
+          const eff = getEffectiveOfficer(d.day, fn);
+          const effName = eff.name;
           const matchedKey = Object.keys(OFFICERS_REGISTRY).find(id => {
             const o = OFFICERS_REGISTRY[id];
-            return `${o.name}${o.surname}`.replace(/\s+/g,'') === `${p[0]}${p[1]}`.replace(/\s+/g,'');
+            return `${o.name}${o.surname}`.replace(/\s+/g,'') === effName.replace(/\s+/g,'');
           });
           dayOfficers.push({
-            name: fn,
+            name: effName,
+            originalName: fn,
+            isSwapped: eff.isSwapped,
             empId: matchedKey || 'N/A',
             groupLabel: lbl,
             day: d.day,
@@ -2603,12 +2608,16 @@ async function renderAdminDashboard() {
         const p = d.female[k];
         if (p) {
           const fn = `${p[0]} ${p[1]}`;
+          const eff = getEffectiveOfficer(d.day, fn);
+          const effName = eff.name;
           const matchedKey = Object.keys(OFFICERS_REGISTRY).find(id => {
             const o = OFFICERS_REGISTRY[id];
-            return `${o.name}${o.surname}`.replace(/\s+/g,'') === `${p[0]}${p[1]}`.replace(/\s+/g,'');
+            return `${o.name}${o.surname}`.replace(/\s+/g,'') === effName.replace(/\s+/g,'');
           });
           dayOfficers.push({
-            name: fn,
+            name: effName,
+            originalName: fn,
+            isSwapped: eff.isSwapped,
             empId: matchedKey || 'N/A',
             groupLabel: lbl,
             day: d.day,
@@ -2624,22 +2633,20 @@ async function renderAdminDashboard() {
       totalDutyCount++;
 
       let isSaved = false;
+      const cleanOffName = off.name.replace(/\s+/g, '');
 
-      // Check Cloud Set
-      if (off.empId !== 'N/A' && cloudSavedSet.has(`${off.day}_${off.empId}`)) {
+      // Check Cloud Set by empId or officer name
+      if ((off.empId !== 'N/A' && cloudSavedSet.has(`${off.day}_${off.empId}`)) || cloudSavedSet.has(`${off.day}_${cleanOffName}`)) {
         isSaved = true;
       }
 
       // Check LocalStorage Fallback
       if (!isSaved) {
-        const key = `shift_log_${off.day}_${off.name.replace(/\s+/g, '_')}`;
-        const saved = localStorage.getItem(key);
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (parsed.rows && parsed.rows.length > 0) isSaved = true;
-          } catch(e) {}
-        }
+        const keyName = `shift_log_${off.day}_${off.name.replace(/\s+/g, '_')}`;
+        const keyEmp = `shift_log_${off.day}_${off.empId}`;
+        const saved1 = localStorage.getItem(keyName);
+        const saved2 = localStorage.getItem(keyEmp);
+        if (saved1 || saved2) isSaved = true;
       }
 
       if (isSaved) savedCount++;
@@ -2661,12 +2668,16 @@ async function renderAdminDashboard() {
         ? '<span class="status-badge-saved">🟢 บันทึกแล้ว</span>'
         : '<span class="status-badge-missing">🔴 ค้างบันทึก</span>';
 
+      const nameDisplay = off.isSwapped
+        ? `<strong>${off.name}</strong> <span class="swap-tag" style="color:#DC2626; font-weight:800; font-size:0.85em;">(แลกเวร)</span>`
+        : `<strong>${off.name}</strong>`;
+
       html += `
         <tr>
           <td><strong>วัน${off.dayName}ที่ ${off.day} ส.ค.</strong></td>
           <td>${dayTypeBadge}</td>
           <td><span class="badge-sub">${off.groupLabel}</span></td>
-          <td><strong>${off.name}</strong></td>
+          <td>${nameDisplay}</td>
           <td><code>${off.empId}</code></td>
           <td>${statusBadge}</td>
           <td>
