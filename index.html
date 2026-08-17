@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=v43">
+  <link rel="stylesheet" href="style.css?v=v44">
   <!-- PWA Meta Tags & Manifest -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="calendar.png">
@@ -598,7 +598,7 @@
     </section>
 
     <!-- Shift Swap Tab (ระบบบันทึกการแลกเวรเฉพาะ Admin) -->
-    <section class="tab-panel" id="panel-swap" role="tabpanel">
+    <section class="tab-panel no-print" id="panel-swap" role="tabpanel">
       <div class="panel-header">
         <div class="panel-title-wrap">
           <span class="panel-icon">🔄</span>
@@ -750,16 +750,16 @@
 
   <!-- Supabase JS SDK & Cloud Database Sync -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=v43"></script>
-  <script src="script.js?v=v43"></script>
+  <script src="supabase-config.js?v=v44"></script>
+  <script src="script.js?v=v44"></script>
   <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=v43')
+        navigator.serviceWorker.register('./sw.js?v=v44')
           .then(reg => {
             reg.update();
-            console.log('📱 PWA Service Worker Registered & Updated v43:', reg.scope);
+            console.log('📱 PWA Service Worker Registered & Updated v44:', reg.scope);
           })
           .catch(err => console.log('⚠️ Service Worker Error:', err));
 

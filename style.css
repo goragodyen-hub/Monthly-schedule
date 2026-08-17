@@ -1414,8 +1414,7 @@ mark.hl {
     padding: 0 !important;
     max-width: 100% !important;
   }
-  .tab-panel { display: block !important; }
-  #panel-today, #panel-calendar, #panel-table, #panel-admin {
+  .tab-panel, #panel-today, #panel-calendar, #panel-table, #panel-admin, #panel-swap {
     display: none !important;
   }
   #panel-log { display: block !important; }
