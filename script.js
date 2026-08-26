@@ -1609,7 +1609,7 @@ const DEFAULT_SWAP_RECORDS = [
     returnDateText: 'วันที่ 24 สิงหาคม 2569',
     reqName: 'นายกรกฎ เย็นคงคา',
     subName: 'นายพิชาวัจน์ เกิดเรืองสิน',
-    createdAt: '15/8/2569 21:00:00'
+    createdAt: new Date().toISOString()
   }
 ];
 
@@ -1770,7 +1770,7 @@ function handleSaveSwapRecord(event) {
     subName: subName,
     returnDateText: returnDateText,
     photoData: currentSwapPhotoBase64,
-    createdAt: new Date().toLocaleString('th-TH')
+    createdAt: new Date().toISOString()
   };
 
   const records = getSwapRecords();
@@ -1845,13 +1845,76 @@ function handleReturnDateChange() {
   }
 }
 
+function downloadExcelScheduleTemplate() {
+  if (typeof XLSX === 'undefined') {
+    alert('❌ ไม่พบไลบรารี SheetJS กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต');
+    return;
+  }
+
+  const thDays = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+  const daysInMonth = 30; // Default September template
+
+  const rows = [
+    [
+      'วันที่',
+      'วัน',
+      'วันหยุดหรือเสาร์อาทิตย์ (ใช่/ไม่ใช่)',
+      'ชื่อวันหยุด (ถ้ามี)',
+      'ชาย_กลุ่ม1 (อาคารสถานที่)',
+      'ชาย_กลุ่ม2 (ประถม)',
+      'ชาย_กลุ่ม3 (มัธยม)',
+      'หญิง_อนุบาล',
+      'หญิง_ประถม',
+      'หญิง_มัธยม'
+    ]
+  ];
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    const dateObj = new Date(2026, 8, i); // Sep 2026
+    const dayOfWeek = dateObj.getDay();
+    const isWk = (dayOfWeek === 0 || dayOfWeek === 6);
+
+    rows.push([
+      i,
+      thDays[dayOfWeek],
+      isWk ? 'ใช่' : 'ไม่ใช่',
+      '',
+      'นายนิมิต พิศงาม',
+      'นายจักกฤษ เลี่ยมจ้อย',
+      'นายสันติ หมู่คำ',
+      isWk ? 'น.ส.บรรจง สีธุรี' : '',
+      isWk ? 'น.ส.นิภาพร นิยมไทย' : '',
+      isWk ? 'น.ส.วราภา ทิณพงษ์' : ''
+    ]);
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [
+    { wch: 8 },
+    { wch: 10 },
+    { wch: 25 },
+    { wch: 18 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 22 },
+    { wch: 22 },
+    { wch: 22 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'ตารางเวร');
+  XLSX.writeFile(wb, 'schedule_template_september_2026.xlsx');
+
+  alert('📊 ดาวน์โหลดไฟล์เทมเพลต Excel (.xlsx) เรียบร้อยแล้ว! สามารถนำไฟล์นี้ไปเปิดแก้ไขใน Microsoft Excel หรือ Google Sheets แล้วนำกลับมาอัปโหลดได้ทันทีครับ');
+}
+
 function downloadScheduleTemplate() {
   const templateSchedule = [];
   const daysInMonth = 30; // Default September template
   const thDays = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
 
   for (let i = 1; i <= daysInMonth; i++) {
-    // September 1, 2026 is Tuesday (2)
     const dateObj = new Date(2026, 8, i);
     const dayOfWeek = dateObj.getDay();
     const isWk = (dayOfWeek === 0 || dayOfWeek === 6);
@@ -1888,6 +1951,103 @@ function downloadScheduleTemplate() {
   alert('📥 ดาวน์โหลดไฟล์เทมเพลตตารางเวร (.json) เรียบร้อยแล้ว! สามารถนำไฟล์นี้ไปแก้ไขรายชื่อเดือนใหม่แล้วนำกลับมาอัปโหลดได้เลยครับ');
 }
 
+function parseExcelScheduleRows(rawRows) {
+  if (!Array.isArray(rawRows) || rawRows.length === 0) return null;
+
+  function splitNameSurname(val) {
+    if (!val) return ['', ''];
+    if (Array.isArray(val)) return [String(val[0] || '').trim(), String(val[1] || '').trim()];
+    const str = String(val).trim();
+    if (!str) return ['', ''];
+    const parts = str.split(/\s+/);
+    const name = parts[0] || '';
+    const surname = parts.slice(1).join(' ') || '';
+    return [name, surname];
+  }
+
+  function getColVal(row, keyPatterns) {
+    if (!row || typeof row !== 'object') return '';
+    for (const key of Object.keys(row)) {
+      const cleanKey = key.trim().toLowerCase();
+      for (const pattern of keyPatterns) {
+        if (cleanKey.includes(pattern.toLowerCase())) {
+          return row[key];
+        }
+      }
+    }
+    return '';
+  }
+
+  const scheduleList = [];
+
+  for (let idx = 0; idx < rawRows.length; idx++) {
+    const row = rawRows[idx];
+
+    let day = parseInt(getColVal(row, ['วันที่', 'day', 'date']), 10);
+    if (isNaN(day)) {
+      if (Array.isArray(row) && typeof row[0] === 'number') {
+        day = row[0];
+      } else {
+        continue;
+      }
+    }
+
+    let dayName = String(getColVal(row, ['วัน', 'dayName', 'day_name']) || '').trim();
+    let isWkRaw = String(getColVal(row, ['วันหยุด', 'weekend', 'isweekend']) || '').trim().toLowerCase();
+    let isWk = (isWkRaw === 'ใช่' || isWkRaw === 'true' || isWkRaw === '1' || dayName === 'เสาร์' || dayName === 'อาทิตย์');
+
+    let holRaw = String(getColVal(row, ['ชื่อวันหยุด', 'holidayname', 'holiday']) || '').trim();
+    let isHoliday = (holRaw.length > 0 || isWkRaw.includes('นักขัตฤกษ์') || isWkRaw.includes('หยุด'));
+
+    let maleG1Val = getColVal(row, ['ชาย_กลุ่ม1', 'กลุ่ม1', 'กลุ่ม 1', 'g1', 'อาคารสถานที่', 'ช่าง']);
+    let maleG2Val = getColVal(row, ['ชาย_กลุ่ม2', 'กลุ่ม2', 'กลุ่ม 2', 'g2', 'ประถม']);
+    let maleG3Val = getColVal(row, ['ชาย_กลุ่ม3', 'กลุ่ม3', 'กลุ่ม 3', 'g3', 'มัธยม']);
+
+    let maleG1Name = getColVal(row, ['ชาย_กลุ่ม1_ชื่อ', 'g1_name']);
+    let maleG1Surn = getColVal(row, ['ชาย_กลุ่ม1_นามสกุล', 'g1_surname']);
+    let g1 = maleG1Name ? [String(maleG1Name).trim(), String(maleG1Surn).trim()] : splitNameSurname(maleG1Val);
+
+    let maleG2Name = getColVal(row, ['ชาย_กลุ่ม2_ชื่อ', 'g2_name']);
+    let maleG2Surn = getColVal(row, ['ชาย_กลุ่ม2_นามสกุล', 'g2_surname']);
+    let g2 = maleG2Name ? [String(maleG2Name).trim(), String(maleG2Surn).trim()] : splitNameSurname(maleG2Val);
+
+    let maleG3Name = getColVal(row, ['ชาย_กลุ่ม3_ชื่อ', 'g3_name']);
+    let maleG3Surn = getColVal(row, ['ชาย_กลุ่ม3_นามสกุล', 'g3_surname']);
+    let g3 = maleG3Name ? [String(maleG3Name).trim(), String(maleG3Surn).trim()] : splitNameSurname(maleG3Val);
+
+    let femKgVal = getColVal(row, ['หญิง_อนุบาล', 'อนุบาล', 'kg']);
+    let femPrVal = getColVal(row, ['หญิง_ประถม', 'ประถม', 'pr']);
+    let femScVal = getColVal(row, ['หญิง_มัธยม', 'มัธยม', 'sc']);
+
+    let femKgName = getColVal(row, ['หญิง_อนุบาล_ชื่อ', 'kg_name']);
+    let femKgSurn = getColVal(row, ['หญิง_อนุบาล_นามสกุล', 'kg_surname']);
+    let kg = femKgName ? [String(femKgName).trim(), String(femKgSurn).trim()] : splitNameSurname(femKgVal);
+
+    let femPrName = getColVal(row, ['หญิง_ประถม_ชื่อ', 'pr_name']);
+    let femPrSurn = getColVal(row, ['หญิง_ประถม_นามสกุล', 'pr_surname']);
+    let pr = femPrName ? [String(femPrName).trim(), String(femPrSurn).trim()] : splitNameSurname(femPrVal);
+
+    let femScName = getColVal(row, ['หญิง_มัธยม_ชื่อ', 'sc_name']);
+    let femScSurn = getColVal(row, ['หญิง_มัธยม_นามสกุล', 'sc_surname']);
+    let sc = femScName ? [String(femScName).trim(), String(femScSurn).trim()] : splitNameSurname(femScVal);
+
+    const hasFemale = (kg[0] || pr[0] || sc[0]);
+    const femaleObj = hasFemale ? { kg, pr, sc } : null;
+
+    scheduleList.push({
+      day,
+      dayName: dayName || 'วัน',
+      isWeekend: isWk,
+      isHoliday,
+      holidayName: holRaw || undefined,
+      male: { g1, g2, g3 },
+      female: femaleObj
+    });
+  }
+
+  return scheduleList;
+}
+
 function handleScheduleFileUpload(input) {
   const file = input?.files[0];
   const statusBox = document.getElementById('importStatusBox');
@@ -1895,33 +2055,61 @@ function handleScheduleFileUpload(input) {
 
   if (!file) return;
 
+  const fileName = file.name.toLowerCase();
   const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const content = e.target.result;
-      let parsed = null;
 
-      if (file.name.endsWith('.json')) {
-        parsed = JSON.parse(content);
-      } else {
-        alert('กรุณาใช้อัปโหลดไฟล์รูปแบบ .json (สามารถโหลดไฟล์เทมเพลตไปแก้ไขได้)');
-        return;
-      }
+  if (fileName.endsWith('.json')) {
+    reader.onload = function(e) {
+      try {
+        const content = e.target.result;
+        const parsed = JSON.parse(content);
 
-      if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].day && parsed[0].male) {
-        uploadedScheduleData = parsed;
-        if (statusBox && statusText) {
-          statusBox.style.display = 'block';
-          statusText.textContent = `✅ อ่านไฟล์ "${file.name}" สำเร็จ! พบข้อมูลตารางเวรจำนวน ${parsed.length} วัน กดปุ่ม "ยืนยันเปิดใช้งานตารางเดือนนี้" เพื่อบันทึกใช้งาน`;
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].day && parsed[0].male) {
+          uploadedScheduleData = parsed;
+          if (statusBox && statusText) {
+            statusBox.style.display = 'block';
+            statusText.textContent = `✅ อ่านไฟล์ JSON "${file.name}" สำเร็จ! พบข้อมูลตารางเวรจำนวน ${parsed.length} วัน กดปุ่ม "ยืนยันเปิดใช้งานตารางเดือนนี้" เพื่อบันทึกใช้งาน`;
+          }
+        } else {
+          alert('⚠️ รูปแบบโครงสร้างข้อมูลในไฟล์ JSON ไม่ถูกต้อง กรุณาใช้ไฟล์เทมเพลตที่ดาวน์โหลดจากระบบ');
         }
-      } else {
-        alert('⚠️ รูปแบบโครงสร้างข้อมูลในไฟล์ไม่ถูกต้อง กรุณาใช้ไฟล์เทมเพลตที่ดาวน์โหลดจากระบบ');
+      } catch (err) {
+        alert('❌ เกิดข้อผิดพลาดในการอ่านไฟล์ JSON: ' + err.message);
       }
-    } catch (err) {
-      alert('❌ เกิดข้อผิดพลาดในการอ่านไฟล์: ' + err.message);
+    };
+    reader.readAsText(file);
+  } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || fileName.endsWith('.csv')) {
+    if (typeof XLSX === 'undefined') {
+      alert('❌ ไม่พบไลบรารี SheetJS สำหรับอ่านไฟล์ Excel กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่อีกครั้ง');
+      return;
     }
-  };
-  reader.readAsText(file);
+    reader.onload = function(e) {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+        const parsed = parseExcelScheduleRows(rawRows);
+
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].day && parsed[0].male) {
+          uploadedScheduleData = parsed;
+          if (statusBox && statusText) {
+            statusBox.style.display = 'block';
+            statusText.textContent = `✅ อ่านไฟล์ Excel "${file.name}" สำเร็จ! พบข้อมูลตารางเวรจำนวน ${parsed.length} วัน กดปุ่ม "ยืนยันเปิดใช้งานตารางเดือนนี้" เพื่อบันทึกใช้งาน`;
+          }
+        } else {
+          alert('⚠️ ไม่สามารถแปลงข้อมูลในไฟล์ Excel ได้ กรุณาตรวจสอบหัวข้อคอลัมน์ หรือดาวน์โหลดไฟล์เทมเพลต Excel (.xlsx) จากระบบไปใช้');
+        }
+      } catch (err) {
+        alert('❌ เกิดข้อผิดพลาดในการอ่านไฟล์ Excel: ' + err.message);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  } else {
+    alert('⚠️ รองรับเฉพาะไฟล์รูปแบบ .xlsx, .xls, .csv และ .json เท่านั้น');
+  }
 }
 
 function applyImportedSchedule() {

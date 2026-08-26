@@ -208,6 +208,14 @@ async function fetchAllShiftLogsCloud() {
 async function saveSwapRecordCloud(swapRecord) {
   if (isSupabaseOnline && supabaseClient) {
     try {
+      let isoCreatedAt = new Date().toISOString();
+      if (swapRecord.createdAt) {
+        const parsed = new Date(swapRecord.createdAt);
+        if (!isNaN(parsed.getTime())) {
+          isoCreatedAt = parsed.toISOString();
+        }
+      }
+
       const { data, error } = await supabaseClient
         .from('shift_swap_records')
         .upsert({
@@ -219,9 +227,10 @@ async function saveSwapRecordCloud(swapRecord) {
           sub_name: swapRecord.subName,
           return_date_text: swapRecord.returnDateText,
           photo_data: swapRecord.photoData,
-          created_at: swapRecord.createdAt || new Date().toISOString()
+          created_at: isoCreatedAt
         }, { onConflict: 'id' });
-      if (!error) console.log('☁️ Swap record synced to Supabase Cloud!');
+      if (error) console.error('❌ Supabase swap record sync error:', error);
+      else console.log('☁️ Swap record synced to Supabase Cloud!');
     } catch (e) {
       console.warn('Cloud swap sync fallback:', e);
     }

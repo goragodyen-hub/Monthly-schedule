@@ -18,8 +18,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="ตารางเวร">
 
-  <!-- Supabase JS Client SDK -->
+  <!-- Supabase JS Client SDK & SheetJS (Excel Parser) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="supabase-config.js?v=v3"></script>
 </head>
 <body>
@@ -528,12 +529,17 @@
             <span style="font-size:24px;">📅</span>
             <div>
               <h3 style="font-size:15px; font-weight:800; color:var(--text); margin:0;">นำเข้า / จัดการตารางเวรประจำเดือนใหม่ (Import Monthly Schedule)</h3>
-              <p style="font-size:12px; color:var(--text3); margin:2px 0 0 0;">เลือกเดือน/ปี และอัปโหลดไฟล์ตารางเวร (.json / .csv) หรือเลือกสลับดูตารางเวรเดือนที่ต้องการ</p>
+              <p style="font-size:12px; color:var(--text3); margin:2px 0 0 0;">เลือกเดือน/ปี และอัปโหลดไฟล์ตารางเวร (.xlsx / .xls / .json / .csv) หรือเลือกสลับดูตารางเวรเดือนที่ต้องการ</p>
             </div>
           </div>
-          <button type="button" class="btn-action btn-secondary" onclick="downloadScheduleTemplate()" style="padding:6px 12px; font-size:12px; display:inline-flex; align-items:center; gap:4px;">
-            <span>📥</span> ดาวน์โหลดไฟล์เทมเพลต (.json)
-          </button>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn-action btn-secondary" onclick="downloadExcelScheduleTemplate()" style="padding:6px 12px; font-size:12px; display:inline-flex; align-items:center; gap:4px; background:linear-gradient(135deg, #107C41, #1F4E3D); color:#fff; border:none; box-shadow:0 2px 6px rgba(16,124,65,0.25);">
+              <span>📊</span> ดาวน์โหลดเทมเพลต Excel (.xlsx)
+            </button>
+            <button type="button" class="btn-action btn-secondary" onclick="downloadScheduleTemplate()" style="padding:6px 12px; font-size:12px; display:inline-flex; align-items:center; gap:4px;">
+              <span>📥</span> ดาวน์โหลดเทมเพลต (.json)
+            </button>
+          </div>
         </div>
 
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; align-items:end;">
@@ -549,8 +555,8 @@
           </div>
 
           <div class="lic-field">
-            <label class="lic-label" style="font-size:12.5px; font-weight:700; margin-bottom:4px;">📤 อัปโหลดไฟล์ตารางเวรเดือนใหม่ (.json/.csv):</label>
-            <input type="file" id="importScheduleFileInput" accept=".json,.csv" class="lic-input" style="padding:6px 10px; font-size:12px;" onchange="handleScheduleFileUpload(this)">
+            <label class="lic-label" style="font-size:12.5px; font-weight:700; margin-bottom:4px;">📤 อัปโหลดไฟล์ตารางเวรเดือนใหม่ (.xlsx / .xls / .json / .csv):</label>
+            <input type="file" id="importScheduleFileInput" accept=".xlsx,.xls,.json,.csv" class="lic-input" style="padding:6px 10px; font-size:12px;" onchange="handleScheduleFileUpload(this)">
           </div>
 
           <div class="lic-field" style="display:flex; gap:8px;">
