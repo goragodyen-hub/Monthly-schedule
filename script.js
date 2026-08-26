@@ -257,6 +257,39 @@ let SCHED_YEAR  = 2026;
 let SCHED_MONTH = 7;          // 0-indexed → August
 const THAI_YEAR   = 2569;
 
+const THAI_FULL_MONTHS = [
+  "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+  "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+];
+
+function toThaiDigits(num) {
+  const thaiDigits = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
+  return String(num).replace(/[0-9]/g, d => thaiDigits[parseInt(d, 10)]);
+}
+
+function updateAppMonthDisplay() {
+  const monthName = THAI_FULL_MONTHS[SCHED_MONTH] || 'สิงหาคม';
+  const thaiYearNum = toThaiDigits(SCHED_YEAR + 543);
+  const fullMonthText = `${monthName} ${thaiYearNum}`;
+
+  const headerEl = document.getElementById('appHeaderTitle');
+  if (headerEl) headerEl.textContent = `ตารางเวร ${fullMonthText}`;
+
+  const sbMonthEl = document.getElementById('sbMonthLabel');
+  if (sbMonthEl) sbMonthEl.textContent = fullMonthText;
+
+  const calHeaderEl = document.getElementById('calMonthHeader');
+  if (calHeaderEl) calHeaderEl.textContent = fullMonthText;
+
+  const fmMonthEl = document.getElementById('fmMonth');
+  if (fmMonthEl) fmMonthEl.value = monthName;
+
+  const fmYearEl = document.getElementById('fmYear');
+  if (fmYearEl) fmYearEl.value = SCHED_YEAR + 543;
+
+  document.title = `ตารางเวร${monthName} ${thaiYearNum} - โรงเรียนจิตรลดา`;
+}
+
 const SHIFT = {
   weekday:           '17:00 – 07:00 น.',
   weekend_male_g1:   '24 ชั่วโมง',
@@ -561,7 +594,7 @@ function renderToday() {
       <div class="no-duty">
         <div class="no-duty-icon">📭</div>
         <p class="no-duty-title">ไม่มีตารางเวรสำหรับวันนี้</p>
-        <p class="no-duty-sub">ตารางนี้ครอบคลุมเดือนสิงหาคม ๒๕๖๙ เท่านั้น</p>
+        <p class="no-duty-sub">ตารางนี้ครอบคลุมเดือน${THAI_FULL_MONTHS[SCHED_MONTH] || 'สิงหาคม'} ${toThaiDigits(SCHED_YEAR + 543)} เท่านั้น</p>
       </div>`;
     return;
   }
@@ -570,7 +603,7 @@ function renderToday() {
 
   // Hero left
   document.getElementById('todayDayName').textContent  = `วัน${entry.dayName}`;
-  document.getElementById('todayDateText').textContent = `${entry.day} สิงหาคม ${THAI_YEAR}`;
+  document.getElementById('todayDateText').textContent = `${entry.day} ${THAI_FULL_MONTHS[SCHED_MONTH] || 'สิงหาคม'} ${toThaiDigits(SCHED_YEAR + 543)}`;
 
   let badgesHtml = '';
   if (entry.isHoliday) {
@@ -647,7 +680,7 @@ function renderCalendar() {
     }
 
     html += `
-      <div class="${cls}" onclick="openModal(${day})" title="${entry?.dayName || ''} ${day} สิงหาคม ${THAI_YEAR}">
+      <div class="${cls}" onclick="openModal(${day})" title="${entry?.dayName || ''} ${day} ${THAI_FULL_MONTHS[SCHED_MONTH] || 'สิงหาคม'} ${toThaiDigits(SCHED_YEAR + 543)}">
         ${todayLabel}
         <div class="cal-cell-num">${day}</div>
         <div class="cal-cell-dow">${entry?.dayName || ''}</div>
@@ -670,7 +703,7 @@ function openModal(day) {
   const isTod = isToday(day);
 
   document.getElementById('modalHeading').textContent =
-    `วัน${entry.dayName}ที่ ${day} สิงหาคม ${THAI_YEAR}${isTod ? ' — วันนี้' : ''}`;
+    `วัน${entry.dayName}ที่ ${day} ${THAI_FULL_MONTHS[SCHED_MONTH] || 'สิงหาคม'} ${toThaiDigits(SCHED_YEAR + 543)}${isTod ? ' — วันนี้' : ''}`;
 
   let badgesHtml = '';
   if (entry.isHoliday) {
@@ -1063,8 +1096,8 @@ function onLogOfficerChange() {
 
   document.getElementById('fmDayName').value = entry.dayName;
   document.getElementById('fmDayNum').value  = entry.day;
-  document.getElementById('fmMonth').value   = 'สิงหาคม';
-  document.getElementById('fmYear').value    = THAI_YEAR;
+  document.getElementById('fmMonth').value   = THAI_FULL_MONTHS[SCHED_MONTH] || 'สิงหาคม';
+  document.getElementById('fmYear').value    = SCHED_YEAR + 543;
 
   updateLiveSignaturePreview();
 
@@ -2327,7 +2360,7 @@ function applyImportedSchedule() {
     SCHED_MONTH = targetMonth;
     SCHED_YEAR = targetYear;
 
-    alert(`🎉 นำเข้าและเปิดใช้งานตารางเวรประจำเดือน "${THAI_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
+    alert(`🎉 นำเข้าและเปิดใช้งานตารางเวรประจำเดือน "${THAI_FULL_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
   } else {
     // Check if custom schedule already exists in localStorage
     const storageKey = `custom_schedule_${val}`;
@@ -2338,24 +2371,25 @@ function applyImportedSchedule() {
       parsed.forEach(item => SCHEDULE.push(item));
       SCHED_MONTH = targetMonth;
       SCHED_YEAR = targetYear;
-      alert(`🔄 สลับแสดงตารางเวรประจำเดือน "${THAI_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
+      alert(`🔄 สลับแสดงตารางเวรประจำเดือน "${THAI_FULL_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
     } else if (targetMonth === 8 && targetYear === 2026 && typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
       SCHEDULE.length = 0;
       SCHEDULE_SEPTEMBER_2026.forEach(item => SCHEDULE.push(item));
       SCHED_MONTH = targetMonth;
       SCHED_YEAR = targetYear;
-      alert(`🔄 สลับแสดงตารางเวรประจำเดือน "${THAI_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
+      alert(`🔄 สลับแสดงตารางเวรประจำเดือน "${THAI_FULL_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
     } else if (targetMonth === 7 && targetYear === 2026) {
       // Default August 2026 schedule
       location.reload();
       return;
     } else {
-      alert(`ℹ️ ยังไม่มีไฟล์ตารางเวรของเดือน "${THAI_MONTHS[targetMonth]} ${targetYear + 543}" กรุณาอัปโหลดไฟล์ตารางเวรประจำเดือนก่อนกดบันทึก`);
+      alert(`ℹ️ ยังไม่มีไฟล์ตารางเวรของเดือน "${THAI_FULL_MONTHS[targetMonth]} ${targetYear + 543}" กรุณาอัปโหลดไฟล์ตารางเวรประจำเดือนก่อนกดบันทึก`);
       return;
     }
   }
 
   // Re-render UI
+  updateAppMonthDisplay();
   buildTable();
   renderToday();
   renderAdminDashboard();
