@@ -1951,6 +1951,161 @@ function downloadScheduleTemplate() {
   alert('📥 ดาวน์โหลดไฟล์เทมเพลตตารางเวร (.json) เรียบร้อยแล้ว! สามารถนำไฟล์นี้ไปแก้ไขรายชื่อเดือนใหม่แล้วนำกลับมาอัปโหลดได้เลยครับ');
 }
 
+function parseThaiInt(val) {
+  if (val === null || val === undefined) return NaN;
+  let str = String(val).trim();
+  const thaiDigits = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
+  for (let i = 0; i < 10; i++) {
+    str = str.replaceAll(thaiDigits[i], String(i));
+  }
+  return parseInt(str, 10);
+}
+
+function parseExcelScheduleMatrix(matrix) {
+  if (!Array.isArray(matrix) || matrix.length === 0) return null;
+
+  function splitNameSurname(val) {
+    if (!val) return ['', ''];
+    if (Array.isArray(val)) return [String(val[0] || '').trim(), String(val[1] || '').trim()];
+    let str = String(val).trim();
+    if (!str) return ['', ''];
+    str = str.replace(/[\r\n]+/g, ' ');
+    const parts = str.split(/\s+/);
+    const name = parts[0] || '';
+    const surname = parts.slice(1).join(' ') || '';
+    return [name, surname];
+  }
+
+  // 1. Find Header Row
+  let headerRowIdx = -1;
+  for (let r = 0; r < Math.min(matrix.length, 25); r++) {
+    const row = matrix[r];
+    if (!Array.isArray(row)) continue;
+    const rowStr = row.map(c => String(c || '').trim().toLowerCase()).join(' ');
+    if (rowStr.includes('วันที่') || rowStr.includes('วัน') || rowStr.includes('date') || rowStr.includes('day')) {
+      headerRowIdx = r;
+      break;
+    }
+  }
+
+  // Fallback: search row followed by numeric day 1
+  if (headerRowIdx === -1) {
+    for (let r = 0; r < Math.min(matrix.length - 1, 25); r++) {
+      const nextRow = matrix[r + 1];
+      if (Array.isArray(nextRow) && parseThaiInt(nextRow[0]) === 1) {
+        headerRowIdx = r;
+        break;
+      }
+    }
+  }
+
+  let dayCol = 0;
+  let dayNameCol = 1;
+  let maleG1Col = -1;
+  let maleG2Col = -1;
+  let maleG3Col = -1;
+  let femKgCol = -1;
+  let femPrCol = -1;
+  let femScCol = -1;
+  let holCol = -1;
+
+  if (headerRowIdx !== -1) {
+    const headerRow = matrix[headerRowIdx].map(c => String(c || '').trim());
+
+    for (let c = 0; c < headerRow.length; c++) {
+      const txt = headerRow[c].toLowerCase();
+      if (txt.includes('วันที่') || txt === 'day' || txt === 'date' || txt === 'ลำดับ') {
+        dayCol = c;
+      } else if (txt === 'วัน' || txt.includes('dayname') || txt.includes('day_name')) {
+        dayNameCol = c;
+      } else if (txt.includes('วันหยุด') || txt.includes('หมายเหตุ') || txt.includes('holiday')) {
+        holCol = c;
+      }
+    }
+
+    for (let c = 0; c < headerRow.length; c++) {
+      if (c === dayCol || c === dayNameCol || c === holCol) continue;
+      const txt = headerRow[c].toLowerCase();
+
+      if (txt.includes('กลุ่ม1') || txt.includes('กลุ่ม 1') || txt.includes('g1') || txt.includes('อาคารสถานที่') || txt.includes('ช่าง')) {
+        maleG1Col = c;
+      } else if (txt.includes('กลุ่ม2') || txt.includes('กลุ่ม 2') || txt.includes('g2') || (txt.includes('ชาย') && txt.includes('ประถม'))) {
+        maleG2Col = c;
+      } else if (txt.includes('กลุ่ม3') || txt.includes('กลุ่ม 3') || txt.includes('g3') || (txt.includes('ชาย') && txt.includes('มัธยม'))) {
+        maleG3Col = c;
+      } else if (txt.includes('อนุบาล') || txt.includes('kg') || txt.includes('หญิง_อนุบาล')) {
+        femKgCol = c;
+      } else if (txt.includes('หญิง_ประถม') || (txt.includes('หญิง') && txt.includes('ประถม'))) {
+        femPrCol = c;
+      } else if (txt.includes('หญิง_มัธยม') || (txt.includes('หญิง') && txt.includes('มัธยม'))) {
+        femScCol = c;
+      } else if (txt.includes('ประถม')) {
+        if (maleG2Col === -1) maleG2Col = c;
+        else if (femPrCol === -1) femPrCol = c;
+      } else if (txt.includes('มัธยม')) {
+        if (maleG3Col === -1) maleG3Col = c;
+        else if (femScCol === -1) femScCol = c;
+      }
+    }
+  }
+
+  if (maleG1Col === -1) maleG1Col = 2;
+  if (maleG2Col === -1) maleG2Col = 3;
+  if (maleG3Col === -1) maleG3Col = 4;
+  if (femKgCol === -1) femKgCol = 5;
+  if (femPrCol === -1) femPrCol = 6;
+  if (femScCol === -1) femScCol = 7;
+
+  const startRow = (headerRowIdx !== -1) ? headerRowIdx + 1 : 0;
+  const scheduleList = [];
+
+  for (let r = startRow; r < matrix.length; r++) {
+    const row = matrix[r];
+    if (!Array.isArray(row) || row.length === 0) continue;
+
+    let day = parseThaiInt(row[dayCol]);
+    if (isNaN(day) || day < 1 || day > 31) {
+      for (let c = 0; c < Math.min(row.length, 4); c++) {
+        const candidateDay = parseThaiInt(row[c]);
+        if (!isNaN(candidateDay) && candidateDay >= 1 && candidateDay <= 31) {
+          day = candidateDay;
+          break;
+        }
+      }
+    }
+    if (isNaN(day) || day < 1 || day > 31) continue;
+
+    let dayName = String(row[dayNameCol] || '').trim();
+    let isWk = (dayName === 'เสาร์' || dayName === 'อาทิตย์');
+
+    let holRaw = (holCol !== -1 && row[holCol]) ? String(row[holCol]).trim() : '';
+    let isHoliday = (holRaw.length > 0 || holRaw.includes('หยุด') || holRaw.includes('นักขัตฤกษ์'));
+
+    let g1 = splitNameSurname(row[maleG1Col]);
+    let g2 = splitNameSurname(row[maleG2Col]);
+    let g3 = splitNameSurname(row[maleG3Col]);
+
+    let kg = splitNameSurname(row[femKgCol]);
+    let pr = splitNameSurname(row[femPrCol]);
+    let sc = splitNameSurname(row[femScCol]);
+
+    const hasFemale = (kg[0] || pr[0] || sc[0]);
+    const femaleObj = hasFemale ? { kg, pr, sc } : null;
+
+    scheduleList.push({
+      day,
+      dayName: dayName || 'วัน',
+      isWeekend: isWk,
+      isHoliday,
+      holidayName: holRaw || undefined,
+      male: { g1, g2, g3 },
+      female: femaleObj
+    });
+  }
+
+  return scheduleList;
+}
+
 function parseExcelScheduleRows(rawRows) {
   if (!Array.isArray(rawRows) || rawRows.length === 0) return null;
 
@@ -1983,7 +2138,7 @@ function parseExcelScheduleRows(rawRows) {
   for (let idx = 0; idx < rawRows.length; idx++) {
     const row = rawRows[idx];
 
-    let day = parseInt(getColVal(row, ['วันที่', 'day', 'date']), 10);
+    let day = parseThaiInt(getColVal(row, ['วันที่', 'day', 'date']));
     if (isNaN(day)) {
       if (Array.isArray(row) && typeof row[0] === 'number') {
         day = row[0];
@@ -2089,9 +2244,16 @@ function handleScheduleFileUpload(input) {
         const workbook = XLSX.read(data, { type: 'array' });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+        
+        // 1. Try Matrix Array-of-Arrays first (handles title rows, offsets, Thai numbers ๑-๓๑)
+        const matrix = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+        let parsed = parseExcelScheduleMatrix(matrix);
 
-        const parsed = parseExcelScheduleRows(rawRows);
+        // 2. Fallback to Object-based array if matrix parsing was empty
+        if (!Array.isArray(parsed) || parsed.length === 0) {
+          const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+          parsed = parseExcelScheduleRows(rawRows);
+        }
 
         if (Array.isArray(parsed) && parsed.length > 0 && parsed[0].day && parsed[0].male) {
           uploadedScheduleData = parsed;
