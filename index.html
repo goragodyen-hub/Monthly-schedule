@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ตารางการอยู่เวรของพนักงานประจำเดือน สิงหาคม ๒๕๖๙ — ค้นหา กรอง ดูปฏิทิน และบันทึกเวรประจำวัน">
-  <title>ตารางเวรสิงหาคม ๒๕๖๙ - โรงเรียนจิตรลดา</title>
+  <meta name="description" content="ตารางการอยู่เวรของพนักงาน โรงเรียนจิตรลดา — ค้นหา กรอง ดูปฏิทิน และบันทึกเวรประจำวัน">
+  <title>ตารางเวร - โรงเรียนจิตรลดา</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -74,7 +74,7 @@
         <div class="header-brand">
           <img src="CD Logo TH_Black.svg" alt="ตราโรงเรียนจิตรลดา" style="height: 38px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));">
           <div class="brand-text">
-            <h1 id="appHeaderTitle">ตารางเวร สิงหาคม ๒๕๖๙</h1>
+            <h1 id="appHeaderTitle">ตารางเวร</h1>
             <p>โรงเรียนจิตรลดา</p>
           </div>
         </div>
@@ -107,7 +107,7 @@
       <button class="sb-close-btn" onclick="closeMenu()" aria-label="ปิดเมนู">✕</button>
     </div>
 
-    <div class="sb-section-label" id="sbMonthLabel">สิงหาคม ๒๕๖๙</div>
+    <div class="sb-section-label" id="sbMonthLabel">ตารางเวรประจำเดือน</div>
 
     <!-- Quick Employee ID Login Box -->
     <div class="sb-emp-login glass" style="margin: 0 10px 14px; padding: 12px; border-radius: 8px;">
@@ -186,9 +186,13 @@
     <section class="tab-panel" id="panel-calendar" role="tabpanel">
       <div class="calendar-wrapper">
         <div class="calendar-top">
-          <div class="calendar-month-title">
+          <div class="calendar-month-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span class="cal-month-icon">📅</span>
-            <h2 id="calMonthHeader">สิงหาคม ๒๕๖๙</h2>
+            <h2 id="calMonthHeader">ตารางเวรประจำเดือน</h2>
+            <select id="calMonthSelect" class="lic-input" style="width:auto; padding:4px 10px; font-size:12.5px; font-weight:700; border-radius:18px; margin-left:6px;" onchange="handleViewMonthChange(this)" title="สลับดูตารางเวรประจำเดือน">
+              <option value="9-2026">กันยายน ๒๕๖๙ (ปัจจุบัน)</option>
+              <option value="8-2026">สิงหาคม ๒๕๖๙</option>
+            </select>
           </div>
           <div class="cal-legend">
             <span class="leg-item"><span class="leg-dot weekday-dot"></span>วันทำงาน</span>
@@ -204,11 +208,20 @@
     <!-- TABLE VIEW -->
     <section class="tab-panel" id="panel-table" role="tabpanel">
       <div class="table-controls">
-        <div class="search-wrap">
-          <span class="search-icon-el">🔍</span>
-          <input type="text" id="searchInput" class="search-input"
-                 placeholder="ค้นหาชื่อ นามสกุล หรือกลุ่มเวร..." oninput="handleSearch()">
-          <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearch()" style="display:none;" aria-label="ล้างการค้นหา">✕</button>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+          <div class="search-wrap" style="flex:1; min-width:260px; margin-bottom:0;">
+            <span class="search-icon-el">🔍</span>
+            <input type="text" id="searchInput" class="search-input"
+                   placeholder="ค้นหาชื่อ นามสกุล หรือกลุ่มเวร..." oninput="handleSearch()">
+            <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearch()" style="display:none;" aria-label="ล้างการค้นหา">✕</button>
+          </div>
+          <div style="display:inline-flex; align-items:center; gap:6px; flex-shrink:0;">
+            <label for="viewMonthSelect" style="font-size:12.5px; font-weight:700; color:var(--text2); white-space:nowrap;">📆 ตารางเดือน:</label>
+            <select id="viewMonthSelect" class="lic-input" style="width:auto; padding:5px 12px; font-size:12.5px; font-weight:700; border-radius:18px;" onchange="handleViewMonthChange(this)" title="สลับดูตารางเวรประจำเดือน">
+              <option value="9-2026">กันยายน ๒๕๖๙ (ปัจจุบัน)</option>
+              <option value="8-2026">สิงหาคม ๒๕๖๙</option>
+            </select>
+          </div>
         </div>
         <div class="filter-row">
           <span class="filter-row-label">กรอง:</span>
@@ -315,7 +328,7 @@
           </div>
           <div class="lic-field">
             <label class="lic-label">เดือน</label>
-            <input type="text" id="fmMonth" class="lic-input" placeholder="สิงหาคม">
+            <input type="text" id="fmMonth" class="lic-input" placeholder="เดือน">
           </div>
           <div class="lic-field lic-field-xs">
             <label class="lic-label">พ.ศ.</label>
@@ -546,8 +559,8 @@
           <div class="lic-field">
             <label class="lic-label" style="font-size:12.5px; font-weight:700; margin-bottom:4px;">📆 เลือกเดือน/ปี ประจำตารางเวร:</label>
             <select id="importMonthSelect" class="lic-input" style="font-weight:700;" onchange="handleMonthSelectChange(this)">
-              <option value="8-2026">สิงหาคม ๒๕๖๙ (ปัจจุบัน)</option>
-              <option value="9-2026">กันยายน ๒๕๖๙</option>
+              <option value="9-2026">กันยายน ๒๕๖๙ (ปัจจุบัน)</option>
+              <option value="8-2026">สิงหาคม ๒๕๖๙</option>
               <option value="10-2026">ตุลาคม ๒๕๖๙</option>
               <option value="11-2026">พฤศจิกายน ๒๕๖๙</option>
               <option value="12-2026">ธันวาคม ๒๕๖๙</option>
@@ -757,15 +770,15 @@
   <!-- Supabase JS SDK & Cloud Database Sync -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js?v=v49"></script>
-  <script src="script.js?v=v51"></script>
+  <script src="script.js?v=v52"></script>
   <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=v51')
+        navigator.serviceWorker.register('./sw.js?v=v52')
           .then(reg => {
             reg.update();
-            console.log('📱 PWA Service Worker Registered & Updated v51:', reg.scope);
+            console.log('📱 PWA Service Worker Registered & Updated v52:', reg.scope);
           })
           .catch(err => console.log('⚠️ Service Worker Error:', err));
 

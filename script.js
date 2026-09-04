@@ -114,7 +114,7 @@ const OFFICERS_REGISTRY = {
   'admin': { emp_id:'admin', name:'ผู้ดูแลระบบ', surname:'(Admin)', groupKey:'g1', gender:'male', level:'ผู้ดูแลระบบ', isAdmin:true }
 };
 
-const SCHEDULE = [
+const SCHEDULE_AUGUST_2026 = [
   // ── Week 1 ──────────────────────────────────
   { day:1,  dayName:'เสาร์',      isWeekend:true,  isHoliday:false,
     male:   { g1:['นายนิมิต','พิศงาม'],        g2:['นายจักกฤษ','เลี่ยมจ้อย'],  g3:['นายสันติ','หมู่คำ']          },
@@ -250,25 +250,204 @@ const SCHEDULE = [
   }
 ];
 
+const SCHEDULE_SEPTEMBER_2026 = [
+  { day: 1, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายนันทกา', 'เสาวรส'], g2: ['นายณัฐพล', 'เพ็ญชอบ'], g3: ['นายสมพร', 'แฝงคด'] }, female: null },
+  { day: 2, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายนิมิต', 'พิศงาม'], g2: ['นายพุฒิพงศ์', 'แจ้งศรี'], g3: ['นายนิยุต', 'ยิ่งยงกิจ'] }, female: null },
+  { day: 3, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายขนัด', 'ไม่พรั่นใจ'], g2: ['นายสมชาย', 'ผ่องจำปา'], g3: ['นายกิตติศักดิ์', 'เกิดแก่นแก้ว'] }, female: null },
+  { day: 4, dayName: 'ศุกร์', isWeekend: false, isHoliday: false, male: { g1: ['นายแกม', 'โสนาพูน'], g2: ['นายเฉลิมชัย', 'เทียบพิมพ์'], g3: ['นายปราโมทย์', 'ศรีสดใส'] }, female: null },
+  { day: 5, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายอัษฎางค์', 'สังเกตุกิจ'], g2: ['นายเฉลิม', 'เหล่าชวลิตกุล'], g3: ['นายกรกฎ', 'เย็นคงคา'] }, female: { kg: ['น.ส.อรัญญา', 'สุดแสง'], pr: ['น.ส.วิชุดา', 'ชูผลา'], sc: ['นางหฤทัย', 'เพราะทอง'] } },
+  { day: 6, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายสหรัฐ', 'มาผาสุข'], g2: ['นายสุริยา', 'กิตติกลาง'], g3: ['นายพิชาวัจน์', 'เกิดเรืองสิน'] }, female: { kg: ['นางพิสมัย', 'บุญโสดากรณ์'], pr: ['น.ส.ไพริน', 'จันทวงษ์'], sc: ['นางนิตยา', 'สายสู่'] } },
+  { day: 7, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายจินฑาทิพย์', 'สว่างเมฆ'], g2: ['นายวิรัตน์', 'สุขจำลอง'], g3: ['นายธารา', 'ก้อนนาค'] }, female: null },
+  { day: 8, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายสมบัติ', 'เกิดปั้น'], g2: ['นายสุชานนท์', 'สิงห์สุพรรณ'], g3: ['นายสมสมัคร', 'กองน้ำ'] }, female: null },
+  { day: 9, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายอดิเรก', 'จันทร์โฮ้วมณี'], g2: ['นายจักกฤษ', 'เลี่ยมจ้อย'], g3: ['นายสันติ', 'หมู่คำ'] }, female: null },
+  { day: 10, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายธงชัย', 'เจียมสง่า'], g2: ['นายอานนท์', 'เลี่ยมจ้อย'], g3: ['นายประเสริฐ', 'เงินเก่า'] }, female: null },
+  { day: 11, dayName: 'ศุกร์', isWeekend: false, isHoliday: false, male: { g1: ['นายจุมพล', 'ดุษฎีพฤฒิพันธุ์'], g2: ['นายสุเมธ', 'ผ่อสุขสวัสดิ์'], g3: ['นายสัมพันธ์', 'ชาติทอง'] }, female: null },
+  { day: 12, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายมนตรี', 'สุพะลัม'], g2: ['นายนรินทร์', 'เกตุชิต'], g3: ['นายสวิท', 'ยวงทอง'] }, female: { kg: ['น.ส.ประไพ', 'เรือเสาร์'], pr: ['น.ส.จินตนา', 'แท่งทอง'], sc: ['นางปรารถนา', 'สุพรรณเมือง'] } },
+  { day: 13, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายกิตติภูมิ', 'คงจันทร์'], g2: ['นายสุรเชษฐ์', 'ศรีขำ'], g3: ['นายประสิทธิ์', 'กิตติกลาง'] }, female: { kg: ['นางทิพย์', 'อุดมสุข'], pr: ['นางอ้อมใจ', 'อมราภินันท์'], sc: ['น.ส.บุญทาน', 'จูมดอก'] } },
+  { day: 14, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายสุรินทร์', 'เพชรแท้'], g2: ['นายณัฐพล', 'เพ็ญชอบ'], g3: ['นายสมพร', 'แฝงคด'] }, female: null },
+  { day: 15, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายวรเวทย์', 'อินคง'], g2: ['นายพุฒิพงศ์', 'แจ้งศรี'], g3: ['นายนิยุต', 'ยิ่งยงกิจ'] }, female: null },
+  { day: 16, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายสมพร', 'สีจีน'], g2: ['นายสมชาย', 'ผ่องจำปา'], g3: ['นายกิตติศักดิ์', 'เกิดแก่นแก้ว'] }, female: null },
+  { day: 17, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายนันทกา', 'เสาวรส'], g2: ['นายเฉลิมชัย', 'เทียบพิมพ์'], g3: ['นายสุเมต', 'เอี่ยมมาตร'] }, female: null },
+  { day: 18, dayName: 'ศุกร์', isWeekend: false, isHoliday: false, male: { g1: ['นายนิมิต', 'พิศงาม'], g2: ['นายเฉลิม', 'เหล่าชวลิตกุล'], g3: ['นายกรกฎ', 'เย็นคงคา'] }, female: null },
+  { day: 19, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายขนัด', 'ไม่พรั่นใจ'], g2: ['นายสุริยา', 'กิตติกลาง'], g3: ['นายพิชาวัจน์', 'เกิดเรืองสิน'] }, female: { kg: ['นางธนพร', 'เรียบร้อย'], pr: ['น.ส.ภาณิชา', 'เกิดเรืองสิน'], sc: ['น.ส.วาสนา', 'ปานาราช'] } },
+  { day: 20, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายแกม', 'โสนาพูน'], g2: ['นายวิรัตน์', 'สุขจำลอง'], g3: ['นายธารา', 'ก้อนนาค'] }, female: { kg: ['น.ส.สมยงค์', 'ติมุลา'], pr: ['น.ส.พรปรียา', 'ทรัพย์กลิ่น'], sc: ['นางดวงพร', 'สุดเสริฐสิน'] } },
+  { day: 21, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายอัษฎางค์', 'สังเกตุกิจ'], g2: ['นายสุชานนท์', 'สิงห์สุพรรณ'], g3: ['นายสมสมัคร', 'กองน้ำ'] }, female: null },
+  { day: 22, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายสหรัฐ', 'มาผาสุข'], g2: ['นายจักกฤษ', 'เลี่ยมจ้อย'], g3: ['นายสันติ', 'หมู่คำ'] }, female: null },
+  { day: 23, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายจินฑาทิพย์', 'สว่างเมฆ'], g2: ['นายอานนท์', 'เลี่ยมจ้อย'], g3: ['นายประเสริฐ', 'เงินเก่า'] }, female: null },
+  { day: 24, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายสมบัติ', 'เกิดปั้น'], g2: ['นายสุเมธ', 'ผ่อสุขสวัสดิ์'], g3: ['นายสัมพันธ์', 'ชาติทอง'] }, female: null },
+  { day: 25, dayName: 'ศุกร์', isWeekend: false, isHoliday: false, male: { g1: ['นายอดิเรก', 'จันทร์โฮ้วมณี'], g2: ['นายนรินทร์', 'เกตุชิต'], g3: ['นายสวิท', 'ยวงทอง'] }, female: null },
+  { day: 26, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายธงชัย', 'เจียมสง่า'], g2: ['นายสุรเชษฐ์', 'ศรีขำ'], g3: ['นายประสิทธิ์', 'กิตติกลาง'] }, female: { kg: ['น.ส.สมศรี', 'ก้อนนาค'], pr: ['นางสุภารีย์', 'วิโรจน์ศิริ'], sc: ['น.ส.วราภา', 'ทิณพงษ์'] } },
+  { day: 27, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายจุมพล', 'ดุษฎีพฤฒิพันธุ์'], g2: ['นายณัฐพล', 'เพ็ญชอบ'], g3: ['นายสมพร', 'แฝงคด'] }, female: { kg: ['น.ส.ยุวรี', 'ชัชวาลย์'], pr: ['น.ส.สุชาดา', 'บุรีชัย'], sc: ['น.ส.เกตวดี', 'จันทร์เพ็ชร'] } },
+  { day: 28, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายมนตรี', 'สุพะลัม'], g2: ['นายพุฒิพงศ์', 'แจ้งศรี'], g3: ['นายนิยุต', 'ยิ่งยงกิจ'] }, female: null },
+  { day: 29, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายกิตติภูมิ', 'คงจันทร์'], g2: ['นายสมชาย', 'ผ่องจำปา'], g3: ['นายกิตติศักดิ์', 'เกิดแก่นแก้ว'] }, female: null },
+  { day: 30, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายสุรินทร์', 'เพชรแท้'], g2: ['นายเฉลิมชัย', 'เทียบพิมพ์'], g3: ['นายสุเมต', 'เอี่ยมมาตร'] }, female: null }
+];
+
+const SCHEDULE = [];
+
 /* =============================================
-   CONSTANTS
+   CONSTANTS & MONTH HELPERS
    ============================================= */
-let SCHED_YEAR  = 2026;
-let SCHED_MONTH = 7;          // 0-indexed → August
-const THAI_YEAR   = 2569;
+const _initialNow = new Date();
+let SCHED_YEAR  = _initialNow.getFullYear();
+let SCHED_MONTH = _initialNow.getMonth(); // 0-indexed: 7=August, 8=September
+const THAI_YEAR   = SCHED_YEAR + 543;
 
 const THAI_FULL_MONTHS = [
   "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
   "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
 ];
 
+const THAI_MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
 function toThaiDigits(num) {
   const thaiDigits = ['๐','๑','๒','๓','๔','๕','๖','๗','๘','๙'];
   return String(num).replace(/[0-9]/g, d => thaiDigits[parseInt(d, 10)]);
 }
 
+function initActiveMonthSchedule() {
+  const now = new Date();
+  const curMonth = now.getMonth();     // 0-indexed: 7=August, 8=September
+  const curYear  = now.getFullYear();  // e.g. 2026
+
+  let targetMonth = curMonth;
+  let targetYear  = curYear;
+
+  // 1. Session storage (user explicitly selected month during current browsing session)
+  const sessionMonth = sessionStorage.getItem('active_schedule_month');
+  const savedActiveMonth = localStorage.getItem('active_schedule_month'); // e.g. "9-2026" or old "8-2026"
+
+  // Remove old August default from localStorage so it never forces August again
+  if (savedActiveMonth === '8-2026') {
+    localStorage.removeItem('active_schedule_month');
+  }
+
+  if (sessionMonth) {
+    const parts = sessionMonth.split('-');
+    if (parts.length === 2) {
+      targetMonth = parseInt(parts[0], 10) - 1;
+      targetYear = parseInt(parts[1], 10);
+    }
+  } else if (savedActiveMonth && savedActiveMonth !== '8-2026') {
+    const parts = savedActiveMonth.split('-');
+    if (parts.length === 2) {
+      const sm = parseInt(parts[0], 10) - 1;
+      const sy = parseInt(parts[1], 10);
+      const customKey = `custom_schedule_${parts[0]}-${parts[1]}`;
+      // Only keep localStorage if custom schedule exists or if it's current/future
+      if (localStorage.getItem(customKey) || sy > curYear || (sy === curYear && sm >= curMonth)) {
+        targetMonth = sm;
+        targetYear = sy;
+      }
+    }
+  }
+
+  // 2. Load schedule data for targetMonth and targetYear
+  const customKey = `custom_schedule_${targetMonth + 1}-${targetYear}`;
+  const savedCustom = localStorage.getItem(customKey);
+
+  SCHEDULE.length = 0;
+  if (savedCustom) {
+    try {
+      const parsed = JSON.parse(savedCustom);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        parsed.forEach(item => SCHEDULE.push(item));
+        SCHED_MONTH = targetMonth;
+        SCHED_YEAR = targetYear;
+      }
+    } catch (e) {
+      console.error('Failed to parse saved custom schedule', e);
+    }
+  }
+
+  if (SCHEDULE.length === 0) {
+    if (targetMonth === 8 && targetYear === 2026 && typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
+      SCHEDULE_SEPTEMBER_2026.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = 8;
+      SCHED_YEAR = 2026;
+    } else if (targetMonth === 7 && targetYear === 2026 && typeof SCHEDULE_AUGUST_2026 !== 'undefined') {
+      SCHEDULE_AUGUST_2026.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = 7;
+      SCHED_YEAR = 2026;
+    } else if (curMonth === 8 && curYear === 2026 && typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
+      SCHEDULE_SEPTEMBER_2026.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = 8;
+      SCHED_YEAR = 2026;
+    } else if (typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
+      // Default to current preloaded schedule (September 2026)
+      SCHEDULE_SEPTEMBER_2026.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = 8;
+      SCHED_YEAR = 2026;
+    } else if (typeof SCHEDULE_AUGUST_2026 !== 'undefined') {
+      SCHEDULE_AUGUST_2026.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = 7;
+      SCHED_YEAR = 2026;
+    }
+  }
+
+  updateAppMonthDisplay();
+}
+
+// Run initial active month schedule setup immediately
+initActiveMonthSchedule();
+
+function switchScheduleMonth(targetMonth, targetYear) {
+  const mVal = `${targetMonth + 1}-${targetYear}`;
+  sessionStorage.setItem('active_schedule_month', mVal);
+  localStorage.setItem('active_schedule_month', mVal);
+
+  const customKey = `custom_schedule_${mVal}`;
+  const savedCustom = localStorage.getItem(customKey);
+  SCHEDULE.length = 0;
+
+  if (savedCustom) {
+    try {
+      const parsed = JSON.parse(savedCustom);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        parsed.forEach(item => SCHEDULE.push(item));
+        SCHED_MONTH = targetMonth;
+        SCHED_YEAR = targetYear;
+      }
+    } catch(e) {}
+  }
+
+  if (SCHEDULE.length === 0) {
+    if (targetMonth === 8 && targetYear === 2026 && typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
+      SCHEDULE_SEPTEMBER_2026.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = 8;
+      SCHED_YEAR = 2026;
+    } else if (targetMonth === 7 && targetYear === 2026 && typeof SCHEDULE_AUGUST_2026 !== 'undefined') {
+      SCHEDULE_AUGUST_2026.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = 7;
+      SCHED_YEAR = 2026;
+    }
+  }
+
+  calRendered = false;
+  tableRendered = false;
+  updateAppMonthDisplay();
+  buildTable();
+  renderToday();
+  if (document.getElementById('calendarGrid')) {
+    renderCalendar();
+    calRendered = true;
+  }
+  if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
+  if (typeof initShiftLog === 'function') initShiftLog();
+}
+
+function handleViewMonthChange(selectEl) {
+  if (!selectEl || !selectEl.value) return;
+  const parts = selectEl.value.split('-');
+  if (parts.length === 2) {
+    const m = parseInt(parts[0], 10) - 1;
+    const y = parseInt(parts[1], 10);
+    switchScheduleMonth(m, y);
+  }
+}
+
 function updateAppMonthDisplay() {
-  const monthName = THAI_FULL_MONTHS[SCHED_MONTH] || 'สิงหาคม';
+  const monthName = THAI_FULL_MONTHS[SCHED_MONTH] || 'กันยายน';
   const thaiYearNum = toThaiDigits(SCHED_YEAR + 543);
   const fullMonthText = `${monthName} ${thaiYearNum}`;
 
@@ -288,6 +467,16 @@ function updateAppMonthDisplay() {
   if (fmYearEl) fmYearEl.value = SCHED_YEAR + 543;
 
   document.title = `ตารางเวร${monthName} ${thaiYearNum} - โรงเรียนจิตรลดา`;
+
+  const mVal = `${SCHED_MONTH + 1}-${SCHED_YEAR}`;
+  const sel = document.getElementById('importMonthSelect');
+  if (sel) sel.value = mVal;
+
+  const selView = document.getElementById('viewMonthSelect');
+  if (selView) selView.value = mVal;
+
+  const calSel = document.getElementById('calMonthSelect');
+  if (calSel) calSel.value = mVal;
 }
 
 const SHIFT = {
@@ -350,7 +539,6 @@ function shiftForEntry(entry, type, gKey) {
    CLOCK
    ============================================= */
 const THAI_DAYS   = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
-const THAI_MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 
 function tickClock() {
   const n  = new Date();
@@ -636,7 +824,7 @@ function renderToday() {
    ============================================= */
 function renderCalendar() {
   const firstDow = new Date(SCHED_YEAR, SCHED_MONTH, 1).getDay(); // 0=Sun, 6=Sat
-  const daysInMonth = 31;
+  const daysInMonth = SCHEDULE.length > 0 ? Math.max(...SCHEDULE.map(s => s.day)) : new Date(SCHED_YEAR, SCHED_MONTH + 1, 0).getDate();
 
   const DOWS = [
     {l:'อา',cls:'sun'},{l:'จ',cls:''},{l:'อ',cls:''},{l:'พ',cls:''},
@@ -680,7 +868,7 @@ function renderCalendar() {
     }
 
     html += `
-      <div class="${cls}" onclick="openModal(${day})" title="${entry?.dayName || ''} ${day} ${THAI_FULL_MONTHS[SCHED_MONTH] || 'สิงหาคม'} ${toThaiDigits(SCHED_YEAR + 543)}">
+      <div class="${cls}" onclick="openModal(${day})" title="${entry?.dayName || ''} ${day} ${THAI_FULL_MONTHS[SCHED_MONTH] || 'กันยายน'} ${toThaiDigits(SCHED_YEAR + 543)}">
         ${todayLabel}
         <div class="cal-cell-num">${day}</div>
         <div class="cal-cell-dow">${entry?.dayName || ''}</div>
@@ -703,7 +891,7 @@ function openModal(day) {
   const isTod = isToday(day);
 
   document.getElementById('modalHeading').textContent =
-    `วัน${entry.dayName}ที่ ${day} ${THAI_FULL_MONTHS[SCHED_MONTH] || 'สิงหาคม'} ${toThaiDigits(SCHED_YEAR + 543)}${isTod ? ' — วันนี้' : ''}`;
+    `วัน${entry.dayName}ที่ ${day} ${THAI_FULL_MONTHS[SCHED_MONTH] || 'กันยายน'} ${toThaiDigits(SCHED_YEAR + 543)}${isTod ? ' — วันนี้' : ''}`;
 
   let badgesHtml = '';
   if (entry.isHoliday) {
@@ -728,8 +916,6 @@ function closeModal() {
   if (box) box.classList.remove('modal-box-lg');
   document.body.style.overflow = '';
 }
-
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 /* =============================================
    TABLE VIEW
@@ -857,7 +1043,7 @@ function buildTable() {
     html += `
       <tr class="${todayCls} ${firstCls}" onclick="openModal(${r.day})">
         <td>${r.dayName}</td>
-        <td>${isFirst ? `${r.day} ส.ค. ๒๕๖๙` : ''}</td>
+        <td>${isFirst ? `${r.day} ${THAI_MONTHS[SCHED_MONTH] || 'ก.ย.'} ${toThaiDigits(SCHED_YEAR + 543)}` : ''}</td>
         <td>${isFirst ? typeBadge : ''}</td>
         <td><span class="t-group-badge ${r.gKey}">${r.gLabel}</span></td>
         <td>${highlight(r.full)}</td>
@@ -895,7 +1081,7 @@ function setFilter(f) {
 /* =============================================
    INIT
    ============================================= */
-const CURRENT_APP_VERSION = 'v51';
+const CURRENT_APP_VERSION = 'v52';
 
 function checkAppAutoUpdate() {
   const savedVersion = localStorage.getItem('chitralada_app_version');
@@ -933,6 +1119,7 @@ async function forceRefreshApp() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initActiveMonthSchedule();
   checkAppAutoUpdate();
   tickClock();
   setInterval(tickClock, 1000);
@@ -953,6 +1140,9 @@ function initShiftLog() {
   if (!dateSel) return;
 
   dateSel.innerHTML = '';
+  const monthAbbr = THAI_MONTHS[SCHED_MONTH] || 'ก.ย.';
+  const thaiYrDigits = toThaiDigits(SCHED_YEAR + 543);
+  const daysInMonth = SCHEDULE.length > 0 ? Math.max(...SCHEDULE.map(s => s.day)) : new Date(SCHED_YEAR, SCHED_MONTH + 1, 0).getDate();
 
   if (loggedInOfficer && !loggedInOfficer.isAdmin) {
     const fullName = `${loggedInOfficer.name} ${loggedInOfficer.surname}`;
@@ -964,7 +1154,7 @@ function initShiftLog() {
         if (d) {
           const opt = document.createElement('option');
           opt.value = d.day;
-          opt.textContent = `วัน${d.dayName}ที่ ${d.day} ส.ค. ๒๕๖๙ (${d.isHoliday ? d.holidayName : (d.isWeekend ? 'วันหยุด' : 'วันทำงาน')})`;
+          opt.textContent = `วัน${d.dayName}ที่ ${d.day} ${monthAbbr} ${thaiYrDigits} (${d.isHoliday ? d.holidayName : (d.isWeekend ? 'วันหยุด' : 'วันทำงาน')})`;
           dateSel.appendChild(opt);
         }
       });
@@ -976,15 +1166,15 @@ function initShiftLog() {
       dateSel.appendChild(opt);
     }
   } else {
-    // Admin or No Login: Show all 31 days
+    // Admin or No Login: Show all days in active month
     SCHEDULE.forEach(d => {
       const opt = document.createElement('option');
       opt.value = d.day;
-      opt.textContent = `วัน${d.dayName}ที่ ${d.day} ส.ค. ๒๕๖๙ (${d.isHoliday ? d.holidayName : (d.isWeekend ? 'วันหยุด' : 'วันทำงาน')})`;
+      opt.textContent = `วัน${d.dayName}ที่ ${d.day} ${monthAbbr} ${thaiYrDigits} (${d.isHoliday ? d.holidayName : (d.isWeekend ? 'วันหยุด' : 'วันทำงาน')})`;
       dateSel.appendChild(opt);
     });
     const t = todayNum();
-    if (t.month === SCHED_MONTH && t.year === SCHED_YEAR && t.day >= 1 && t.day <= 31) {
+    if (t.month === SCHED_MONTH && t.year === SCHED_YEAR && t.day >= 1 && t.day <= daysInMonth) {
       dateSel.value = t.day;
     } else {
       dateSel.value = 1;
@@ -1230,7 +1420,7 @@ async function saveShiftLog() {
     await saveShiftLogCloud(data);
   }
 
-  alert(`🚀 ส่งใบบันทึกเวรของ ${data.name} (วันที่ ${data.dayNum} ส.ค.) เรียบร้อยแล้ว!`);
+  alert(`🚀 ส่งใบบันทึกเวรของ ${data.name} (วันที่ ${data.dayNum} ${THAI_MONTHS[SCHED_MONTH] || 'ก.ย.'}) เรียบร้อยแล้ว!`);
   checkMissingPastLogs();
   return data;
 }
@@ -1247,7 +1437,8 @@ async function checkMissingPastLogs() {
   const fullName = `${loggedInOfficer.name} ${loggedInOfficer.surname}`;
   const scheduledDays = findDaysForOfficer(fullName);
   const t = todayNum();
-  const currentDay = (t.month === SCHED_MONTH && t.year === SCHED_YEAR && t.day >= 1 && t.day <= 31) ? t.day : 31;
+  const daysInMonth = SCHEDULE.length > 0 ? Math.max(...SCHEDULE.map(s => s.day)) : new Date(SCHED_YEAR, SCHED_MONTH + 1, 0).getDate();
+  const currentDay = (t.month === SCHED_MONTH && t.year === SCHED_YEAR && t.day >= 1 && t.day <= daysInMonth) ? t.day : daysInMonth;
 
   // Filter days before currentDay that haven't been submitted
   const missingDays = [];
@@ -1286,8 +1477,8 @@ async function checkMissingPastLogs() {
     const firstMissing = missingDays[0];
     banner.style.display = 'flex';
     banner.innerHTML = `
-      <span>⚠️ <strong>แจ้งเตือน:</strong> คุณยังไม่ได้ส่งใบบันทึกเวรย้อนหลัง (วันที่ ${missingDays.join(', ')} ส.ค.)</span>
-      <button class="btn-jump-day" onclick="jumpToMissingLog(${firstMissing})">📝 กรอกวันที่ ${firstMissing} ส.ค.</button>
+      <span>⚠️ <strong>แจ้งเตือน:</strong> คุณยังไม่ได้ส่งใบบันทึกเวรย้อนหลัง (วันที่ ${missingDays.join(', ')} ${THAI_MONTHS[SCHED_MONTH] || 'ก.ย.'})</span>
+      <button class="btn-jump-day" onclick="jumpToMissingLog(${firstMissing})">📝 กรอกวันที่ ${firstMissing} ${THAI_MONTHS[SCHED_MONTH] || 'ก.ย.'}</button>
     `;
   } else {
     banner.style.display = 'none';
@@ -1404,8 +1595,8 @@ function printShiftForm() {
   const nameVal     = document.getElementById('fmName')?.value || '';
   const dayNameVal  = document.getElementById('fmDayName')?.value || schedEntry?.dayName || '';
   const dayNumVal   = document.getElementById('fmDayNum')?.value || daySelVal || '';
-  const monthVal    = document.getElementById('fmMonth')?.value || 'สิงหาคม';
-  const yearVal     = document.getElementById('fmYear')?.value || THAI_YEAR || '2569';
+  const monthVal    = document.getElementById('fmMonth')?.value || THAI_FULL_MONTHS[SCHED_MONTH] || 'กันยายน';
+  const yearVal     = document.getElementById('fmYear')?.value || (SCHED_YEAR + 543) || '2569';
   // Shift Time Fallback calculation if inputs are empty
   let defaultTimeIn = '17.00 น.';
   let defaultTimeOut = '07.00 น.';
@@ -1878,38 +2069,7 @@ function handleReturnDateChange() {
   }
 }
 
-const SCHEDULE_SEPTEMBER_2026 = [
-  { day: 1, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายนันทกา', 'เสาวรส'], g2: ['นายณัฐพล', 'เพ็ญชอบ'], g3: ['นายสมพร', 'แฝงคด'] }, female: null },
-  { day: 2, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายนิมิต', 'พิศงาม'], g2: ['นายพุฒิพงศ์', 'แจ้งศรี'], g3: ['นายนิยุต', 'ยิ่งยงกิจ'] }, female: null },
-  { day: 3, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายขนัด', 'ไม่พรั่นใจ'], g2: ['นายสมชาย', 'ผ่องจำปา'], g3: ['นายกิตติศักดิ์', 'เกิดแก่นแก้ว'] }, female: null },
-  { day: 4, dayName: 'ศุกร์', isWeekend: false, isHoliday: false, male: { g1: ['นายแกม', 'โสนาพูน'], g2: ['นายเฉลิมชัย', 'เทียบพิมพ์'], g3: ['นายปราโมทย์', 'ศรีสดใส'] }, female: null },
-  { day: 5, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายอัษฎางค์', 'สังเกตุกิจ'], g2: ['นายเฉลิม', 'เหล่าชวลิตกุล'], g3: ['นายกรกฎ', 'เย็นคงคา'] }, female: { kg: ['น.ส.อรัญญา', 'สุดแสง'], pr: ['น.ส.วิชุดา', 'ชูผลา'], sc: ['นางหฤทัย', 'เพราะทอง'] } },
-  { day: 6, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายสหรัฐ', 'มาผาสุข'], g2: ['นายสุริยา', 'กิตติกลาง'], g3: ['นายพิชาวัจน์', 'เกิดเรืองสิน'] }, female: { kg: ['นางพิสมัย', 'บุญโสดากรณ์'], pr: ['น.ส.ไพริน', 'จันทวงษ์'], sc: ['นางนิตยา', 'สายสู่'] } },
-  { day: 7, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายจินฑาทิพย์', 'สว่างเมฆ'], g2: ['นายวิรัตน์', 'สุขจำลอง'], g3: ['นายธารา', 'ก้อนนาค'] }, female: null },
-  { day: 8, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายสมบัติ', 'เกิดปั้น'], g2: ['นายสุชานนท์', 'สิงห์สุพรรณ'], g3: ['นายสมสมัคร', 'กองน้ำ'] }, female: null },
-  { day: 9, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายอดิเรก', 'จันทร์โฮ้วมณี'], g2: ['นายจักกฤษ', 'เลี่ยมจ้อย'], g3: ['นายสันติ', 'หมู่คำ'] }, female: null },
-  { day: 10, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายธงชัย', 'เจียมสง่า'], g2: ['นายอานนท์', 'เลี่ยมจ้อย'], g3: ['นายประเสริฐ', 'เงินเก่า'] }, female: null },
-  { day: 11, dayName: 'ศุกร์', isWeekend: false, isHoliday: false, male: { g1: ['นายจุมพล', 'ดุษฎีพฤฒิพันธุ์'], g2: ['นายสุเมธ', 'ผ่อสุขสวัสดิ์'], g3: ['นายสัมพันธ์', 'ชาติทอง'] }, female: null },
-  { day: 12, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายมนตรี', 'สุพะลัม'], g2: ['นายนรินทร์', 'เกตุชิต'], g3: ['นายสวิท', 'ยวงทอง'] }, female: { kg: ['น.ส.ประไพ', 'เรือเสาร์'], pr: ['น.ส.จินตนา', 'แท่งทอง'], sc: ['นางปรารถนา', 'สุพรรณเมือง'] } },
-  { day: 13, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายกิตติภูมิ', 'คงจันทร์'], g2: ['นายสุรเชษฐ์', 'ศรีขำ'], g3: ['นายประสิทธิ์', 'กิตติกลาง'] }, female: { kg: ['นางทิพย์', 'อุดมสุข'], pr: ['นางอ้อมใจ', 'อมราภินันท์'], sc: ['น.ส.บุญทาน', 'จูมดอก'] } },
-  { day: 14, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายสุรินทร์', 'เพชรแท้'], g2: ['นายณัฐพล', 'เพ็ญชอบ'], g3: ['นายสมพร', 'แฝงคด'] }, female: null },
-  { day: 15, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายวรเวทย์', 'อินคง'], g2: ['นายพุฒิพงศ์', 'แจ้งศรี'], g3: ['นายนิยุต', 'ยิ่งยงกิจ'] }, female: null },
-  { day: 16, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายสมพร', 'สีจีน'], g2: ['นายสมชาย', 'ผ่องจำปา'], g3: ['นายกิตติศักดิ์', 'เกิดแก่นแก้ว'] }, female: null },
-  { day: 17, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายนันทกา', 'เสาวรส'], g2: ['นายเฉลิมชัย', 'เทียบพิมพ์'], g3: ['นายสุเมต', 'เอี่ยมมาตร'] }, female: null },
-  { day: 18, dayName: 'ศุกร์', isWeekend: false, isHoliday: false, male: { g1: ['นายนิมิต', 'พิศงาม'], g2: ['นายเฉลิม', 'เหล่าชวลิตกุล'], g3: ['นายกรกฎ', 'เย็นคงคา'] }, female: null },
-  { day: 19, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายขนัด', 'ไม่พรั่นใจ'], g2: ['นายสุริยา', 'กิตติกลาง'], g3: ['นายพิชาวัจน์', 'เกิดเรืองสิน'] }, female: { kg: ['นางธนพร', 'เรียบร้อย'], pr: ['น.ส.ภาณิชา', 'เกิดเรืองสิน'], sc: ['น.ส.วาสนา', 'ปานาราช'] } },
-  { day: 20, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายแกม', 'โสนาพูน'], g2: ['นายวิรัตน์', 'สุขจำลอง'], g3: ['นายธารา', 'ก้อนนาค'] }, female: { kg: ['น.ส.สมยงค์', 'ติมุลา'], pr: ['น.ส.พรปรียา', 'ทรัพย์กลิ่น'], sc: ['นางดวงพร', 'สุดเสริฐสิน'] } },
-  { day: 21, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายอัษฎางค์', 'สังเกตุกิจ'], g2: ['นายสุชานนท์', 'สิงห์สุพรรณ'], g3: ['นายสมสมัคร', 'กองน้ำ'] }, female: null },
-  { day: 22, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายสหรัฐ', 'มาผาสุข'], g2: ['นายจักกฤษ', 'เลี่ยมจ้อย'], g3: ['นายสันติ', 'หมู่คำ'] }, female: null },
-  { day: 23, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายจินฑาทิพย์', 'สว่างเมฆ'], g2: ['นายอานนท์', 'เลี่ยมจ้อย'], g3: ['นายประเสริฐ', 'เงินเก่า'] }, female: null },
-  { day: 24, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายสมบัติ', 'เกิดปั้น'], g2: ['นายสุเมธ', 'ผ่อสุขสวัสดิ์'], g3: ['นายสัมพันธ์', 'ชาติทอง'] }, female: null },
-  { day: 25, dayName: 'ศุกร์', isWeekend: false, isHoliday: false, male: { g1: ['นายอดิเรก', 'จันทร์โฮ้วมณี'], g2: ['นายนรินทร์', 'เกตุชิต'], g3: ['นายสวิท', 'ยวงทอง'] }, female: null },
-  { day: 26, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายธงชัย', 'เจียมสง่า'], g2: ['นายสุรเชษฐ์', 'ศรีขำ'], g3: ['นายประสิทธิ์', 'กิตติกลาง'] }, female: { kg: ['น.ส.สมศรี', 'ก้อนนาค'], pr: ['นางสุภารีย์', 'วิโรจน์ศิริ'], sc: ['น.ส.วราภา', 'ทิณพงษ์'] } },
-  { day: 27, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายจุมพล', 'ดุษฎีพฤฒิพันธุ์'], g2: ['นายณัฐพล', 'เพ็ญชอบ'], g3: ['นายสมพร', 'แฝงคด'] }, female: { kg: ['น.ส.ยุวรี', 'ชัชวาลย์'], pr: ['น.ส.สุชาดา', 'บุรีชัย'], sc: ['น.ส.เกตวดี', 'จันทร์เพ็ชร'] } },
-  { day: 28, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายมนตรี', 'สุพะลัม'], g2: ['นายพุฒิพงศ์', 'แจ้งศรี'], g3: ['นายนิยุต', 'ยิ่งยงกิจ'] }, female: null },
-  { day: 29, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายกิตติภูมิ', 'คงจันทร์'], g2: ['นายสมชาย', 'ผ่องจำปา'], g3: ['นายกิตติศักดิ์', 'เกิดแก่นแก้ว'] }, female: null },
-  { day: 30, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายสุรินทร์', 'เพชรแท้'], g2: ['นายเฉลิมชัย', 'เทียบพิมพ์'], g3: ['นายสุเมต', 'เอี่ยมมาตร'] }, female: null }
-];
+
 
 function downloadExcelScheduleTemplate() {
   if (typeof XLSX === 'undefined') {
@@ -2353,6 +2513,7 @@ function applyImportedSchedule() {
     // Save imported data to localStorage
     const storageKey = `custom_schedule_${val}`;
     localStorage.setItem(storageKey, JSON.stringify(uploadedScheduleData));
+    localStorage.setItem('active_schedule_month', val);
 
     // Activate schedule
     SCHEDULE.length = 0;
@@ -2371,17 +2532,22 @@ function applyImportedSchedule() {
       parsed.forEach(item => SCHEDULE.push(item));
       SCHED_MONTH = targetMonth;
       SCHED_YEAR = targetYear;
+      localStorage.setItem('active_schedule_month', val);
       alert(`🔄 สลับแสดงตารางเวรประจำเดือน "${THAI_FULL_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
     } else if (targetMonth === 8 && targetYear === 2026 && typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
       SCHEDULE.length = 0;
       SCHEDULE_SEPTEMBER_2026.forEach(item => SCHEDULE.push(item));
       SCHED_MONTH = targetMonth;
       SCHED_YEAR = targetYear;
+      localStorage.setItem('active_schedule_month', val);
       alert(`🔄 สลับแสดงตารางเวรประจำเดือน "${THAI_FULL_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
-    } else if (targetMonth === 7 && targetYear === 2026) {
-      // Default August 2026 schedule
-      location.reload();
-      return;
+    } else if (targetMonth === 7 && targetYear === 2026 && typeof SCHEDULE_AUGUST_2026 !== 'undefined') {
+      SCHEDULE.length = 0;
+      SCHEDULE_AUGUST_2026.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = targetMonth;
+      SCHED_YEAR = targetYear;
+      localStorage.setItem('active_schedule_month', val);
+      alert(`🔄 สลับแสดงตารางเวรประจำเดือน "${THAI_FULL_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
     } else {
       alert(`ℹ️ ยังไม่มีไฟล์ตารางเวรของเดือน "${THAI_FULL_MONTHS[targetMonth]} ${targetYear + 543}" กรุณาอัปโหลดไฟล์ตารางเวรประจำเดือนก่อนกดบันทึก`);
       return;
@@ -2462,65 +2628,123 @@ function renderSwapRecordsTable() {
   });
 }
 
-function viewSwapPhotoModal(recordId) {
-  const records = getSwapRecords();
-  const rec = records.find(r => r.id === recordId);
-  if (!rec || !rec.photoData) return;
+function renderAdminDashboardTable() {
+  const tbody = document.getElementById('adminDashboardTbody');
+  if (!tbody) return;
+  let html = '';
+  let totalDutyCount = 0;
+  let savedCount = 0;
+  let missingCount = 0;
 
-  document.getElementById('modalHeading').textContent = `รูปถ่ายเอกสารขอแลกเวร (${rec.shiftDateText})`;
-  document.getElementById('modalHeadBadges').innerHTML = `
-    <span class="type-badge weekday">ผู้ขอแลก: ${rec.reqName}</span>
-    <span class="type-badge weekend">ผู้รับแทน: ${rec.subName}</span>
-  `;
+  for (const off of adminFilteredData) {
+    const status = checkOfficerLogStatus(off.day, off.name);
+    totalDutyCount++;
+    if (status.exists) savedCount++;
+    else missingCount++;
 
-  document.getElementById('modalContent').innerHTML = `
-    <div style="text-align:center;">
-      <img src="${rec.photoData}" style="max-width:100%; max-height:70vh; object-fit:contain; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.15);">
-      <div style="margin-top:16px;">
-        <a href="${rec.photoData}" download="shift_swap_${rec.day}.png" class="btn-action btn-primary" style="text-decoration:none;">
-          📥 ดาวน์โหลดรูปถ่ายเอกสาร
-        </a>
-      </div>
-    </div>
-  `;
+    const dayTypeBadge = off.isWeekend ? '<span class="badge-type holiday">วันหยุด</span>' : '<span class="badge-type workday">วันทำการ</span>';
+    const statusBadge = status.exists ? '<span class="status-badge success">✅ มีบันทึก</span>' : '<span class="status-badge warning">⏳ รอทำรายการ</span>';
+    const nameDisplay = status.exists ? `<strong>${off.name}</strong>` : `<span style="color:var(--text3)">${off.name}</span>`;
 
-  const backdrop = document.getElementById('modalBackdrop');
-  backdrop.style.display = 'flex';
+    html += `
+      <tr>
+        <td><strong>วัน${off.dayName}ที่ ${off.day} ${THAI_MONTHS[SCHED_MONTH] || ''}</strong></td>
+        <td>${dayTypeBadge}</td>
+        <td><span class="badge-sub">${off.groupLabel}</span></td>
+        <td>${nameDisplay}</td>
+        <td><code>${off.empId}</code></td>
+        <td>${statusBadge}</td>
+        <td>
+          <button class="btn-sm btn-ghost" onclick="adminViewOfficerLog(${off.day}, '${off.name}')">🔍 เปิดดูฟอร์ม</button>
+        </td>
+      </tr>
+    `;
+  }
+
+  const statTotal = document.getElementById('adminStatTotal');
+  const statSaved = document.getElementById('adminStatSaved');
+  const statMissing = document.getElementById('adminStatMissing');
+  const statRate = document.getElementById('adminStatRate');
+
+  if (statTotal) statTotal.textContent = totalDutyCount;
+  if (statSaved) statSaved.textContent = savedCount;
+  if (statMissing) statMissing.textContent = missingCount;
+  const rate = totalDutyCount > 0 ? Math.round((savedCount / totalDutyCount) * 100) : 0;
+  if (statRate) statRate.textContent = `${rate}%`;
+
+  tbody.innerHTML = html || `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text3);">📭 ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td></tr>`;
+}
+
+async function adminViewOfficerLog(dayNum, officerName) {
+  const modal = document.getElementById('adminA4Modal');
+  const container = document.getElementById('adminA4Container');
+  if (!modal || !container) return;
+
+  container.innerHTML = `<div style="text-align:center; padding:40px; font-size:15px; color:#475569;">⏳ กำลังโหลดเอกสารใบบันทึกเวร...</div>`;
+  modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-}
 
-async function deleteSwapRecord(recordId) {
-  if (!confirm('คุณต้องการลบรายการขอแลกเวรนี้ใช่หรือไม่?')) return;
-  let records = getSwapRecords();
-  records = records.filter(r => r.id !== recordId);
-  
-  saveSwapRecords(records);
-  if (records.length === 0) {
-    localStorage.setItem('shift_swap_records_cleared', 'true');
+  // 1. Resolve officer info
+  const entry = SCHEDULE.find(d => d.day === dayNum);
+  const matchedKey = Object.keys(OFFICERS_REGISTRY).find(id => {
+    const o = OFFICERS_REGISTRY[id];
+    const fullReg = `${o.name}${o.surname}`.replace(/\s+/g, '');
+    const cleanOff = officerName.replace(/\s+/g, '');
+    return fullReg === cleanOff || cleanOff.includes(o.surname);
+  });
+  const empId = matchedKey || '';
+  const officerObj = matchedKey ? OFFICERS_REGISTRY[matchedKey] : null;
+
+  // 2. Fetch Log Data (Cloud or LocalStorage)
+  let logData = null;
+  if (typeof fetchShiftLogCloud === 'function') {
+    const cloud = await fetchShiftLogCloud(dayNum, empId, officerName);
+    if (cloud) {
+      logData = {
+        level: cloud.level || officerObj?.level || 'ปฏิบัติหน้าที่เวร',
+        isDay: cloud.is_day !== undefined ? cloud.is_day : cloud.isDay,
+        isNight: cloud.is_night !== undefined ? cloud.is_night : cloud.isNight,
+        name: cloud.officer_name || cloud.name || officerName,
+        dayName: entry?.dayName || '',
+        dayNum: dayNum,
+        month: THAI_FULL_MONTHS[SCHED_MONTH] || '',
+        year: SCHED_YEAR + 543,
+        timeIn: cloud.time_in || cloud.timeIn || '17.00 น.',
+        timeOut: cloud.time_out || cloud.timeOut || '07.00 น.',
+        signatureData: cloud.sign_name || cloud.signatureData || null,
+        inspectorNotes: cloud.inspector_notes || cloud.inspectorNotes || '',
+        rows: cloud.rows || []
+      };
+    }
   }
 
-  if (typeof deleteSwapRecordCloud === 'function') {
-    await deleteSwapRecordCloud(recordId);
+  if (!logData) {
+    const localKey = `shift_log_${dayNum}_${officerName.replace(/\s+/g, '_')}`;
+    const local = localStorage.getItem(localKey);
+    if (local) {
+      try { logData = JSON.parse(local); } catch(e){}
+    }
   }
 
-  renderSwapRecordsTable();
-  if (window.buildTable) window.buildTable();
-  if (window.renderToday) window.renderToday();
-  if (window.initShiftLog) window.initShiftLog();
-  calRendered = false;
-}
-
-/* =============================================
-   SIGNATURE PAD ENGINE (PORTED FROM INK-INVENTORY)
-   ============================================= */
-let sigCanvas = null;
-let sigCtx = null;
-let isSigDrawing = false;
-
-function initSignaturePad() {
-  sigCanvas = document.getElementById('signature-pad');
-  if (!sigCanvas) return;
-  const btnClear = document.getElementById('btn-clear-signature');
+  // Fallback default draft if no saved log exists
+  if (!logData) {
+    const isNight = officerObj ? officerObj.type === 'male' : true;
+    logData = {
+      level: officerObj?.level || 'ปฏิบัติหน้าที่เวร',
+      isDay: !isNight,
+      isNight: isNight,
+      name: officerName,
+      dayName: entry?.dayName || '',
+      dayNum: dayNum,
+      month: THAI_FULL_MONTHS[SCHED_MONTH] || '',
+      year: SCHED_YEAR + 543,
+      timeIn: isNight ? '17.00 น.' : '08.00 น.',
+      timeOut: isNight ? '07.00 น.' : '16.00 น.',
+      signatureData: null,
+      inspectorNotes: '',
+      rows: []
+    };
+  }
   sigCtx = sigCanvas.getContext('2d');
 
   window.resizeSignatureCanvas = function() {
@@ -2886,7 +3110,8 @@ function updateLoggedInUserUI(officer) {
   } else {
     // Auto open shift log for officer (prefer today if on duty, else first scheduled day)
     const t = todayNum();
-    const currentDay = (t.month === SCHED_MONTH && t.year === SCHED_YEAR && t.day >= 1 && t.day <= 31) ? t.day : 1;
+    const daysInMonth = SCHEDULE.length > 0 ? Math.max(...SCHEDULE.map(s => s.day)) : new Date(SCHED_YEAR, SCHED_MONTH + 1, 0).getDate();
+    const currentDay = (t.month === SCHED_MONTH && t.year === SCHED_YEAR && t.day >= 1 && t.day <= daysInMonth) ? t.day : 1;
     const myDays = findDaysForOfficer(fullName);
     const targetDay = (myDays.includes(currentDay)) ? currentDay : (myDays.length > 0 ? myDays[0] : currentDay);
     openShiftLogForOfficer(targetDay, fullName);
@@ -2939,7 +3164,8 @@ async function checkMissingPastLogs() {
 
   const currentSelectedDay = parseInt(document.getElementById('logDateSelect')?.value || 1, 10);
   const t = todayNum();
-  const currentTodayDay = (t.month === SCHED_MONTH && t.year === SCHED_YEAR && t.day >= 1 && t.day <= 31) ? t.day : 31;
+  const daysInMonth = SCHEDULE.length > 0 ? Math.max(...SCHEDULE.map(s => s.day)) : new Date(SCHED_YEAR, SCHED_MONTH + 1, 0).getDate();
+  const currentTodayDay = (t.month === SCHED_MONTH && t.year === SCHED_YEAR && t.day >= 1 && t.day <= daysInMonth) ? t.day : daysInMonth;
 
   // Verify past scheduled days
   const pastDaysToVerify = myDays.filter(d => d <= currentTodayDay || d < currentSelectedDay);
@@ -2973,7 +3199,7 @@ async function checkMissingPastLogs() {
     const firstMissing = missingDays[0];
     alertBanner.style.display = 'flex';
     alertBanner.innerHTML = `
-      <span>⚠️ <strong>แจ้งเตือน:</strong> คุณยังไม่ได้บันทึกเวรของวันที่ <strong>${missingDays.join(', ')} ส.ค. ๒๕๖๙</strong> (กรุณาบันทึกให้ครบถ้วน)</span>
+      <span>⚠️ <strong>แจ้งเตือน:</strong> คุณยังไม่ได้บันทึกเวรของวันที่ <strong>${missingDays.join(', ')} ${THAI_MONTHS[SCHED_MONTH] || 'ก.ย.'} ${toThaiDigits(SCHED_YEAR + 543)}</strong> (กรุณาบันทึกให้ครบถ้วน)</span>
       <button class="btn-jump-day" onclick="jumpToLogDay(${firstMissing})">👉 สลับไปบันทึกวันที่ ${firstMissing}</button>
     `;
   } else {
@@ -3120,7 +3346,7 @@ async function renderAdminDashboard() {
 
       html += `
         <tr>
-          <td><strong>วัน${off.dayName}ที่ ${off.day} ส.ค.</strong></td>
+          <td><strong>วัน${off.dayName}ที่ ${off.day} ${THAI_MONTHS[SCHED_MONTH] || 'ก.ย.'}</strong></td>
           <td>${dayTypeBadge}</td>
           <td><span class="badge-sub">${off.groupLabel}</span></td>
           <td>${nameDisplay}</td>
@@ -3184,8 +3410,8 @@ async function adminViewOfficerLog(dayNum, officerName) {
         name: cloud.officer_name || cloud.name || officerName,
         dayName: entry?.dayName || '',
         dayNum: dayNum,
-        month: 'สิงหาคม',
-        year: THAI_YEAR,
+        month: cloud.month || THAI_FULL_MONTHS[SCHED_MONTH] || 'กันยายน',
+        year: cloud.year || (SCHED_YEAR + 543),
         timeIn: cloud.time_in || cloud.timeIn || '17.00 น.',
         timeOut: cloud.time_out || cloud.timeOut || '07.00 น.',
         signatureData: cloud.sign_name || cloud.signatureData || null,
@@ -3213,8 +3439,8 @@ async function adminViewOfficerLog(dayNum, officerName) {
       name: officerName,
       dayName: entry?.dayName || '',
       dayNum: dayNum,
-      month: 'สิงหาคม',
-      year: THAI_YEAR,
+      month: THAI_FULL_MONTHS[SCHED_MONTH] || 'กันยายน',
+      year: SCHED_YEAR + 543,
       timeIn: isNight ? '17.00 น.' : '08.00 น.',
       timeOut: isNight ? '07.00 น.' : '16.00 น.',
       signatureData: null,
@@ -3295,8 +3521,8 @@ async function adminViewOfficerLog(dayNum, officerName) {
           <div style="display:flex; gap:12px; flex-wrap:wrap;">
             <span>วัน <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.dayName || ''}</span></span>
             <span>ที่ <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.dayNum || ''}</span></span>
-            <span>เดือน <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.month || 'สิงหาคม'}</span></span>
-            <span>พ.ศ. <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.year || '2569'}</span></span>
+            <span>เดือน <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.month || THAI_FULL_MONTHS[SCHED_MONTH] || 'กันยายน'}</span></span>
+            <span>พ.ศ. <span style="border-bottom:1px dotted #000; padding:0 6px; font-weight:600;">${logData.year || (SCHED_YEAR + 543)}</span></span>
           </div>
 
           <div style="display:flex; gap:20px;">
