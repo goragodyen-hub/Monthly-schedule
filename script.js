@@ -547,10 +547,14 @@ function tickClock() {
   const ss = String(n.getSeconds()).padStart(2,'0');
   const timeStr = `${hh}:${mm}:${ss}`;
   const dateStr = `${THAI_DAYS[n.getDay()]} ${n.getDate()} ${THAI_MONTHS[n.getMonth()]} ${n.getFullYear()+543}`;
-  document.getElementById('clockTime').textContent    = timeStr;
-  document.getElementById('clockDate').textContent    = dateStr;
-  document.getElementById('sbClockTime').textContent  = timeStr;
-  document.getElementById('sbClockDate').textContent  = dateStr;
+  const cTime = document.getElementById('clockTime');
+  const cDate = document.getElementById('clockDate');
+  const sbTime = document.getElementById('sbClockTime');
+  const sbDate = document.getElementById('sbClockDate');
+  if (cTime) cTime.textContent = timeStr;
+  if (cDate) cDate.textContent = dateStr;
+  if (sbTime) sbTime.textContent = timeStr;
+  if (sbDate) sbDate.textContent = dateStr;
 }
 
 /* =============================================
@@ -1366,7 +1370,8 @@ function addHourlyRows() {
 function getLogStorageKey() {
   const day = document.getElementById('fmDayNum').value;
   const name = document.getElementById('fmName').value;
-  return `shift_log_${day}_${name.replace(/\s+/g, '_')}`;
+  const mVal = `${SCHED_MONTH + 1}-${SCHED_YEAR}`;
+  return `shift_log_${mVal}_${day}_${name.replace(/\s+/g, '_')}`;
 }
 
 async function saveShiftLog() {
@@ -1375,7 +1380,14 @@ async function saveShiftLog() {
   if (offSelVal) {
     try { parsedEmpId = JSON.parse(offSelVal)?.emp_id || ''; } catch(e){}
   }
-  const empId = loggedInOfficer?.emp_id || parsedEmpId || '';
+  let empId = loggedInOfficer?.emp_id || parsedEmpId || '';
+  const officerName = document.getElementById('fmName').value;
+
+  // Auto-resolve empId from OFFICERS_REGISTRY if missing
+  if (!empId && officerName && typeof autoResolveOfficerEmpId === 'function') {
+    empId = autoResolveOfficerEmpId(officerName) || '';
+  }
+
   const sigUrl = getSignatureDataUrl() || '';
 
   const rows = [];
@@ -1390,13 +1402,14 @@ async function saveShiftLog() {
     }
   });
 
+  const mVal = `${SCHED_MONTH + 1}-${SCHED_YEAR}`;
   const data = {
     empId:          empId,
     emp_id:         empId,
     level:          document.getElementById('fmLevel').value,
     isDay:          document.getElementById('fmShiftDay').checked,
     isNight:        document.getElementById('fmShiftNight').checked,
-    name:           document.getElementById('fmName').value,
+    name:           officerName,
     dayName:        document.getElementById('fmDayName').value,
     dayNum:         parseInt(document.getElementById('fmDayNum').value, 10),
     month:          document.getElementById('fmMonth').value,
@@ -1409,19 +1422,30 @@ async function saveShiftLog() {
     rows:           rows
   };
 
-  // Save to Local Storage under BOTH key formats so it's guaranteed to be found
-  const nameKey = getLogStorageKey();
-  const empKey = `shift_log_${data.dayNum}_${empId}`;
-  localStorage.setItem(nameKey, JSON.stringify(data));
-  if (empId) localStorage.setItem(empKey, JSON.stringify(data));
-
-  // Save to Supabase Cloud
-  if (typeof saveShiftLogCloud === 'function') {
-    await saveShiftLogCloud(data);
+  // 1. Save to Local Storage under month-scoped AND base fallback formats
+  const cleanName = officerName.replace(/\s+/g, '_');
+  localStorage.setItem(`shift_log_${mVal}_${data.dayNum}_${cleanName}`, JSON.stringify(data));
+  localStorage.setItem(`shift_log_${data.dayNum}_${cleanName}`, JSON.stringify(data));
+  if (empId) {
+    localStorage.setItem(`shift_log_${mVal}_${data.dayNum}_${empId}`, JSON.stringify(data));
+    localStorage.setItem(`shift_log_${data.dayNum}_${empId}`, JSON.stringify(data));
   }
 
-  alert(`🚀 ส่งใบบันทึกเวรของ ${data.name} (วันที่ ${data.dayNum} ${THAI_MONTHS[SCHED_MONTH] || 'ก.ย.'}) เรียบร้อยแล้ว!`);
+  // 2. Save to Supabase Cloud & Offline Queue
+  let cloudRes = null;
+  if (typeof saveShiftLogCloud === 'function') {
+    cloudRes = await saveShiftLogCloud(data);
+  }
+
+  const mLabel = THAI_MONTHS[SCHED_MONTH] || 'ก.ย.';
+  if (cloudRes && cloudRes.cloud) {
+    alert(`🚀 ส่งใบบันทึกเวรของ ${data.name} (วันที่ ${data.dayNum} ${mLabel}) ขึ้นระบบคลาวด์เรียบร้อยแล้ว!`);
+  } else {
+    alert(`📥 บันทึกข้อมูลของ ${data.name} (วันที่ ${data.dayNum} ${mLabel}) ลงในเครื่องแล้ว\n(ระบบจะส่งขึ้นคลาวด์อัตโนมัติทันทีที่เชื่อมต่ออินเทอร์เน็ต)`);
+  }
+
   checkMissingPastLogs();
+  if (typeof updateOfflineSyncUI === 'function') updateOfflineSyncUI();
   return data;
 }
 
@@ -1443,35 +1467,41 @@ async function checkMissingPastLogs() {
   // Filter days before currentDay that haven't been submitted
   const missingDays = [];
 
-  for (const dayNum of scheduledDays) {
-    if (dayNum >= currentDay) continue; // Only past days
+    const mVal = `${SCHED_MONTH + 1}-${SCHED_YEAR}`;
+    for (const dayNum of scheduledDays) {
+      if (dayNum >= currentDay) continue; // Only past days
 
-    let isSaved = false;
+      let isSaved = false;
 
-    // Check Cloud
-    if (typeof fetchShiftLogCloud === 'function') {
-      const cloudData = await fetchShiftLogCloud(dayNum, loggedInOfficer.emp_id);
-      if (cloudData && (cloudData.rows?.length > 0 || cloudData.sign_name || cloudData.inspector_notes)) {
-        isSaved = true;
+      // Check Cloud
+      if (typeof fetchShiftLogCloud === 'function') {
+        const cloudData = await fetchShiftLogCloud(dayNum, loggedInOfficer.emp_id, fullName, mVal);
+        if (cloudData && (cloudData.rows?.length > 0 || cloudData.sign_name || cloudData.inspector_notes)) {
+          isSaved = true;
+        }
+      }
+
+      // Check Local (Month-scoped first, then base fallback)
+      if (!isSaved) {
+        const cleanName = fullName.replace(/\s+/g, '_');
+        const keyMonth = `shift_log_${mVal}_${dayNum}_${cleanName}`;
+        const keyEmpMonth = loggedInOfficer.emp_id ? `shift_log_${mVal}_${dayNum}_${loggedInOfficer.emp_id}` : null;
+        const key = `shift_log_${dayNum}_${cleanName}`;
+        const keyEmp = loggedInOfficer.emp_id ? `shift_log_${dayNum}_${loggedInOfficer.emp_id}` : null;
+
+        const localData = localStorage.getItem(keyMonth) || (keyEmpMonth ? localStorage.getItem(keyEmpMonth) : null) || localStorage.getItem(key) || (keyEmp ? localStorage.getItem(keyEmp) : null);
+        if (localData) {
+          try {
+            const parsed = JSON.parse(localData);
+            if (parsed.rows && parsed.rows.length > 0) isSaved = true;
+          } catch(e){}
+        }
+      }
+
+      if (!isSaved) {
+        missingDays.push(dayNum);
       }
     }
-
-    // Check Local
-    if (!isSaved) {
-      const key = `shift_log_${dayNum}_${fullName.replace(/\s+/g, '_')}`;
-      const localData = localStorage.getItem(key);
-      if (localData) {
-        try {
-          const parsed = JSON.parse(localData);
-          if (parsed.rows && parsed.rows.length > 0) isSaved = true;
-        } catch(e){}
-      }
-    }
-
-    if (!isSaved) {
-      missingDays.push(dayNum);
-    }
-  }
 
   if (missingDays.length > 0) {
     const firstMissing = missingDays[0];
@@ -1542,19 +1572,29 @@ async function loadShiftLog() {
   let loadedData = null;
 
   // 1. Try Cloud Fetching first
-  if (typeof fetchShiftLogCloud === 'function' && empId && dayNum) {
-    loadedData = await fetchShiftLogCloud(dayNum, empId);
+  const mVal = `${SCHED_MONTH + 1}-${SCHED_YEAR}`;
+  if (typeof fetchShiftLogCloud === 'function' && (empId || officerName) && dayNum) {
+    loadedData = await fetchShiftLogCloud(dayNum, empId, officerName, mVal);
   }
 
-  // 2. Try Local Storage Fallbacks
+  // 2. Try Local Storage Fallbacks (month-scoped first, then base fallback)
   if (!loadedData) {
+    const cleanName = officerName ? officerName.replace(/\s+/g, '_') : '';
     if (empId) {
-      const savedEmp = localStorage.getItem(`shift_log_${dayNum}_${empId}`);
-      if (savedEmp) { try { loadedData = JSON.parse(savedEmp); } catch(e){} }
+      const savedMonth = localStorage.getItem(`shift_log_${mVal}_${dayNum}_${empId}`);
+      if (savedMonth) { try { loadedData = JSON.parse(savedMonth); } catch(e){} }
+      if (!loadedData) {
+        const savedEmp = localStorage.getItem(`shift_log_${dayNum}_${empId}`);
+        if (savedEmp) { try { loadedData = JSON.parse(savedEmp); } catch(e){} }
+      }
     }
-    if (!loadedData && officerName) {
-      const savedName = localStorage.getItem(`shift_log_${dayNum}_${officerName.replace(/\s+/g, '_')}`);
-      if (savedName) { try { loadedData = JSON.parse(savedName); } catch(e){} }
+    if (!loadedData && cleanName) {
+      const savedMonth = localStorage.getItem(`shift_log_${mVal}_${dayNum}_${cleanName}`);
+      if (savedMonth) { try { loadedData = JSON.parse(savedMonth); } catch(e){} }
+      if (!loadedData) {
+        const savedName = localStorage.getItem(`shift_log_${dayNum}_${cleanName}`);
+        if (savedName) { try { loadedData = JSON.parse(savedName); } catch(e){} }
+      }
     }
   }
 
@@ -1568,8 +1608,8 @@ async function loadShiftLog() {
       restoreSignatureFromDataUrl(sig);
     }
 
-    // Restore Log Table Rows
-    const rows = loadedData.rows || [];
+    // Restore Log Table Rows (filtering out internal _meta)
+    const rows = (loadedData.rows || []).filter(r => !r._meta);
     if (rows.length > 0) {
       rows.forEach(r => addLogTableRow(r.time, r.note, r.remark));
     }
@@ -2675,76 +2715,17 @@ function renderAdminDashboardTable() {
   tbody.innerHTML = html || `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text3);">📭 ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td></tr>`;
 }
 
-async function adminViewOfficerLog(dayNum, officerName) {
-  const modal = document.getElementById('adminA4Modal');
-  const container = document.getElementById('adminA4Container');
-  if (!modal || !container) return;
+/* =============================================
+   SIGNATURE PAD ENGINE (PORTED FROM INK-INVENTORY)
+   ============================================= */
+let sigCanvas = null;
+let sigCtx = null;
+let isSigDrawing = false;
 
-  container.innerHTML = `<div style="text-align:center; padding:40px; font-size:15px; color:#475569;">⏳ กำลังโหลดเอกสารใบบันทึกเวร...</div>`;
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-
-  // 1. Resolve officer info
-  const entry = SCHEDULE.find(d => d.day === dayNum);
-  const matchedKey = Object.keys(OFFICERS_REGISTRY).find(id => {
-    const o = OFFICERS_REGISTRY[id];
-    const fullReg = `${o.name}${o.surname}`.replace(/\s+/g, '');
-    const cleanOff = officerName.replace(/\s+/g, '');
-    return fullReg === cleanOff || cleanOff.includes(o.surname);
-  });
-  const empId = matchedKey || '';
-  const officerObj = matchedKey ? OFFICERS_REGISTRY[matchedKey] : null;
-
-  // 2. Fetch Log Data (Cloud or LocalStorage)
-  let logData = null;
-  if (typeof fetchShiftLogCloud === 'function') {
-    const cloud = await fetchShiftLogCloud(dayNum, empId, officerName);
-    if (cloud) {
-      logData = {
-        level: cloud.level || officerObj?.level || 'ปฏิบัติหน้าที่เวร',
-        isDay: cloud.is_day !== undefined ? cloud.is_day : cloud.isDay,
-        isNight: cloud.is_night !== undefined ? cloud.is_night : cloud.isNight,
-        name: cloud.officer_name || cloud.name || officerName,
-        dayName: entry?.dayName || '',
-        dayNum: dayNum,
-        month: THAI_FULL_MONTHS[SCHED_MONTH] || '',
-        year: SCHED_YEAR + 543,
-        timeIn: cloud.time_in || cloud.timeIn || '17.00 น.',
-        timeOut: cloud.time_out || cloud.timeOut || '07.00 น.',
-        signatureData: cloud.sign_name || cloud.signatureData || null,
-        inspectorNotes: cloud.inspector_notes || cloud.inspectorNotes || '',
-        rows: cloud.rows || []
-      };
-    }
-  }
-
-  if (!logData) {
-    const localKey = `shift_log_${dayNum}_${officerName.replace(/\s+/g, '_')}`;
-    const local = localStorage.getItem(localKey);
-    if (local) {
-      try { logData = JSON.parse(local); } catch(e){}
-    }
-  }
-
-  // Fallback default draft if no saved log exists
-  if (!logData) {
-    const isNight = officerObj ? officerObj.type === 'male' : true;
-    logData = {
-      level: officerObj?.level || 'ปฏิบัติหน้าที่เวร',
-      isDay: !isNight,
-      isNight: isNight,
-      name: officerName,
-      dayName: entry?.dayName || '',
-      dayNum: dayNum,
-      month: THAI_FULL_MONTHS[SCHED_MONTH] || '',
-      year: SCHED_YEAR + 543,
-      timeIn: isNight ? '17.00 น.' : '08.00 น.',
-      timeOut: isNight ? '07.00 น.' : '16.00 น.',
-      signatureData: null,
-      inspectorNotes: '',
-      rows: []
-    };
-  }
+function initSignaturePad() {
+  sigCanvas = document.getElementById('signature-pad');
+  if (!sigCanvas) return;
+  const btnClear = document.getElementById('btn-clear-signature');
   sigCtx = sigCanvas.getContext('2d');
 
   window.resizeSignatureCanvas = function() {
@@ -3232,8 +3213,17 @@ async function renderAdminDashboard() {
     cloudLogs = await fetchAllShiftLogsCloud();
   }
 
+  const mVal = `${SCHED_MONTH + 1}-${SCHED_YEAR}`;
   const cloudSavedSet = new Set();
   cloudLogs.forEach(log => {
+    // Check if log belongs to active month if meta exists
+    const metaRow = Array.isArray(log.rows) ? log.rows.find(r => r && r._meta) : null;
+    if (metaRow && metaRow.month) {
+      const activeMonthName = THAI_FULL_MONTHS[SCHED_MONTH];
+      if (metaRow.month !== activeMonthName && metaRow.month !== (SCHED_MONTH + 1).toString()) {
+        return; // belongs to another month
+      }
+    }
     if (log.day_num) {
       if (log.emp_id) cloudSavedSet.add(`${log.day_num}_${log.emp_id}`);
       if (log.officer_name) cloudSavedSet.add(`${log.day_num}_${log.officer_name.replace(/\s+/g, '')}`);
@@ -3312,13 +3302,16 @@ async function renderAdminDashboard() {
         isSaved = true;
       }
 
-      // Check LocalStorage Fallback
+      // Check LocalStorage Fallback (Month-scoped first, then base fallback)
       if (!isSaved) {
+        const keyNameMonth = `shift_log_${mVal}_${off.day}_${off.name.replace(/\s+/g, '_')}`;
+        const keyEmpMonth = off.empId !== 'N/A' ? `shift_log_${mVal}_${off.day}_${off.empId}` : null;
         const keyName = `shift_log_${off.day}_${off.name.replace(/\s+/g, '_')}`;
-        const keyEmp = `shift_log_${off.day}_${off.empId}`;
-        const saved1 = localStorage.getItem(keyName);
-        const saved2 = localStorage.getItem(keyEmp);
-        if (saved1 || saved2) isSaved = true;
+        const keyEmp = off.empId !== 'N/A' ? `shift_log_${off.day}_${off.empId}` : null;
+
+        const savedMonth = localStorage.getItem(keyNameMonth) || (keyEmpMonth ? localStorage.getItem(keyEmpMonth) : null);
+        const savedBase = localStorage.getItem(keyName) || (keyEmp ? localStorage.getItem(keyEmp) : null);
+        if (savedMonth || savedBase) isSaved = true;
       }
 
       if (isSaved) savedCount++;
@@ -3399,9 +3392,10 @@ async function adminViewOfficerLog(dayNum, officerName) {
   const officerObj = matchedKey ? OFFICERS_REGISTRY[matchedKey] : null;
 
   // 2. Fetch Log Data (Cloud or LocalStorage)
+  const mVal = `${SCHED_MONTH + 1}-${SCHED_YEAR}`;
   let logData = null;
   if (typeof fetchShiftLogCloud === 'function') {
-    const cloud = await fetchShiftLogCloud(dayNum, empId, officerName);
+    const cloud = await fetchShiftLogCloud(dayNum, empId, officerName, mVal);
     if (cloud) {
       logData = {
         level: cloud.level || officerObj?.level || 'ปฏิบัติหน้าที่เวร',
@@ -3422,8 +3416,13 @@ async function adminViewOfficerLog(dayNum, officerName) {
   }
 
   if (!logData) {
-    const localKey = `shift_log_${dayNum}_${officerName.replace(/\s+/g, '_')}`;
-    const local = localStorage.getItem(localKey);
+    const cleanName = officerName.replace(/\s+/g, '_');
+    const localKeyMonth = `shift_log_${mVal}_${dayNum}_${cleanName}`;
+    const localKeyEmpMonth = empId ? `shift_log_${mVal}_${dayNum}_${empId}` : null;
+    const localKey = `shift_log_${dayNum}_${cleanName}`;
+    const localKeyEmp = empId ? `shift_log_${dayNum}_${empId}` : null;
+
+    const local = localStorage.getItem(localKeyMonth) || (localKeyEmpMonth ? localStorage.getItem(localKeyEmpMonth) : null) || localStorage.getItem(localKey) || (localKeyEmp ? localStorage.getItem(localKeyEmp) : null);
     if (local) {
       try { logData = JSON.parse(local); } catch(e){}
     }
@@ -3449,9 +3448,9 @@ async function adminViewOfficerLog(dayNum, officerName) {
     };
   }
 
-  // 3. Build Log Table Rows HTML
+  // 3. Build Log Table Rows HTML (filtering out internal _meta)
   let rowsHtml = '';
-  const rows = logData.rows || [];
+  const rows = (logData.rows || []).filter(r => !r._meta);
   rows.forEach(r => {
     rowsHtml += `
       <tr>

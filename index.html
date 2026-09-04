@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=v48">
+  <link rel="stylesheet" href="style.css?v=v53">
   <!-- PWA Meta Tags & Manifest -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="calendar.png">
@@ -18,10 +18,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="ตารางเวร">
 
-  <!-- Supabase JS Client SDK & SheetJS (Excel Parser) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- SheetJS (Excel Parser) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="supabase-config.js?v=v3"></script>
 </head>
 <body>
 
@@ -86,6 +84,9 @@
           <button class="upb-logout-btn" onclick="logoutUser()" title="ออกจากระบบ">🚪 ออกจากระบบ</button>
         </div>
         <button class="btn-action btn-primary btn-sm" id="headerLoginBtn" onclick="showLoginScreenOverlay()" style="font-size:12px; padding:4px 10px; border-radius:20px;">🔑 เข้าสู่ระบบ</button>
+        <button id="syncQueueBadge" onclick="triggerManualSync()" class="btn-action btn-sm" style="display:none; font-size:11.5px; padding:4px 9px; background:linear-gradient(135deg, #FEF3C7, #FDE68A); color:#92400E; border:1.5px solid #F59E0B; border-radius:20px; align-items:center; gap:4px; font-weight:700; box-shadow:0 2px 5px rgba(245,158,11,0.2); cursor:pointer; transition:all 0.2s;" title="คลิกเพื่อส่งข้อมูลค้างซิงก์">
+          ⚡ ค้างซิงก์ 0
+        </button>
         <button type="button" onclick="forceRefreshApp()" class="btn-action btn-sm" style="font-size:11.5px; padding:4px 9px; background:linear-gradient(135deg, #FFF7ED, #FFEDD5); color:#C2410C; border:1.5px solid #FDBA74; border-radius:20px; display:inline-flex; align-items:center; gap:4px; font-weight:700; box-shadow:0 2px 5px rgba(249,115,22,0.15); transition:all 0.2s;" title="ดึงข้อมูลและอัปเดตเวอร์ชันล่าสุด">
           <span style="font-size:12px;">⚡</span> <span style="color:#C2410C; font-weight:700;">อัปเดต</span>
         </button>
@@ -498,7 +499,10 @@
             <p class="panel-sub">ตรวจสอบสถานะการลงบันทึกเวรประจำวันของพนักงานทุกคน</p>
           </div>
         </div>
-        <div class="admin-top-actions">
+        <div class="admin-top-actions" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <button id="btnManualSync" class="btn-action btn-secondary" onclick="triggerManualSync()" style="display:inline-flex; align-items:center; gap:5px; background:linear-gradient(135deg, #FEF3C7, #FDE68A); color:#92400E; border:1.5px solid #F59E0B; font-weight:700;" title="ตรวจสอบและส่งข้อมูลบันทึกเวรค้างส่งขึ้นคลาวด์">
+            <span>🔄</span> ตรวจสอบและซิงก์ข้อมูล
+          </button>
           <button class="btn-action btn-secondary" onclick="renderAdminDashboard()">🔄 รีเฟรชข้อมูล</button>
         </div>
       </div>
@@ -769,16 +773,16 @@
 
   <!-- Supabase JS SDK & Cloud Database Sync -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=v49"></script>
-  <script src="script.js?v=v52"></script>
+  <script src="supabase-config.js?v=v53"></script>
+  <script src="script.js?v=v53"></script>
   <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=v52')
+        navigator.serviceWorker.register('./sw.js?v=v53')
           .then(reg => {
             reg.update();
-            console.log('📱 PWA Service Worker Registered & Updated v52:', reg.scope);
+            console.log('📱 PWA Service Worker Registered & Updated v53:', reg.scope);
           })
           .catch(err => console.log('⚠️ Service Worker Error:', err));
 
