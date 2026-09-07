@@ -1122,7 +1122,62 @@ async function forceRefreshApp() {
   }
 }
 
+/* =============================================
+   DARK THEME SYSTEM CONTROLLER
+   ============================================= */
+function initTheme() {
+  const savedTheme = localStorage.getItem('chitralada-theme');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const currentTheme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+  setTheme(currentTheme, false);
+
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (!localStorage.getItem('chitralada-theme')) {
+        setTheme(e.matches ? 'dark' : 'light', false);
+      }
+    });
+  }
+}
+
+function setTheme(theme, save = true) {
+  document.documentElement.setAttribute('data-theme', theme);
+  if (save) {
+    localStorage.setItem('chitralada-theme', theme);
+  }
+  updateThemeUI(theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const newTheme = current === 'dark' ? 'light' : 'dark';
+  setTheme(newTheme, true);
+}
+
+function updateThemeUI(theme) {
+  const isDark = theme === 'dark';
+  const icon = isDark ? '☀️' : '🌙';
+  const label = isDark ? 'โหมดสว่าง (Light Mode)' : 'โหมดมืด (Dark Mode)';
+  const title = isDark ? 'เปลี่ยนเป็นโหมดสว่าง' : 'เปลี่ยนเป็นโหมดมืด';
+
+  const toggleIcon = document.getElementById('themeToggleIcon');
+  if (toggleIcon) toggleIcon.textContent = icon;
+
+  const toggleBtn = document.getElementById('themeToggleBtn');
+  if (toggleBtn) {
+    toggleBtn.title = title;
+    toggleBtn.setAttribute('aria-label', title);
+  }
+
+  const sbIcon = document.getElementById('sbThemeIcon');
+  if (sbIcon) sbIcon.textContent = icon;
+
+  const sbLabel = document.getElementById('sbThemeLabel');
+  if (sbLabel) sbLabel.textContent = label;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   initActiveMonthSchedule();
   checkAppAutoUpdate();
   tickClock();

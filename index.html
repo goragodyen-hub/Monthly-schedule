@@ -8,7 +8,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=v54">
+  <link rel="stylesheet" href="style.css?v=v55">
+  <script>
+    // Apply saved theme immediately to prevent FOUC (Flash of Unstyled Color theme)
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem('chitralada-theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch(e) {}
+    })();
+  </script>
   <!-- PWA Meta Tags & Manifest -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="calendar.png">
@@ -78,6 +89,9 @@
         </div>
       </div>
       <div class="header-right-group" style="display:flex; align-items:center; gap:8px; flex-wrap:nowrap;">
+        <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="สลับโหมดมืด / โหมดสว่าง" aria-label="สลับโหมดธีม">
+          <span id="themeToggleIcon">🌙</span>
+        </button>
         <div class="user-profile-badge" id="userProfileBadge" style="display:none;">
           <span class="upb-icon">👤</span>
           <span class="upb-name" id="upbName">--</span>
@@ -155,6 +169,9 @@
     </nav>
 
     <div class="sb-footer" style="padding:16px;">
+      <button type="button" onclick="toggleTheme()" style="width:100%; margin-bottom:10px; padding:9px 12px; font-size:12.5px; font-weight:700; background:rgba(15,23,42,0.06); color:var(--text); border:1px solid var(--border); border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s;">
+        <span id="sbThemeIcon">🌙</span> <span id="sbThemeLabel">โหมดมืด (Dark Mode)</span>
+      </button>
       <button type="button" onclick="forceRefreshApp()" style="width:100%; padding:10px 12px; font-size:12.5px; font-weight:700; background:linear-gradient(135deg, #2563EB, #1D4ED8); color:#FFF; border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 3px 10px rgba(37,99,235,0.3);">
         <span>⚡</span> โหลดข้อมูลเวอร์ชันล่าสุด
       </button>
@@ -773,16 +790,16 @@
 
   <!-- Supabase JS SDK & Cloud Database Sync -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=v54"></script>
-  <script src="script.js?v=v54"></script>
+  <script src="supabase-config.js?v=v55"></script>
+  <script src="script.js?v=v55"></script>
   <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=v54')
+        navigator.serviceWorker.register('./sw.js?v=v55')
           .then(reg => {
             reg.update();
-            console.log('📱 PWA Service Worker Registered & Updated v54:', reg.scope);
+            console.log('📱 PWA Service Worker Registered & Updated v55:', reg.scope);
           })
           .catch(err => console.log('⚠️ Service Worker Error:', err));
 
