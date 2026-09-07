@@ -154,3 +154,37 @@ ON CONFLICT (emp_id) DO UPDATE SET
   gender = EXCLUDED.gender,
   level = EXCLUDED.level,
   is_admin = EXCLUDED.is_admin;
+
+-- ========================================================
+-- ROW LEVEL SECURITY (RLS) POLICIES
+-- ========================================================
+
+-- 1. Enable RLS on shift_swap_records
+ALTER TABLE shift_swap_records ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow all actions on shift_swap_records" ON shift_swap_records;
+CREATE POLICY "Allow all actions on shift_swap_records"
+ON shift_swap_records FOR ALL
+TO anon, authenticated
+USING (true)
+WITH CHECK (true);
+
+-- 2. Enable RLS on shift_logs
+ALTER TABLE shift_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow all actions on shift_logs" ON shift_logs;
+CREATE POLICY "Allow all actions on shift_logs"
+ON shift_logs FOR ALL
+TO anon, authenticated
+USING (true)
+WITH CHECK (true);
+
+-- 3. Enable RLS on officers
+ALTER TABLE officers ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow read on officers" ON officers;
+CREATE POLICY "Allow read on officers"
+ON officers FOR SELECT
+TO anon, authenticated
+USING (true);
+
