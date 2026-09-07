@@ -1626,6 +1626,87 @@ async function loadShiftLog() {
 
 
 
+function populatePrintablePaperForm(logData) {
+  if (!logData) return;
+
+  const setPf = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = (val !== null && val !== undefined && val !== '') ? val : '&nbsp;';
+  };
+
+  setPf('pfLevel', logData.level || 'ปฏิบัติหน้าที่เวร');
+  setPf('pfName', logData.name || '');
+  setPf('pfDayName', logData.dayName || '');
+  setPf('pfDayNum', logData.dayNum || '');
+  setPf('pfMonth', logData.month || THAI_FULL_MONTHS[SCHED_MONTH] || 'กันยายน');
+  setPf('pfYear', logData.year || (SCHED_YEAR + 543));
+  setPf('pfTimeIn', logData.timeIn || '17.00 น.');
+  setPf('pfTimeOut', logData.timeOut || '07.00 น.');
+
+  // Checkboxes
+  const cbDay = document.getElementById('pfCbDay');
+  const cbNight = document.getElementById('pfCbNight');
+  if (cbDay) cbDay.classList.toggle('checked', !!logData.isDay);
+  if (cbNight) cbNight.classList.toggle('checked', !!logData.isNight);
+
+  // Inspector notes
+  const inspEl = document.getElementById('pfInspectorNotes');
+  if (inspEl) inspEl.textContent = logData.inspectorNotes || '';
+
+  // Signature image & name
+  const pfSign = document.getElementById('pfSignName');
+  if (pfSign) {
+    const sigImg = logData.signatureData 
+      ? `<img src="${logData.signatureData}" style="max-height:42px; max-width:180px; object-fit:contain;">` 
+      : '';
+    pfSign.innerHTML = `
+      <div style="display:inline-flex; flex-direction:column; align-items:flex-end; font-size:13px; color:#000; width:100%;">
+        <div style="display:flex; align-items:flex-end; justify-content:flex-end; gap:8px; width:100%;">
+          <span style="font-weight:500; white-space:nowrap; margin-bottom:2px;">ลงชื่อ</span>
+          <div style="display:inline-flex; flex-direction:column; align-items:center; min-width:220px;">
+            <div style="min-height:38px; display:flex; align-items:flex-end; justify-content:center;">
+              ${sigImg}
+            </div>
+            <div style="border-bottom:1px dotted #000; width:100%; margin:2px 0;"></div>
+          </div>
+          <span style="font-weight:500; white-space:nowrap; margin-bottom:2px;">(ตัวบรรจง)</span>
+        </div>
+        <div style="width:100%; display:flex; justify-content:flex-end; margin-top:3px;">
+          <div style="min-width:220px; text-align:center; font-size:13px; font-weight:600; font-family:'Sarabun'; margin-right:62px;">
+            (${logData.name || ''})
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Copy log table rows
+  const rows = (logData.rows || []).filter(r => !r._meta);
+  const pfTbody = document.getElementById('pfLogTbody');
+  if (pfTbody) {
+    pfTbody.innerHTML = '';
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="border:1px solid #000;padding:4px 6px;font-size:12px;text-align:center;font-family:'Sarabun';">${r.time || '&nbsp;'}</td>
+        <td style="border:1px solid #000;padding:4px 6px;font-size:12px;font-family:'Sarabun';white-space:pre-line;word-break:break-word;">${r.note || '&nbsp;'}</td>
+        <td style="border:1px solid #000;padding:4px 6px;font-size:12px;font-family:'Sarabun';">${r.remark || '&nbsp;'}</td>
+      `;
+      pfTbody.appendChild(tr);
+    });
+    // Pad with blank rows to reach at least 7 rows
+    while (pfTbody.children.length < 7) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="border:1px solid #000;padding:4px 6px;height:24px;">&nbsp;</td>
+        <td style="border:1px solid #000;padding:4px 6px;">&nbsp;</td>
+        <td style="border:1px solid #000;padding:4px 6px;">&nbsp;</td>
+      `;
+      pfTbody.appendChild(tr);
+    }
+  }
+}
+
 function printShiftForm() {
   // ── 1. Populate metadata ──────────────────────────
   const daySelVal = parseInt(document.getElementById('logDateSelect')?.value || '1', 10);
@@ -1637,14 +1718,15 @@ function printShiftForm() {
   const dayNumVal   = document.getElementById('fmDayNum')?.value || daySelVal || '';
   const monthVal    = document.getElementById('fmMonth')?.value || THAI_FULL_MONTHS[SCHED_MONTH] || 'กันยายน';
   const yearVal     = document.getElementById('fmYear')?.value || (SCHED_YEAR + 543) || '2569';
+  
   // Shift Time Fallback calculation if inputs are empty
   let defaultTimeIn = '17.00 น.';
   let defaultTimeOut = '07.00 น.';
+  const isDayChecked   = document.getElementById('fmShiftDay')?.checked;
+  const isNightChecked = document.getElementById('fmShiftNight')?.checked;
+
   if (schedEntry) {
     const woh = isWeekOrHol(schedEntry);
-    const isNightChecked = document.getElementById('fmShiftNight')?.checked;
-
-    // Check selected officer group key
     let offGroupKey = null;
     const offSelVal = document.getElementById('logOfficerSelect')?.value;
     if (offSelVal) {
@@ -1674,60 +1756,40 @@ function printShiftForm() {
   const timeOutVal  = document.getElementById('fmTimeOut')?.value || defaultTimeOut;
   const inspectorVal= document.getElementById('fmInspectorNotes')?.value || '';
 
-  const setPf = (id, val) => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = (val !== null && val !== undefined && val !== '') ? val : '&nbsp;';
-  };
-
-  setPf('pfLevel', levelVal);
-  setPf('pfName', nameVal);
-  setPf('pfDayName', dayNameVal);
-  setPf('pfDayNum', dayNumVal);
-  setPf('pfMonth', monthVal);
-  setPf('pfYear', yearVal);
-  setPf('pfTimeIn', timeInVal);
-  setPf('pfTimeOut', timeOutVal);
-  
-  const inspEl = document.getElementById('pfInspectorNotes');
-  if (inspEl) inspEl.textContent = inspectorVal;
-
-  // ── 2. Checkboxes ─────────────────────────────────
-  const cbDay   = document.getElementById('pfCbDay');
-  const cbNight = document.getElementById('pfCbNight');
-  const isDayChecked   = document.getElementById('fmShiftDay').checked;
-  const isNightChecked = document.getElementById('fmShiftNight').checked;
-  if (cbDay)   cbDay.classList.toggle('checked', isDayChecked);
-  if (cbNight) cbNight.classList.toggle('checked', isNightChecked);
-
-  // ── 3. Signature image ────────────────────────────
-  updateLiveSignaturePreview();
-
-  // ── 4. Copy log table rows ─────────────────────────
+  // Extract table rows from screen inputs
   const srcRows = document.querySelectorAll('#formLogTbody tr');
-  const pfTbody = document.getElementById('pfLogTbody');
-  pfTbody.innerHTML = '';
+  const rows = [];
   srcRows.forEach(tr => {
     const inputs = tr.querySelectorAll('input');
-    const newTr  = document.createElement('tr');
-    newTr.innerHTML = `
-      <td style="border:1px solid #000;padding:4px 6px;font-size:12px;text-align:center;">${inputs[0]?.value || '&nbsp;'}</td>
-      <td style="border:1px solid #000;padding:4px 6px;font-size:12px;">${inputs[1]?.value || '&nbsp;'}</td>
-      <td style="border:1px solid #000;padding:4px 6px;font-size:12px;">${inputs[2]?.value || '&nbsp;'}</td>
-    `;
-    pfTbody.appendChild(newTr);
+    rows.push({
+      time: inputs[0]?.value || '',
+      note: inputs[1]?.value || '',
+      remark: inputs[2]?.value || ''
+    });
   });
-  // Ensure minimum 7 rows
-  while (pfTbody.children.length < 7) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td style="border:1px solid #000;padding:4px 6px;height:24px;">&nbsp;</td>
-      <td style="border:1px solid #000;padding:4px 6px;">&nbsp;</td>
-      <td style="border:1px solid #000;padding:4px 6px;">&nbsp;</td>
-    `;
-    pfTbody.appendChild(tr);
-  }
 
-  // ── 5. Print ──────────────────────────────────────
+  const sigDataUrl = getSignatureDataUrl();
+
+  const formData = {
+    level: levelVal,
+    isDay: isDayChecked,
+    isNight: isNightChecked,
+    name: nameVal,
+    dayName: dayNameVal,
+    dayNum: dayNumVal,
+    month: monthVal,
+    year: yearVal,
+    timeIn: timeInVal,
+    timeOut: timeOutVal,
+    inspectorNotes: inspectorVal,
+    signatureData: sigDataUrl,
+    rows: rows
+  };
+
+  populatePrintablePaperForm(formData);
+  updateLiveSignaturePreview();
+
+  // ── Print ──────────────────────────────────────────
   window.print();
 }
 
@@ -3370,6 +3432,8 @@ async function renderAdminDashboard() {
   tbody.innerHTML = html;
 }
 
+let currentAdminViewLogData = null;
+
 async function adminViewOfficerLog(dayNum, officerName) {
   const modalBackdrop = document.getElementById('modalBackdrop');
   const modalHeading  = document.getElementById('modalHeading');
@@ -3447,6 +3511,10 @@ async function adminViewOfficerLog(dayNum, officerName) {
       rows: []
     };
   }
+
+  // Cache viewed log data & pre-populate printable A4 form for instant printing
+  currentAdminViewLogData = logData;
+  populatePrintablePaperForm(logData);
 
   // 3. Build Log Table Rows HTML (filtering out internal _meta)
   let rowsHtml = '';
@@ -3613,9 +3681,17 @@ async function adminViewOfficerLog(dayNum, officerName) {
 }
 
 function adminPrintOfficerLog(dayNum, officerName) {
-  closeModal();
-  openShiftLogForOfficer(dayNum, officerName);
-  setTimeout(printShiftForm, 200);
+  if (currentAdminViewLogData) {
+    populatePrintablePaperForm(currentAdminViewLogData);
+    window.print();
+  } else {
+    adminViewOfficerLog(dayNum, officerName).then(() => {
+      if (currentAdminViewLogData) {
+        populatePrintablePaperForm(currentAdminViewLogData);
+        window.print();
+      }
+    });
+  }
 }
 
 function adminSwitchToEditForm(dayNum, officerName) {

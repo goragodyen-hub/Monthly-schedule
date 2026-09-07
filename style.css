@@ -1407,6 +1407,8 @@ mark.hl {
     color: #000 !important;
     font-size: 12px !important;
     line-height: 1.35 !important;
+    overflow: visible !important;
+    height: auto !important;
   }
   .app-bg, .app-header, .sidebar, .sb-overlay,
   .log-controls, .log-alert-banner, .lic-card, .lic-actions,
@@ -1416,6 +1418,7 @@ mark.hl {
   .main-content {
     padding: 0 !important;
     max-width: 100% !important;
+    overflow: visible !important;
   }
   #panel-today, #panel-calendar, #panel-table, #panel-admin, #panel-swap {
     display: none !important;

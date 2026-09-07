@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=v53">
+  <link rel="stylesheet" href="style.css?v=v54">
   <!-- PWA Meta Tags & Manifest -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" href="calendar.png">
@@ -773,16 +773,16 @@
 
   <!-- Supabase JS SDK & Cloud Database Sync -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=v53"></script>
-  <script src="script.js?v=v53"></script>
+  <script src="supabase-config.js?v=v54"></script>
+  <script src="script.js?v=v54"></script>
   <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=v53')
+        navigator.serviceWorker.register('./sw.js?v=v54')
           .then(reg => {
             reg.update();
-            console.log('📱 PWA Service Worker Registered & Updated v53:', reg.scope);
+            console.log('📱 PWA Service Worker Registered & Updated v54:', reg.scope);
           })
           .catch(err => console.log('⚠️ Service Worker Error:', err));
 
