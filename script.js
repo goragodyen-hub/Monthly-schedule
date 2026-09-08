@@ -2779,8 +2779,8 @@ function renderSwapRecordsTable() {
         ` : '<span style="color:var(--text3); font-size:12px;">ไม่มีรูปแนบ</span>'}
       </td>
       <td style="text-align:center;">
-        <button class="btn-action" onclick="deleteSwapRecord('${rec.id}')" style="background:#FEE2E2; color:#DC2626; border:1px solid #FCA5A5; padding:4px 8px; font-size:12px;">
-          🗑️ ลบ
+        <button class="btn-action" onclick="deleteSwapRecord('${rec.id}')" style="background:#FEE2E2; color:#DC2626; border:1px solid #FCA5A5; padding:4px 10px; font-size:12px; font-weight:600;">
+          ❌ ยกเลิก
         </button>
       </td>
     `;
@@ -2792,8 +2792,8 @@ async function deleteSwapRecord(recordId) {
   const records = getSwapRecords();
   const target = records.find(r => String(r.id) === String(recordId));
   const confirmMsg = target 
-    ? `คุณต้องการลบรายการขอแลกเวรของ "${target.reqName}" กับ "${target.subName}" (วันที่ ${target.shiftDateText}) ใช่หรือไม่?`
-    : 'คุณต้องการลบรายการขอแลกเวรนี้ใช่หรือไม่?';
+    ? `คุณต้องการยกเลิกรายการขอแลกเวรของ "${target.reqName}" กับ "${target.subName}" (วันที่ ${target.shiftDateText}) ใช่หรือไม่?`
+    : 'คุณต้องการยกเลิกรายการขอแลกเวรนี้ใช่หรือไม่?';
 
   if (!confirm(confirmMsg)) return;
 
@@ -2830,7 +2830,7 @@ async function deleteSwapRecord(recordId) {
     renderCalendar();
   }
 
-  alert('🗑️ ลบรายการขอแลกเวรสำเร็จ!');
+  alert('❌ ยกเลิกรายการขอแลกเวรสำเร็จ!');
 }
 
 function viewSwapPhotoModal(recordId) {
