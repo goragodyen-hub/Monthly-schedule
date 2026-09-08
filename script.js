@@ -2106,6 +2106,9 @@ function verifyAdminPassword(event) {
 
 function saveSwapRecords(records) {
   localStorage.setItem('shift_swap_records', JSON.stringify(records));
+  if (Array.isArray(records) && records.length > 0) {
+    localStorage.removeItem('shift_swap_records_cleared');
+  }
 }
 
 function handleSaveSwapRecord(event) {
@@ -2783,6 +2786,109 @@ function renderSwapRecordsTable() {
     `;
     tbody.appendChild(tr);
   });
+}
+
+async function deleteSwapRecord(recordId) {
+  const records = getSwapRecords();
+  const target = records.find(r => String(r.id) === String(recordId));
+  const confirmMsg = target 
+    ? `คุณต้องการลบรายการขอแลกเวรของ "${target.reqName}" กับ "${target.subName}" (วันที่ ${target.shiftDateText}) ใช่หรือไม่?`
+    : 'คุณต้องการลบรายการขอแลกเวรนี้ใช่หรือไม่?';
+
+  if (!confirm(confirmMsg)) return;
+
+  const updatedRecords = records.filter(r => String(r.id) !== String(recordId));
+  saveSwapRecords(updatedRecords);
+
+  if (updatedRecords.length === 0) {
+    localStorage.setItem('shift_swap_records_cleared', 'true');
+  } else {
+    localStorage.removeItem('shift_swap_records_cleared');
+  }
+
+  // Sync delete to Supabase Cloud if online
+  try {
+    if (typeof deleteSwapRecordCloud === 'function') {
+      await deleteSwapRecordCloud(recordId);
+    } else if (window.deleteSwapRecordCloud) {
+      await window.deleteSwapRecordCloud(recordId);
+    }
+  } catch (e) {
+    console.warn('Delete swap cloud error:', e);
+  }
+
+  // Refresh UI views
+  renderSwapRecordsTable();
+  if (typeof buildTable === 'function') buildTable();
+  if (typeof renderToday === 'function') renderToday();
+  if (typeof initShiftLog === 'function') initShiftLog();
+  if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
+  if (typeof calRendered !== 'undefined') calRendered = false;
+
+  const calTab = document.getElementById('tab-calendar');
+  if (calTab && calTab.classList.contains('active') && typeof renderCalendar === 'function') {
+    renderCalendar();
+  }
+
+  alert('🗑️ ลบรายการขอแลกเวรสำเร็จ!');
+}
+
+function viewSwapPhotoModal(recordId) {
+  const records = getSwapRecords();
+  const rec = records.find(r => String(r.id) === String(recordId));
+
+  if (!rec || !rec.photoData) {
+    alert('⚠️ ไม่พบรูปถ่ายเอกสารที่แนบไว้');
+    return;
+  }
+
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const modalHeading  = document.getElementById('modalHeading');
+  const modalHeadBadges = document.getElementById('modalHeadBadges');
+  const modalContent  = document.getElementById('modalContent');
+  const modalFoot     = document.querySelector('.modal-foot');
+  const modalBox      = document.querySelector('.modal-box');
+
+  if (!modalBackdrop || !modalContent) return;
+
+  if (modalBox) modalBox.classList.add('modal-box-lg');
+  if (modalHeading) modalHeading.textContent = '🖼️ รูปถ่ายเอกสารการขอแลกเวร';
+  if (modalHeadBadges) {
+    modalHeadBadges.innerHTML = `
+      <span class="type-badge weekday" style="background:#4F46E5; color:#FFF;">📅 ${rec.shiftDateText}</span>
+      <span class="type-badge holiday" style="background:#DC2626; color:#FFF;">👤 ${rec.reqName} ➔ 🤝 ${rec.subName}</span>
+    `;
+  }
+
+  modalContent.innerHTML = `
+    <div style="text-align:center; padding:12px 6px;">
+      <div style="margin-bottom:14px; padding:12px; background:var(--surface2, #1E293B); border-radius:10px; border:1px solid var(--border); font-size:13.5px; color:var(--text); line-height:1.7;">
+        <div><strong>ผู้ขอแลกเวร:</strong> <span style="color:#DC2626; font-weight:700;">${rec.reqName}</span> &nbsp;➔&nbsp; <strong>ผู้ปฏิบัติหน้าที่แทน:</strong> <span style="color:#16A34A; font-weight:700;">${rec.subName}</span></div>
+        ${rec.returnDateText && rec.returnDateText !== '-' ? `<div><strong>วันที่ไปปฏิบัติหน้าที่แทนคืน:</strong> <span style="color:var(--indigo-l); font-weight:700;">${rec.returnDateText}</span></div>` : ''}
+        <div style="font-size:12px; color:var(--text3); margin-top:4px;">บันทึกเมื่อ: ${new Date(rec.createdAt).toLocaleString('th-TH')}</div>
+      </div>
+      <div style="max-height:65vh; overflow:auto; border-radius:12px; background:#0F172A; padding:10px; display:inline-block; border:1.5px solid var(--border); box-shadow:0 8px 24px rgba(0,0,0,0.35);">
+        <img src="${rec.photoData}" alt="เอกสารขอแลกเวร" style="max-width:100%; height:auto; border-radius:8px; display:block; margin:0 auto; box-shadow:0 4px 16px rgba(0,0,0,0.4);">
+      </div>
+    </div>
+  `;
+
+  if (modalFoot) {
+    modalFoot.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; width:100%; flex-wrap:wrap; gap:10px;">
+        <span style="font-size:12.5px; color:var(--text3);">📷 เอกสารหลักฐานประกอบการแลกเวร</span>
+        <div style="display:flex; gap:10px;">
+          <a href="${rec.photoData}" download="shift_swap_${rec.rawSwapDate || 'doc'}.png" class="btn-action btn-primary" style="text-decoration:none; padding:8px 16px; font-size:13px; display:inline-flex; align-items:center; gap:6px;">
+            <span>💾</span> ดาวน์โหลดรูปภาพ
+          </a>
+          <button class="btn-action btn-secondary" onclick="closeModal()" style="padding:8px 16px; font-size:13px;">✕ ปิดหน้าต่าง</button>
+        </div>
+      </div>
+    `;
+  }
+
+  modalBackdrop.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
 
 function renderAdminDashboardTable() {
