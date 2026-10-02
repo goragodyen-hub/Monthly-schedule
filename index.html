@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=v57">
+  <link rel="stylesheet" href="style.css?v=v58">
   <script>
     // Apply saved theme immediately to prevent FOUC (Flash of Unstyled Color theme)
     (function() {
@@ -582,9 +582,6 @@
             <select id="importMonthSelect" class="lic-input" style="font-weight:700;" onchange="handleMonthSelectChange(this)">
               <option value="9-2026">กันยายน ๒๕๖๙ (ปัจจุบัน)</option>
               <option value="8-2026">สิงหาคม ๒๕๖๙</option>
-              <option value="10-2026">ตุลาคม ๒๕๖๙</option>
-              <option value="11-2026">พฤศจิกายน ๒๕๖๙</option>
-              <option value="12-2026">ธันวาคม ๒๕๖๙</option>
             </select>
           </div>
 
@@ -593,9 +590,12 @@
             <input type="file" id="importScheduleFileInput" accept=".xlsx,.xls,.json,.csv" class="lic-input" style="padding:6px 10px; font-size:12px;" onchange="handleScheduleFileUpload(this)">
           </div>
 
-          <div class="lic-field" style="display:flex; gap:8px;">
-            <button type="button" class="btn-action btn-primary" onclick="applyImportedSchedule()" style="flex:1; padding:10px; font-size:13px; background:linear-gradient(135deg, #10B981, #059669); justify-content:center;">
+          <div class="lic-field" style="display:flex; flex-direction:column; gap:8px;">
+            <button type="button" class="btn-action btn-primary" onclick="applyImportedSchedule()" style="padding:10px; font-size:13px; background:linear-gradient(135deg, #10B981, #059669); justify-content:center;">
               🚀 ยืนยันเปิดใช้งานตารางเดือนนี้
+            </button>
+            <button type="button" class="btn-action btn-secondary" onclick="resetScheduleToDefault()" style="padding:8px; font-size:12px; border-color:#EF4444; color:#EF4444; justify-content:center;" title="ล้างข้อมูลตารางเวรที่เคยนำเข้าและกลับเป็นค่าเริ่มต้น">
+              🔄 รีเซ็ตกลับเป็นเดือนกันยายน (ค่าเริ่มต้น)
             </button>
           </div>
         </div>
@@ -790,16 +790,16 @@
 
   <!-- Supabase JS SDK & Cloud Database Sync -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=v57"></script>
-  <script src="script.js?v=v57"></script>
+  <script src="supabase-config.js?v=v58"></script>
+  <script src="script.js?v=v58"></script>
   <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=v57')
+        navigator.serviceWorker.register('./sw.js?v=v58')
           .then(reg => {
             reg.update();
-            console.log('📱 PWA Service Worker Registered & Updated v57:', reg.scope);
+            console.log('📱 PWA Service Worker Registered & Updated v58:', reg.scope);
           })
           .catch(err => console.log('⚠️ Service Worker Error:', err));
 

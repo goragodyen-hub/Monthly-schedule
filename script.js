@@ -289,8 +289,8 @@ const SCHEDULE = [];
    CONSTANTS & MONTH HELPERS
    ============================================= */
 const _initialNow = new Date();
-let SCHED_YEAR  = _initialNow.getFullYear();
-let SCHED_MONTH = _initialNow.getMonth(); // 0-indexed: 7=August, 8=September
+let SCHED_YEAR  = 2026;
+let SCHED_MONTH = 8; // 0-indexed: 7=August, 8=September (Default to September 2026)
 const THAI_YEAR   = SCHED_YEAR + 543;
 
 const THAI_FULL_MONTHS = [
@@ -306,36 +306,44 @@ function toThaiDigits(num) {
 }
 
 function initActiveMonthSchedule() {
-  const now = new Date();
-  const curMonth = now.getMonth();     // 0-indexed: 7=August, 8=September
-  const curYear  = now.getFullYear();  // e.g. 2026
+  // Purge any erroneously saved or forced October 2026 data
+  try {
+    localStorage.removeItem('custom_schedule_10-2026');
+    sessionStorage.removeItem('custom_schedule_10-2026');
+    if (localStorage.getItem('active_schedule_month') === '10-2026') {
+      localStorage.removeItem('active_schedule_month');
+    }
+    if (sessionStorage.getItem('active_schedule_month') === '10-2026') {
+      sessionStorage.removeItem('active_schedule_month');
+    }
+  } catch (e) {}
 
-  let targetMonth = curMonth;
-  let targetYear  = curYear;
+  // Default target month is always September 2026 (index 8 = กันยายน ๒๕๖๙)
+  let targetMonth = 8;
+  let targetYear  = 2026;
 
   // 1. Session storage (user explicitly selected month during current browsing session)
   const sessionMonth = sessionStorage.getItem('active_schedule_month');
   const savedActiveMonth = localStorage.getItem('active_schedule_month'); // e.g. "9-2026" or old "8-2026"
 
-  // Remove old August default from localStorage so it never forces August again
-  if (savedActiveMonth === '8-2026') {
+  // Remove old August/October default from localStorage
+  if (savedActiveMonth === '8-2026' || savedActiveMonth === '10-2026') {
     localStorage.removeItem('active_schedule_month');
   }
 
-  if (sessionMonth) {
+  if (sessionMonth && sessionMonth !== '10-2026') {
     const parts = sessionMonth.split('-');
     if (parts.length === 2) {
       targetMonth = parseInt(parts[0], 10) - 1;
       targetYear = parseInt(parts[1], 10);
     }
-  } else if (savedActiveMonth && savedActiveMonth !== '8-2026') {
+  } else if (savedActiveMonth && savedActiveMonth !== '8-2026' && savedActiveMonth !== '10-2026') {
     const parts = savedActiveMonth.split('-');
     if (parts.length === 2) {
       const sm = parseInt(parts[0], 10) - 1;
       const sy = parseInt(parts[1], 10);
       const customKey = `custom_schedule_${parts[0]}-${parts[1]}`;
-      // Only keep localStorage if custom schedule exists or if it's current/future
-      if (localStorage.getItem(customKey) || sy > curYear || (sy === curYear && sm >= curMonth)) {
+      if (localStorage.getItem(customKey) || (sm === 8 && sy === 2026) || (sm === 7 && sy === 2026)) {
         targetMonth = sm;
         targetYear = sy;
       }
@@ -2740,6 +2748,21 @@ function handleMonthSelectChange(select) {
   } else if (statusBox) {
     statusBox.style.display = 'none';
   }
+}
+
+function resetScheduleToDefault() {
+  if (!confirm('ยืนยันล้างข้อมูลตารางเวรที่นำเข้า และกลับไปใช้ตารางเวรเดือนกันยายน ๒๕๖๙ หรือไม่?')) return;
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('custom_schedule_') || key === 'active_schedule_month')) {
+        localStorage.removeItem(key);
+      }
+    }
+    sessionStorage.clear();
+  } catch(e) {}
+  alert('✅ รีเซ็ตกลับเป็นตารางเวรเดือนกันยายน ๒๕๖๙ เรียบร้อยแล้ว');
+  location.reload();
 }
 
 function renderSwapRecordsTable() {
