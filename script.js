@@ -2475,13 +2475,31 @@ function parseExcelScheduleMatrix(matrix) {
     let holRaw = (holCol !== -1 && row[holCol]) ? String(row[holCol]).trim() : '';
     let isHoliday = (holRaw.length > 0 || holRaw.includes('หยุด') || holRaw.includes('นักขัตฤกษ์'));
 
-    let g1 = splitNameSurname(row[maleG1Col]);
-    let g2 = splitNameSurname(row[maleG2Col]);
-    let g3 = splitNameSurname(row[maleG3Col]);
+    // Auto-detect if columns are separated into Name and Surname (14-column layout: C=name, D=surname, E=name, F=surname...)
+    let isSeparateCols = false;
+    if (row.length >= 14) {
+      const sCol3 = String(row[3] || '').trim();
+      if (sCol3 && !sCol3.startsWith('นาย') && !sCol3.startsWith('นาง') && !sCol3.startsWith('น.ส.')) {
+        isSeparateCols = true;
+      }
+    }
 
-    let kg = splitNameSurname(row[femKgCol]);
-    let pr = splitNameSurname(row[femPrCol]);
-    let sc = splitNameSurname(row[femScCol]);
+    let g1, g2, g3, kg, pr, sc;
+    if (isSeparateCols) {
+      g1 = [String(row[2] || '').trim(), String(row[3] || '').trim()];
+      g2 = [String(row[4] || '').trim(), String(row[5] || '').trim()];
+      g3 = [String(row[6] || '').trim(), String(row[7] || '').trim()];
+      kg = [String(row[8] || '').trim(), String(row[9] || '').trim()];
+      pr = [String(row[10] || '').trim(), String(row[11] || '').trim()];
+      sc = [String(row[12] || '').trim(), String(row[13] || '').trim()];
+    } else {
+      g1 = splitNameSurname(row[maleG1Col]);
+      g2 = splitNameSurname(row[maleG2Col]);
+      g3 = splitNameSurname(row[maleG3Col]);
+      kg = splitNameSurname(row[femKgCol]);
+      pr = splitNameSurname(row[femPrCol]);
+      sc = splitNameSurname(row[femScCol]);
+    }
 
     const hasFemale = (kg[0] || pr[0] || sc[0]);
     const femaleObj = hasFemale ? { kg, pr, sc } : null;
