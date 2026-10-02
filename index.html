@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=v58">
+  <link rel="stylesheet" href="style.css?v=v59">
   <script>
     // Apply saved theme immediately to prevent FOUC (Flash of Unstyled Color theme)
     (function() {
@@ -208,7 +208,8 @@
             <span class="cal-month-icon">📅</span>
             <h2 id="calMonthHeader">ตารางเวรประจำเดือน</h2>
             <select id="calMonthSelect" class="lic-input" style="width:auto; padding:4px 10px; font-size:12.5px; font-weight:700; border-radius:18px; margin-left:6px;" onchange="handleViewMonthChange(this)" title="สลับดูตารางเวรประจำเดือน">
-              <option value="9-2026">กันยายน ๒๕๖๙ (ปัจจุบัน)</option>
+              <option value="10-2026">ตุลาคม ๒๕๖๙ (ปัจจุบัน)</option>
+              <option value="9-2026">กันยายน ๒๕๖๙</option>
               <option value="8-2026">สิงหาคม ๒๕๖๙</option>
             </select>
           </div>
@@ -236,7 +237,8 @@
           <div style="display:inline-flex; align-items:center; gap:6px; flex-shrink:0;">
             <label for="viewMonthSelect" style="font-size:12.5px; font-weight:700; color:var(--text2); white-space:nowrap;">📆 ตารางเดือน:</label>
             <select id="viewMonthSelect" class="lic-input" style="width:auto; padding:5px 12px; font-size:12.5px; font-weight:700; border-radius:18px;" onchange="handleViewMonthChange(this)" title="สลับดูตารางเวรประจำเดือน">
-              <option value="9-2026">กันยายน ๒๕๖๙ (ปัจจุบัน)</option>
+              <option value="10-2026">ตุลาคม ๒๕๖๙ (ปัจจุบัน)</option>
+              <option value="9-2026">กันยายน ๒๕๖๙</option>
               <option value="8-2026">สิงหาคม ๒๕๖๙</option>
             </select>
           </div>
@@ -580,7 +582,8 @@
           <div class="lic-field">
             <label class="lic-label" style="font-size:12.5px; font-weight:700; margin-bottom:4px;">📆 เลือกเดือน/ปี ประจำตารางเวร:</label>
             <select id="importMonthSelect" class="lic-input" style="font-weight:700;" onchange="handleMonthSelectChange(this)">
-              <option value="9-2026">กันยายน ๒๕๖๙ (ปัจจุบัน)</option>
+              <option value="10-2026">ตุลาคม ๒๕๖๙ (ปัจจุบัน)</option>
+              <option value="9-2026">กันยายน ๒๕๖๙</option>
               <option value="8-2026">สิงหาคม ๒๕๖๙</option>
             </select>
           </div>
@@ -790,16 +793,16 @@
 
   <!-- Supabase JS SDK & Cloud Database Sync -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js?v=v58"></script>
-  <script src="script.js?v=v58"></script>
+  <script src="supabase-config.js?v=v59"></script>
+  <script src="script.js?v=v59"></script>
   <!-- Register PWA Service Worker with Auto Update & Reload -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=v58')
+        navigator.serviceWorker.register('./sw.js?v=v59')
           .then(reg => {
             reg.update();
-            console.log('📱 PWA Service Worker Registered & Updated v58:', reg.scope);
+            console.log('📱 PWA Service Worker Registered & Updated v59:', reg.scope);
           })
           .catch(err => console.log('⚠️ Service Worker Error:', err));
 

@@ -283,6 +283,40 @@ const SCHEDULE_SEPTEMBER_2026 = [
   { day: 30, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายสุรินทร์', 'เพชรแท้'], g2: ['นายเฉลิมชัย', 'เทียบพิมพ์'], g3: ['นายสุเมต', 'เอี่ยมมาตร'] }, female: null }
 ];
 
+const SCHEDULE_OCTOBER_2026 = [
+  { day: 1, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายวรเวทย์', 'อินคง'], g2: ['นายเฉลิม', 'เหล่าชลิตกุล'], g3: ['นายพิชาวัจน์', 'เกิดเรืองสิน'] }, female: null },
+  { day: 2, dayName: 'ศุกร์', isWeekend: false, isHoliday: false, male: { g1: ['นายสมพร', 'สีจีน'], g2: ['นายสุริยา', 'กิตติกลาง'], g3: ['นายปราโมทย์', 'ศรีสดใส'] }, female: null },
+  { day: 3, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายนันทกา', 'เสาวรส'], g2: ['นายณัฐพล', 'เพ็ญชอบ'], g3: ['นายประสิทธิ์', 'กิตติกลาง'] }, female: { kg: ['นางจรีรัตน์', 'บุญมา'], pr: ['น.ส.นิภาพร', 'นิยมไทย'], sc: ['นางศรีสุดา', 'เย็นคงคา'] } },
+  { day: 4, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายนิมิต', 'พิศงาม'], g2: ['นายเฉลิมชัย', 'เทียบพิมพ์'], g3: ['นายสมมัคร', 'กองน้ำ'] }, female: { kg: ['น.ส.สุวิมล', 'พัฒนะ'], pr: ['น.ส.สมจิตต์', 'รอดอยู่'], sc: ['นางชมพูนุช', 'แสงมะลิ'] } },
+  { day: 5, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายขนัด', 'ไม่พรั่นใจ'], g2: ['นายจักกฤษ', 'เลี่ยมจ้อย'], g3: ['นายสันติ', 'หมู่คำ'] }, female: null },
+  { day: 6, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายแกม', 'โสนาพูน'], g2: ['นายอานนท์', 'เลี่ยมจ้อย'], g3: ['นายประเสริฐ', 'เงินเก่า'] }, female: null },
+  { day: 7, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายอัษฎางค์', 'สังเกตุกิจ'], g2: ['นายสุเมธ', 'ผ่อสุขสวัสดิ์'], g3: ['นายสัมพันธ์', 'ชาติทอง'] }, female: null },
+  { day: 8, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายสหรัฐ', 'มาผาสุข'], g2: ['นายนรินทร์', 'เกตุชิต'], g3: ['นายสวิท', 'ยวงทอง'] }, female: null },
+  { day: 9, dayName: 'ศุกร์', isWeekend: false, isHoliday: false, male: { g1: ['นายจินฑาทิพย์', 'สว่างเมฆ'], g2: ['นายสุรเชษฐ์', 'ศรีขำ'], g3: ['นายธารา', 'ก้อนนาค'] }, female: null },
+  { day: 10, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายสมบัติ', 'เกิดปั้น'], g2: ['นายวิรัตน์', 'สุขจำลอง'], g3: ['นายสมพร', 'แฝงคด'] }, female: { kg: ['น.ส.บรรจง', 'สีธุรี'], pr: ['น.ส.ฉะลอย', 'ชาตรียินดี'], sc: ['น.ส.พรพิมล', 'ไชยสถาน'] } },
+  { day: 11, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายอดิเรก', 'จันทร์โฮ้วมณี'], g2: ['นายพุฒิพงศ์', 'แจ้งศรี'], g3: ['นายนิยุต', 'ยิ่งยงกิจ'] }, female: { kg: ['น.ส.ทิพยวรรณ', 'ผ่องโสภณ'], pr: ['นางสายัน', 'อรรถกิจไพบูลย์'], sc: ['นางประนอม', 'ดุษฎีพฤฒิพันธุ์'] } },
+  { day: 12, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายธงชัย', 'เจียมสง่า'], g2: ['นายสมชาย', 'ผ่องจำปา'], g3: ['นายกิตติศักดิ์', 'เกิดแก่นแก้ว'] }, female: null },
+  { day: 13, dayName: 'อังคาร', isWeekend: false, isHoliday: true, male: { g1: ['นายจุมพล', 'ดุษฎีพฤฒิพันธุ์'], g2: ['นายสุชานนท์', 'สิงห์สุพรรณ'], g3: ['นายสุเมต', 'เอี่ยมมาตร'] }, female: { kg: ['น.ส.สุภัคกาญจน์', 'สุ่นศรี'], pr: ['น.ส.เสาวลักษณ์', 'แข็งขัน'], sc: ['น.ส.อรอุมา', 'ศรีทอง'] } },
+  { day: 14, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายมนตรี', 'สุพะลัม'], g2: ['นายเฉลิม', 'เหล่าชลิตกุล'], g3: ['นายปราโมทย์', 'ศรีสดใส'] }, female: null },
+  { day: 15, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายกิตติภูมิ', 'คงจันทร์'], g2: ['นายสุริยา', 'กิตติกลาง'], g3: ['นายกรกฎ', 'เย็นคงคา'] }, female: null },
+  { day: 16, dayName: 'ศุกร์', isWeekend: false, isHoliday: true, male: { g1: ['นายสุรินทร์', 'เพชรแท้'], g2: ['นายวิรัตน์', 'สุขจำลอง'], g3: ['นายธารา', 'ก้อนนาค'] }, female: { kg: ['น.ส.ณิชกานต์', 'แจ่มใส'], pr: ['น.ส.สงกรานต์', 'สีธุรี'], sc: ['นางจินดา', 'แฝงคด'] } },
+  { day: 17, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายวรเวทย์', 'อินคง'], g2: ['นายสุชานนท์', 'สิงห์สุพรรณ'], g3: ['นายสมมัคร', 'กองน้ำ'] }, female: { kg: ['น.ส.อรพรรณ', 'บุญชู'], pr: ['น.ส.พัชรา', 'อ่วมทร'], sc: ['น.ส.นภาพร', 'เรืองยศ'] } },
+  { day: 18, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายสมพร', 'สีจีน'], g2: ['นายจักกฤษ', 'เลี่ยมจ้อย'], g3: ['นายสันติ', 'หมู่คำ'] }, female: { kg: ['น.ส.จันทร์ภรณ์', 'ธนธีรภาพ'], pr: ['น.ส.เปิ่น', 'เลี่ยมจ้อย'], sc: ['นางปรารถนา', 'สุพรรณเมือง'] } },
+  { day: 19, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายนันทกา', 'เสาวรส'], g2: ['นายอานนท์', 'เลี่ยมจ้อย'], g3: ['นายประเสริฐ', 'เงินเก่า'] }, female: null },
+  { day: 20, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายนิมิต', 'พิศงาม'], g2: ['นายสุเมธ', 'ผ่อสุขสวัสดิ์'], g3: ['นายสัมพันธ์', 'ชาติทอง'] }, female: null },
+  { day: 21, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายขนัด', 'ไม่พรั่นใจ'], g2: ['นายนรินทร์', 'เกตุชิต'], g3: ['นายสวิท', 'ยวงทอง'] }, female: null },
+  { day: 22, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายแกม', 'โสนาพูน'], g2: ['นายสุรเชษฐ์', 'ศรีขำ'], g3: ['นายประสิทธิ์', 'กิตติกลาง'] }, female: null },
+  { day: 23, dayName: 'ศุกร์', isWeekend: false, isHoliday: true, male: { g1: ['นายอัษฎางค์', 'สังเกตุกิจ'], g2: ['นายณัฐพล', 'เพ็ญชอบ'], g3: ['นายสมพร', 'แฝงคด'] }, female: { kg: ['น.ส.ปริศนา', 'จินดาศรี'], pr: ['น.ส.เสาวรส', 'สกุลนุ่ม'], sc: ['น.ส.วิภา', 'พูลศรี'] } },
+  { day: 24, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายสหรัฐ', 'มาผาสุข'], g2: ['นายพุฒิพงศ์', 'แจ้งศรี'], g3: ['นายนิยุต', 'ยิ่งยงกิจ'] }, female: { kg: ['น.ส.ดวงใจ', 'บัวจันทร์'], pr: ['น.ส.ตติยาพร', 'โชคเจริญ'], sc: ['นางหฤทัย', 'เพราะทอง'] } },
+  { day: 25, dayName: 'อาทิตย์', isWeekend: true, isHoliday: false, male: { g1: ['นายจินฑาทิพย์', 'สว่างเมฆ'], g2: ['นายสมชาย', 'ผ่องจำปา'], g3: ['นายกิตติศักดิ์', 'เกิดแก่นแก้ว'] }, female: { kg: ['น.ส.ณศิภัสร์', 'ไกรฐิติเกียรติ'], pr: ['น.ส.วิชุดา', 'ชูผลา'], sc: ['น.ส.บุญทาน', 'จูมดอก'] } },
+  { day: 26, dayName: 'จันทร์', isWeekend: false, isHoliday: false, male: { g1: ['นายสมบัติ', 'เกิดปั้น'], g2: ['นายเฉลิมชัย', 'เทียบพิมพ์'], g3: ['นายสุเมต', 'เอี่ยมมาตร'] }, female: null },
+  { day: 27, dayName: 'อังคาร', isWeekend: false, isHoliday: false, male: { g1: ['นายอดิเรก', 'จันทร์โฮ้วมณี'], g2: ['นายเฉลิม', 'เหล่าชลิตกุล'], g3: ['นายปราโมทย์', 'ศรีสดใส'] }, female: null },
+  { day: 28, dayName: 'พุธ', isWeekend: false, isHoliday: false, male: { g1: ['นายธงชัย', 'เจียมสง่า'], g2: ['นายสุริยา', 'กิตติกลาง'], g3: ['นายกรกฎ', 'เย็นคงคา'] }, female: null },
+  { day: 29, dayName: 'พฤหัสบดี', isWeekend: false, isHoliday: false, male: { g1: ['นายจุมพล', 'ดุษฎีพฤฒิพันธุ์'], g2: ['นายวิรัตน์', 'สุขจำลอง'], g3: ['นายพิชาวัจน์', 'เกิดเรืองสิน'] }, female: null },
+  { day: 30, dayName: 'ศุกร์', isWeekend: false, isHoliday: false, male: { g1: ['นายมนตรี', 'สุพะลัม'], g2: ['นายสุชานนท์', 'สิงห์สุพรรณ'], g3: ['นายสมมัคร', 'กองน้ำ'] }, female: null },
+  { day: 31, dayName: 'เสาร์', isWeekend: true, isHoliday: false, male: { g1: ['นายกิตติภูมิ', 'คงจันทร์'], g2: ['นายจักกฤษ', 'เลี่ยมจ้อย'], g3: ['นายสันติ', 'หมู่คำ'] }, female: { kg: ['น.ส.อรัญญา', 'สุดแสง'], pr: ['น.ส.ไพริน', 'จันทวงษ์'], sc: ['นางเกษร', 'ชัชวาลย์'] } },
+];
+
 const SCHEDULE = [];
 
 /* =============================================
@@ -290,7 +324,7 @@ const SCHEDULE = [];
    ============================================= */
 const _initialNow = new Date();
 let SCHED_YEAR  = 2026;
-let SCHED_MONTH = 8; // 0-indexed: 7=August, 8=September (Default to September 2026)
+let SCHED_MONTH = 9; // 0-indexed: 7=August, 8=September, 9=October (Default to October 2026)
 const THAI_YEAR   = SCHED_YEAR + 543;
 
 const THAI_FULL_MONTHS = [
@@ -318,8 +352,8 @@ function initActiveMonthSchedule() {
     }
   } catch (e) {}
 
-  // Default target month is always September 2026 (index 8 = กันยายน ๒๕๖๙)
-  let targetMonth = 8;
+  // Default target month is October 2026 (index 9 = ตุลาคม ๒๕๖๙)
+  let targetMonth = 9;
   let targetYear  = 2026;
 
   // 1. Session storage (user explicitly selected month during current browsing session)
@@ -369,7 +403,11 @@ function initActiveMonthSchedule() {
   }
 
   if (SCHEDULE.length === 0) {
-    if (targetMonth === 8 && targetYear === 2026 && typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
+    if (targetMonth === 9 && targetYear === 2026 && typeof SCHEDULE_OCTOBER_2026 !== 'undefined') {
+      SCHEDULE_OCTOBER_2026.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = 9;
+      SCHED_YEAR = 2026;
+    } else if (targetMonth === 8 && targetYear === 2026 && typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
       SCHEDULE_SEPTEMBER_2026.forEach(item => SCHEDULE.push(item));
       SCHED_MONTH = 8;
       SCHED_YEAR = 2026;
@@ -377,18 +415,13 @@ function initActiveMonthSchedule() {
       SCHEDULE_AUGUST_2026.forEach(item => SCHEDULE.push(item));
       SCHED_MONTH = 7;
       SCHED_YEAR = 2026;
-    } else if (curMonth === 8 && curYear === 2026 && typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
-      SCHEDULE_SEPTEMBER_2026.forEach(item => SCHEDULE.push(item));
-      SCHED_MONTH = 8;
+    } else if (typeof SCHEDULE_OCTOBER_2026 !== 'undefined') {
+      SCHEDULE_OCTOBER_2026.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = 9;
       SCHED_YEAR = 2026;
     } else if (typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
-      // Default to current preloaded schedule (September 2026)
       SCHEDULE_SEPTEMBER_2026.forEach(item => SCHEDULE.push(item));
       SCHED_MONTH = 8;
-      SCHED_YEAR = 2026;
-    } else if (typeof SCHEDULE_AUGUST_2026 !== 'undefined') {
-      SCHEDULE_AUGUST_2026.forEach(item => SCHEDULE.push(item));
-      SCHED_MONTH = 7;
       SCHED_YEAR = 2026;
     }
   }
@@ -420,7 +453,11 @@ function switchScheduleMonth(targetMonth, targetYear) {
   }
 
   if (SCHEDULE.length === 0) {
-    if (targetMonth === 8 && targetYear === 2026 && typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
+    if (targetMonth === 9 && targetYear === 2026 && typeof SCHEDULE_OCTOBER_2026 !== 'undefined') {
+      SCHEDULE_OCTOBER_2026.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = 9;
+      SCHED_YEAR = 2026;
+    } else if (targetMonth === 8 && targetYear === 2026 && typeof SCHEDULE_SEPTEMBER_2026 !== 'undefined') {
       SCHEDULE_SEPTEMBER_2026.forEach(item => SCHEDULE.push(item));
       SCHED_MONTH = 8;
       SCHED_YEAR = 2026;
@@ -2716,6 +2753,13 @@ function applyImportedSchedule() {
       const parsed = JSON.parse(savedCustom);
       SCHEDULE.length = 0;
       parsed.forEach(item => SCHEDULE.push(item));
+      SCHED_MONTH = targetMonth;
+      SCHED_YEAR = targetYear;
+      localStorage.setItem('active_schedule_month', val);
+      alert(`🔄 สลับแสดงตารางเวรประจำเดือน "${THAI_FULL_MONTHS[targetMonth]} ${targetYear + 543}" เรียบร้อยแล้ว!`);
+    } else if (targetMonth === 9 && targetYear === 2026 && typeof SCHEDULE_OCTOBER_2026 !== 'undefined') {
+      SCHEDULE.length = 0;
+      SCHEDULE_OCTOBER_2026.forEach(item => SCHEDULE.push(item));
       SCHED_MONTH = targetMonth;
       SCHED_YEAR = targetYear;
       localStorage.setItem('active_schedule_month', val);
