@@ -1,4 +1,7 @@
 *.bak
 *.zip
 _backups/
+__pycache__/
+*.py
+*.png
 
